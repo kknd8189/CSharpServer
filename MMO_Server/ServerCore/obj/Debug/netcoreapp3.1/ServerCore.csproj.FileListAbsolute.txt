@@ -1,0 +1,18 @@
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\ServerCore\bin\Debug\netcoreapp3.1\ServerCore.deps.json
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\ServerCore\bin\Debug\netcoreapp3.1\ServerCore.dll
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\ServerCore\bin\Debug\netcoreapp3.1\ServerCore.pdb
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\ServerCore\obj\Debug\netcoreapp3.1\ServerCore.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\ServerCore\obj\Debug\netcoreapp3.1\ServerCore.AssemblyInfoInputs.cache
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\ServerCore\obj\Debug\netcoreapp3.1\ServerCore.AssemblyInfo.cs
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\ServerCore\obj\Debug\netcoreapp3.1\ServerCore.csproj.CoreCompileInputs.cache
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\ServerCore\obj\Debug\netcoreapp3.1\ServerCore.dll
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\ServerCore\obj\Debug\netcoreapp3.1\ServerCore.pdb
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\ServerCore\bin\Debug\netcoreapp3.1\ServerCore.deps.json
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\ServerCore\bin\Debug\netcoreapp3.1\ServerCore.dll
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\ServerCore\bin\Debug\netcoreapp3.1\ServerCore.pdb
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\ServerCore\obj\Debug\netcoreapp3.1\ServerCore.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\ServerCore\obj\Debug\netcoreapp3.1\ServerCore.AssemblyInfoInputs.cache
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\ServerCore\obj\Debug\netcoreapp3.1\ServerCore.AssemblyInfo.cs
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\ServerCore\obj\Debug\netcoreapp3.1\ServerCore.csproj.CoreCompileInputs.cache
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\ServerCore\obj\Debug\netcoreapp3.1\ServerCore.dll
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\ServerCore\obj\Debug\netcoreapp3.1\ServerCore.pdb

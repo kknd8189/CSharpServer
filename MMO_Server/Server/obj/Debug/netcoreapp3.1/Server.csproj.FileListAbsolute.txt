@@ -1,0 +1,34 @@
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\Server\bin\Debug\netcoreapp3.1\Server.exe
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\Server\bin\Debug\netcoreapp3.1\Server.deps.json
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\Server\bin\Debug\netcoreapp3.1\Server.runtimeconfig.json
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\Server\bin\Debug\netcoreapp3.1\Server.runtimeconfig.dev.json
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\Server\bin\Debug\netcoreapp3.1\Server.dll
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\Server\bin\Debug\netcoreapp3.1\Server.pdb
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\Server\bin\Debug\netcoreapp3.1\ServerCore.dll
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\Server\bin\Debug\netcoreapp3.1\ServerCore.pdb
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\Server\obj\Debug\netcoreapp3.1\Server.csproj.AssemblyReference.cache
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\Server\obj\Debug\netcoreapp3.1\Server.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\Server\obj\Debug\netcoreapp3.1\Server.AssemblyInfoInputs.cache
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\Server\obj\Debug\netcoreapp3.1\Server.AssemblyInfo.cs
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\Server\obj\Debug\netcoreapp3.1\Server.csproj.CoreCompileInputs.cache
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\Server\obj\Debug\netcoreapp3.1\Server.csproj.Up2Date
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\Server\obj\Debug\netcoreapp3.1\Server.dll
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\Server\obj\Debug\netcoreapp3.1\Server.pdb
+C:\Users\ehehd\Desktop\Server Programming\C# Server Lecture\JobTimer\MMO_Server\Server\obj\Debug\netcoreapp3.1\Server.genruntimeconfig.cache
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\Server\bin\Debug\netcoreapp3.1\Server.exe
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\Server\bin\Debug\netcoreapp3.1\Server.deps.json
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\Server\bin\Debug\netcoreapp3.1\Server.runtimeconfig.json
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\Server\bin\Debug\netcoreapp3.1\Server.runtimeconfig.dev.json
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\Server\bin\Debug\netcoreapp3.1\Server.dll
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\Server\bin\Debug\netcoreapp3.1\Server.pdb
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\Server\bin\Debug\netcoreapp3.1\ServerCore.dll
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\Server\bin\Debug\netcoreapp3.1\ServerCore.pdb
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\Server\obj\Debug\netcoreapp3.1\Server.csproj.AssemblyReference.cache
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\Server\obj\Debug\netcoreapp3.1\Server.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\Server\obj\Debug\netcoreapp3.1\Server.AssemblyInfoInputs.cache
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\Server\obj\Debug\netcoreapp3.1\Server.AssemblyInfo.cs
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\Server\obj\Debug\netcoreapp3.1\Server.csproj.CoreCompileInputs.cache
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\Server\obj\Debug\netcoreapp3.1\Server.csproj.Up2Date
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\Server\obj\Debug\netcoreapp3.1\Server.dll
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\Server\obj\Debug\netcoreapp3.1\Server.pdb
+C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\Server\obj\Debug\netcoreapp3.1\Server.genruntimeconfig.cache
