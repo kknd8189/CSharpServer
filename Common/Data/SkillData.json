@@ -1,0 +1,30 @@
+{
+  "skills": [
+    {
+      "id": 101,
+      "name": "Fireball",
+      "cooldown": 3.5,
+      "damage": 120,
+      "skillType": 1,
+      "projectile": {
+        "name": "FireballProjectile",
+        "speed": 6.0,
+        "range": 15,
+        "prefab": "Prefabs/Projectiles/Fireball"
+      }
+    },
+    {
+      "id": 102,
+      "name": "Ice Arrow",
+      "cooldown": 2.0,
+      "damage": 80,
+      "skillType": 2,
+      "projectile": {
+        "name": "IceArrowProjectile",
+        "speed": 8.5,
+        "range": 20,
+        "prefab": "Prefabs/Projectiles/IceArrow"
+      }
+    }
+  ]
+}

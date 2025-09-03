@@ -17,10 +17,8 @@ namespace ServerCore
 			_heap.Add(data);
 
 			int now = _heap.Count - 1;
-			// 도장깨기를 시작
 			while (now > 0)
 			{
-				// 도장깨기를 시도
 				int next = (now - 1) / 2;
 				if (_heap[now].CompareTo(_heap[next]) < 0)
 					break; // 실패
@@ -35,7 +33,6 @@ namespace ServerCore
 			}
 		}
 
-		// O(logN)
 		public T Pop()
 		{
 			// 반환할 데이터를 따로 저장
@@ -47,7 +44,6 @@ namespace ServerCore
 			_heap.RemoveAt(lastIndex);
 			lastIndex--;
 
-			// 역으로 내려가는 도장깨기 시작
 			int now = 0;
 			while (true)
 			{

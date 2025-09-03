@@ -1,6 +1,6 @@
 is_global = true
 build_property.RootNamespace = Server
-build_property.ProjectDir = C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\Server\
+build_property.ProjectDir = C:\Users\ehehd\Desktop\서버+선택창_소스코드\Server\Server\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.CsWinRTUseWindowsUIXamlProjections = false

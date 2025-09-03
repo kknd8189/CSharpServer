@@ -1,0 +1,50 @@
+{
+  "weapons": [
+    {
+      "id": 1,
+      "name": "Iron Sword",
+      "itemType": 1,
+      "weaponType": 1,
+      "damage": 15
+    },
+    {
+      "id": 2,
+      "name": "Long Bow",
+      "itemType": 1,
+      "weaponType": 2,
+      "damage": 12
+    }
+  ],
+  "armors": [
+    {
+      "id": 3,
+      "name": "Leather Helmet",
+      "itemType": 2,
+      "armorType": 1,
+      "defence": 3
+    },
+    {
+      "id": 4,
+      "name": "Steel Armor",
+      "itemType": 2,
+      "armorType": 2,
+      "defence": 8
+    }
+  ],
+  "consumables": [
+    {
+      "id": 5,
+      "name": "Health Potion",
+      "itemType": 3,
+      "consumableType": 1,
+      "maxCount": 10
+    },
+    {
+      "id": 6,
+      "name": "Mana Potion",
+      "itemType": 3,
+      "consumableType": 1,
+      "maxCount": 5
+    }
+  ]
+}

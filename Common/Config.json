@@ -1,0 +1,4 @@
+{
+  "DataPath": "../../../../../Common/Data",
+  "connectionString" : "Server=localhost;Port=3306;Database=logindb;User=DY;Password=asehddud12;"
+}
