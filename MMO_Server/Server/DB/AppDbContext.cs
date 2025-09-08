@@ -15,7 +15,7 @@ namespace Server.DB
 
 		static readonly ILoggerFactory _logger = LoggerFactory.Create(builder => { builder.AddConsole(); });
 
-		string _connectionString = @"Server=localhost;Port=3306;Database=ServerDB;User=DY;Password=asehddud12;";
+		string _connectionString = @"Server=localhost;Port=3306;Database=GameDb;User=DY;Password=3306;";
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
