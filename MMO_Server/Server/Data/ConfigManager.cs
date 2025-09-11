@@ -10,9 +10,11 @@ namespace Server.Data
 	{
 		public string dataPath;
 		public string connectionString;
-	}
+		public string worldName;
+		public int port;
+    }
 
-	public class ConfigManager
+    public class ConfigManager
 	{
 		public static ServerConfig Config { get; private set; }
 

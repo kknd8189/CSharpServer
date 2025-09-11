@@ -1,20 +1,25 @@
-{ 
-   "stats": [
-  {
-    "level": 1,
-    "hp": 100,
-    "maxHp": 100,
-    "attack": 15,
-    "speed": 3.5,
-    "totalExp": 0
-  },
-  {
-    "level": 5,
-    "hp": 320,
-    "maxHp": 400,
-    "attack": 45,
-    "speed": 4.2,
-    "totalExp": 1200
-  }
-]
-}
+{
+  "stats": [
+    {
+      "level": "1",
+      "maxHp": "200",
+        "attack": "20",
+        "speed":  "10.0",
+      "totalExp": "0"
+    },
+    {
+        "level": "2",
+        "maxHp": "250",
+        "attack": "25",
+        "speed": "10.0",
+        "totalExp": "10"
+    },
+    {
+        "level": "3",
+        "maxHp": "300",
+        "attack": "30",
+        "speed": "10.0",
+        "totalExp": "20"
+    }
+  ]
+} 

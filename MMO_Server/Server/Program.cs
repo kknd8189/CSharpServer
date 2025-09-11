@@ -25,7 +25,11 @@ namespace Server
 	{
 		static Listener _listener = new Listener();
 
-		static void GameLogicTask()
+        public static string Name { get; set; }
+        public static int Port { get; set; }
+        public static string IpAddress { get; set; }
+
+        static void GameLogicTask()
 		{
 			while (true)
 			{
@@ -59,7 +63,7 @@ namespace Server
 
 		static void StartServerInfoTask()
 		{
-			var t = new System.Timers.Timer();
+			System.Timers.Timer t = new System.Timers.Timer();
 			t.AutoReset = true;
 			t.Elapsed += new System.Timers.ElapsedEventHandler((s, e) =>
 			{
@@ -91,27 +95,36 @@ namespace Server
 			t.Start();
 		}
 
-		public static string Name { get; } = "World1";
-		public static int Port { get; } = 7777;
-		public static string IpAddress { get; set; }
+		static IPEndPoint SetDNSInfoTask()
+		{
+            // DNS
+            string host = Dns.GetHostName();
+            IPHostEntry ipHost = Dns.GetHostEntry(host);
+            IPAddress ipAddr = ipHost.AddressList[1];
+            IPEndPoint endPoint = new IPEndPoint(ipAddr, Port);
+            IpAddress = ipAddr.ToString();
+
+            return endPoint;
+        }
 
 		static void Main(string[] args)
 		{
+			//함수 순서 주의
 			ConfigManager.LoadConfig();
 			DataManager.LoadData();
 
 			GameLogic.Instance.Push(() => { GameLogic.Instance.Add(1); });
 
-			// DNS
-			string host = Dns.GetHostName();
-			IPHostEntry ipHost = Dns.GetHostEntry(host);
-			IPAddress ipAddr = ipHost.AddressList[1];
-			IPEndPoint endPoint = new IPEndPoint(ipAddr, Port);
+			Name = ConfigManager.Config.worldName;
+			Port = ConfigManager.Config.port;
 
-			IpAddress = ipAddr.ToString();
+			_listener.Init( SetDNSInfoTask(), () => { return SessionManager.Instance.Generate(); });
 
-			_listener.Init(endPoint, () => { return SessionManager.Instance.Generate(); });
-			Console.WriteLine("Listening...");
+			Console.WriteLine( $"ServerInfo\n" 
+				+ $"WorldName : {Program.Name}\n" 
+				+ $"Port : {Program.Port}\n"
+				+ $"IpAddress : {Program.IpAddress}\n"
+				+ "Listening...");
 
 			StartServerInfoTask();
 
