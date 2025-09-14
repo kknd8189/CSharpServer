@@ -3,44 +3,36 @@
   "WorkspaceRootPath": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{225DE72F-27CC-45B4-B0F0-F8F08A7328A2}|ServerCore\\ServerCore.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\servercore\\connector.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{225DE72F-27CC-45B4-B0F0-F8F08A7328A2}|ServerCore\\ServerCore.csproj|solutionrelative:servercore\\connector.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\game\\room\\gameroom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\game\\room\\gameroom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{225DE72F-27CC-45B4-B0F0-F8F08A7328A2}|ServerCore\\ServerCore.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\servercore\\priorityqueue.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{225DE72F-27CC-45B4-B0F0-F8F08A7328A2}|ServerCore\\ServerCore.csproj|solutionrelative:servercore\\priorityqueue.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\game\\room\\gameroom_battle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\game\\room\\gameroom_battle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{225DE72F-27CC-45B4-B0F0-F8F08A7328A2}|ServerCore\\ServerCore.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\servercore\\recvbuffer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{225DE72F-27CC-45B4-B0F0-F8F08A7328A2}|ServerCore\\ServerCore.csproj|solutionrelative:servercore\\recvbuffer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\game\\room\\gameroom_item.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\game\\room\\gameroom_item.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FE3E59C4-78F8-406F-8402-CD7D1C890AA4}|SharedDB\\SharedDB.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\shareddb\\shareddbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FE3E59C4-78F8-406F-8402-CD7D1C890AA4}|SharedDB\\SharedDB.csproj|solutionrelative:shareddb\\shareddbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\game\\room\\map.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\game\\room\\map.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\game\\object\\monster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\game\\object\\monster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\game\\room\\visioncube.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\game\\room\\visioncube.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\game\\object\\gameobject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\game\\object\\gameobject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\game\\object\\arrow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\game\\object\\arrow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\migrations\\20250905093401_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\migrations\\20250905093401_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\game\\room\\zone.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\game\\room\\zone.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\migrations\\appdbcontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\migrations\\appdbcontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\packet\\packethandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\packet\\packethandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\migrations\\20250905093401_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\migrations\\20250905093401_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\packet\\serverpacketmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -51,8 +43,16 @@
       "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\packet\\protocol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\session\\clientsession_pregame.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\session\\clientsession_pregame.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\packet\\packethandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\packet\\packethandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\utils\\extensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\utils\\extensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\session\\sessionmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -63,6 +63,78 @@
       "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\session\\clientsession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\game\\object\\objectmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\game\\object\\objectmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\session\\clientsession_pregame.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\session\\clientsession_pregame.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\game\\object\\player.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\game\\object\\player.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\game\\object\\projectile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\game\\object\\projectile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\game\\room\\gamelogic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\game\\room\\gamelogic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C4DE5EF1-EC5A-4E7A-9E6E-DF9ED25DE653}|DummyClient\\DummyClient.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\dummyclient\\session\\sessionmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C4DE5EF1-EC5A-4E7A-9E6E-DF9ED25DE653}|DummyClient\\DummyClient.csproj|solutionrelative:dummyclient\\session\\sessionmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C4DE5EF1-EC5A-4E7A-9E6E-DF9ED25DE653}|DummyClient\\DummyClient.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\dummyclient\\dummyclient.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{C4DE5EF1-EC5A-4E7A-9E6E-DF9ED25DE653}|DummyClient\\DummyClient.csproj|solutionrelative:dummyclient\\dummyclient.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\game\\job\\jobtimer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\game\\job\\jobtimer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\game\\job\\jobserializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\game\\job\\jobserializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\game\\job\\job.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\game\\job\\job.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\game\\object\\arrow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\game\\object\\arrow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\game\\object\\gameobject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\game\\object\\gameobject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{225DE72F-27CC-45B4-B0F0-F8F08A7328A2}|ServerCore\\ServerCore.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\servercore\\recvbuffer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{225DE72F-27CC-45B4-B0F0-F8F08A7328A2}|ServerCore\\ServerCore.csproj|solutionrelative:servercore\\recvbuffer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{225DE72F-27CC-45B4-B0F0-F8F08A7328A2}|ServerCore\\ServerCore.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\servercore\\priorityqueue.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{225DE72F-27CC-45B4-B0F0-F8F08A7328A2}|ServerCore\\ServerCore.csproj|solutionrelative:servercore\\priorityqueue.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{225DE72F-27CC-45B4-B0F0-F8F08A7328A2}|ServerCore\\ServerCore.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\servercore\\listener.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{225DE72F-27CC-45B4-B0F0-F8F08A7328A2}|ServerCore\\ServerCore.csproj|solutionrelative:servercore\\listener.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{225DE72F-27CC-45B4-B0F0-F8F08A7328A2}|ServerCore\\ServerCore.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\servercore\\connector.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{225DE72F-27CC-45B4-B0F0-F8F08A7328A2}|ServerCore\\ServerCore.csproj|solutionrelative:servercore\\connector.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FE3E59C4-78F8-406F-8402-CD7D1C890AA4}|SharedDB\\SharedDB.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\shareddb\\shareddbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FE3E59C4-78F8-406F-8402-CD7D1C890AA4}|SharedDB\\SharedDB.csproj|solutionrelative:shareddb\\shareddbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\game\\object\\monster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\game\\object\\monster.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{225DE72F-27CC-45B4-B0F0-F8F08A7328A2}|ServerCore\\ServerCore.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\servercore\\session.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{225DE72F-27CC-45B4-B0F0-F8F08A7328A2}|ServerCore\\ServerCore.csproj|solutionrelative:servercore\\session.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -71,16 +143,8 @@
       "RelativeMoniker": "D:0:0:{FE3E59C4-78F8-406F-8402-CD7D1C890AA4}|SharedDB\\SharedDB.csproj|solutionrelative:shareddb\\shareddb.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{225DE72F-27CC-45B4-B0F0-F8F08A7328A2}|ServerCore\\ServerCore.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\servercore\\listener.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{225DE72F-27CC-45B4-B0F0-F8F08A7328A2}|ServerCore\\ServerCore.csproj|solutionrelative:servercore\\listener.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\db\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\db\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\server\\data\\configmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -135,10 +199,6 @@
       "RelativeMoniker": "D:0:0:{ECE354A8-1AEB-4ABA-A3C1-013A029AF560}|Server\\Server.csproj|solutionrelative:server\\data\\data.contents.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C4DE5EF1-EC5A-4E7A-9E6E-DF9ED25DE653}|DummyClient\\DummyClient.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\dummyclient\\dummyclient.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{C4DE5EF1-EC5A-4E7A-9E6E-DF9ED25DE653}|DummyClient\\DummyClient.csproj|solutionrelative:dummyclient\\dummyclient.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{595D979F-ABE3-4784-960B-EF9EDC30684A}|AccountServer\\AccountServer.csproj|c:\\users\\ehehd\\desktop\\github\\csharpserver\\mmo_server\\accountserver\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{595D979F-ABE3-4784-960B-EF9EDC30684A}|AccountServer\\AccountServer.csproj|solutionrelative:accountserver\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -178,11 +238,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 8,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 38,
               "Title": "DataModel.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\AccountServer\\DB\\DataModel.cs",
               "RelativeDocumentMoniker": "AccountServer\\DB\\DataModel.cs",
@@ -195,15 +255,171 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "Monster.cs",
-              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Object\\Monster.cs",
-              "RelativeDocumentMoniker": "Server\\Game\\Object\\Monster.cs",
-              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Object\\Monster.cs",
-              "RelativeToolTip": "Server\\Game\\Object\\Monster.cs",
-              "ViewState": "AgIAAIIAAAAAAAAAAAAwwO8AAAAAAAAAAAAAAA==",
+              "DocumentIndex": 6,
+              "Title": "AppDbContextModelSnapshot.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Migrations\\AppDbContextModelSnapshot.cs",
+              "RelativeDocumentMoniker": "Server\\Migrations\\AppDbContextModelSnapshot.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Migrations\\AppDbContextModelSnapshot.cs",
+              "RelativeToolTip": "Server\\Migrations\\AppDbContextModelSnapshot.cs",
+              "ViewState": "AgIAACIAAAAAAAAAAAAQwBAAAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-08T16:12:00.336Z",
+              "WhenOpened": "2025-09-03T04:34:21.175Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Zone.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Room\\Zone.cs",
+              "RelativeDocumentMoniker": "Server\\Game\\Room\\Zone.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Room\\Zone.cs",
+              "RelativeToolTip": "Server\\Game\\Room\\Zone.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-11T10:13:01.757Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "VisionCube.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Room\\VisionCube.cs",
+              "RelativeDocumentMoniker": "Server\\Game\\Room\\VisionCube.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Room\\VisionCube.cs",
+              "RelativeToolTip": "Server\\Game\\Room\\VisionCube.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-11T10:13:03.118Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "GameRoom_Battle.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Room\\GameRoom_Battle.cs",
+              "RelativeDocumentMoniker": "Server\\Game\\Room\\GameRoom_Battle.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Room\\GameRoom_Battle.cs",
+              "RelativeToolTip": "Server\\Game\\Room\\GameRoom_Battle.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEAAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-11T10:13:25.349Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Map.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Room\\Map.cs",
+              "RelativeDocumentMoniker": "Server\\Game\\Room\\Map.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Room\\Map.cs",
+              "RelativeToolTip": "Server\\Game\\Room\\Map.cs",
+              "ViewState": "AgIAAIsAAAAAAAAAAAAswI8BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-11T10:13:03.631Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "GameRoom_Item.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Room\\GameRoom_Item.cs",
+              "RelativeDocumentMoniker": "Server\\Game\\Room\\GameRoom_Item.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Room\\GameRoom_Item.cs",
+              "RelativeToolTip": "Server\\Game\\Room\\GameRoom_Item.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-11T10:13:24.694Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "GameRoom.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Room\\GameRoom.cs",
+              "RelativeDocumentMoniker": "Server\\Game\\Room\\GameRoom.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Room\\GameRoom.cs",
+              "RelativeToolTip": "Server\\Game\\Room\\GameRoom.cs",
+              "ViewState": "AgIAALwAAAAAAAAAAAAUwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-11T10:13:25.926Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "20250905093401_InitialCreate.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Migrations\\20250905093401_InitialCreate.cs",
+              "RelativeDocumentMoniker": "Server\\Migrations\\20250905093401_InitialCreate.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Migrations\\20250905093401_InitialCreate.cs",
+              "RelativeToolTip": "Server\\Migrations\\20250905093401_InitialCreate.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-08T16:11:47.388Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "ServerPacketManager.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Packet\\ServerPacketManager.cs",
+              "RelativeDocumentMoniker": "Server\\Packet\\ServerPacketManager.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Packet\\ServerPacketManager.cs",
+              "RelativeToolTip": "Server\\Packet\\ServerPacketManager.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABcAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-08T15:40:02.422Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Protocol.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Packet\\Protocol.cs",
+              "RelativeDocumentMoniker": "Server\\Packet\\Protocol.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Packet\\Protocol.cs",
+              "RelativeToolTip": "Server\\Packet\\Protocol.cs",
+              "ViewState": "AgIAAHwAAAAAAAAAAAA4wJcAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-08T16:11:08.735Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "PacketHandler.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Packet\\PacketHandler.cs",
+              "RelativeDocumentMoniker": "Server\\Packet\\PacketHandler.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Packet\\PacketHandler.cs",
+              "RelativeToolTip": "Server\\Packet\\PacketHandler.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-08T15:40:01.362Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Program.cs",
+              "RelativeDocumentMoniker": "Server\\Program.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Program.cs",
+              "RelativeToolTip": "Server\\Program.cs",
+              "ViewState": "AgIAAIAAAAAAAAAAAAAqwFoAAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-08T04:31:37.018Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Extensions.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Utils\\Extensions.cs",
+              "RelativeDocumentMoniker": "Server\\Utils\\Extensions.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Utils\\Extensions.cs",
+              "RelativeToolTip": "Server\\Utils\\Extensions.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAQwCUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-11T10:14:52.694Z",
               "EditorCaption": ""
             },
             {
@@ -214,21 +430,10 @@
               "RelativeDocumentMoniker": "Server\\Session\\SessionManager.cs",
               "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Session\\SessionManager.cs",
               "RelativeToolTip": "Server\\Session\\SessionManager.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAQAAAAAAAAAAADwv0wAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-08T16:11:00.439Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "ClientSession_PreGame.cs",
-              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Session\\ClientSession_PreGame.cs",
-              "RelativeDocumentMoniker": "Server\\Session\\ClientSession_PreGame.cs",
-              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Session\\ClientSession_PreGame.cs",
-              "RelativeToolTip": "Server\\Session\\ClientSession_PreGame.cs",
-              "ViewState": "AgIAAJkAAAAAAAAAAAAowCAAAAAEAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-08T16:10:59.639Z"
+              "WhenOpened": "2025-09-08T16:11:00.439Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -238,13 +443,222 @@
               "RelativeDocumentMoniker": "Server\\Session\\ClientSession.cs",
               "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Session\\ClientSession.cs",
               "RelativeToolTip": "Server\\Session\\ClientSession.cs",
-              "ViewState": "AgIAABMAAAAAAAAAAAAQwBQAAAAkAAAAAAAAAA==",
+              "ViewState": "AgIAADMAAAAAAAAAAAAowGsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-08T16:10:56.751Z"
+              "WhenOpened": "2025-09-08T16:10:56.751Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 15,
+              "Title": "ObjectManager.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Object\\ObjectManager.cs",
+              "RelativeDocumentMoniker": "Server\\Game\\Object\\ObjectManager.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Object\\ObjectManager.cs",
+              "RelativeToolTip": "Server\\Game\\Object\\ObjectManager.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-11T10:13:38.919Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "ClientSession_PreGame.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Session\\ClientSession_PreGame.cs",
+              "RelativeDocumentMoniker": "Server\\Session\\ClientSession_PreGame.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Session\\ClientSession_PreGame.cs",
+              "RelativeToolTip": "Server\\Session\\ClientSession_PreGame.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAANQAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-08T16:10:59.639Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "Player.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Object\\Player.cs",
+              "RelativeDocumentMoniker": "Server\\Game\\Object\\Player.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Object\\Player.cs",
+              "RelativeToolTip": "Server\\Game\\Object\\Player.cs",
+              "ViewState": "AgIAAIUAAAAAAAAAAAAqwHMAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-11T10:13:31.566Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "Projectile.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Object\\Projectile.cs",
+              "RelativeDocumentMoniker": "Server\\Game\\Object\\Projectile.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Object\\Projectile.cs",
+              "RelativeToolTip": "Server\\Game\\Object\\Projectile.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-11T10:13:27.547Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "GameLogic.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Room\\GameLogic.cs",
+              "RelativeDocumentMoniker": "Server\\Game\\Room\\GameLogic.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Room\\GameLogic.cs",
+              "RelativeToolTip": "Server\\Game\\Room\\GameLogic.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-11T10:13:26.775Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "SessionManager.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\DummyClient\\Session\\SessionManager.cs",
+              "RelativeDocumentMoniker": "DummyClient\\Session\\SessionManager.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\DummyClient\\Session\\SessionManager.cs",
+              "RelativeToolTip": "DummyClient\\Session\\SessionManager.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-11T10:14:07.566Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "JobTimer.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Job\\JobTimer.cs",
+              "RelativeDocumentMoniker": "Server\\Game\\Job\\JobTimer.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Job\\JobTimer.cs",
+              "RelativeToolTip": "Server\\Game\\Job\\JobTimer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-11T10:14:01.605Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "JobSerializer.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Job\\JobSerializer.cs",
+              "RelativeDocumentMoniker": "Server\\Game\\Job\\JobSerializer.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Job\\JobSerializer.cs",
+              "RelativeToolTip": "Server\\Game\\Job\\JobSerializer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-11T10:14:00.75Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "Job.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Job\\Job.cs",
+              "RelativeDocumentMoniker": "Server\\Game\\Job\\Job.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Job\\Job.cs",
+              "RelativeToolTip": "Server\\Game\\Job\\Job.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-11T10:13:59.859Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "DummyClient.csproj",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\DummyClient\\DummyClient.csproj",
+              "RelativeDocumentMoniker": "DummyClient\\DummyClient.csproj",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\DummyClient\\DummyClient.csproj",
+              "RelativeToolTip": "DummyClient\\DummyClient.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-09-02T12:01:10.97Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "Arrow.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Object\\Arrow.cs",
+              "RelativeDocumentMoniker": "Server\\Game\\Object\\Arrow.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Object\\Arrow.cs",
+              "RelativeToolTip": "Server\\Game\\Object\\Arrow.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-08T16:11:50.729Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "GameObject.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Object\\GameObject.cs",
+              "RelativeDocumentMoniker": "Server\\Game\\Object\\GameObject.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Object\\GameObject.cs",
+              "RelativeToolTip": "Server\\Game\\Object\\GameObject.cs",
+              "ViewState": "AgIAAFQAAAAAAAAAAAAiwHMAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-08T16:11:59.544Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "RecvBuffer.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\RecvBuffer.cs",
+              "RelativeDocumentMoniker": "ServerCore\\RecvBuffer.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\RecvBuffer.cs",
+              "RelativeToolTip": "ServerCore\\RecvBuffer.cs",
+              "ViewState": "AgIAACkAAAAAAAAAAAAswBMAAABDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-08T14:00:17.588Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "PriorityQueue.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\PriorityQueue.cs",
+              "RelativeDocumentMoniker": "ServerCore\\PriorityQueue.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\PriorityQueue.cs",
+              "RelativeToolTip": "ServerCore\\PriorityQueue.cs",
+              "ViewState": "AgIAAEEAAAAAAAAAAAAgwBgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-08T15:40:18.528Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "Listener.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\Listener.cs",
+              "RelativeDocumentMoniker": "ServerCore\\Listener.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\Listener.cs",
+              "RelativeToolTip": "ServerCore\\Listener.cs",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAYwCcAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-08T15:40:15.576Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 30,
+              "Title": "Connector.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\Connector.cs",
+              "RelativeDocumentMoniker": "ServerCore\\Connector.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\Connector.cs",
+              "RelativeToolTip": "ServerCore\\Connector.cs",
+              "ViewState": "AgIAADUAAAAAAAAAAAAgwD4AAAA0AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-08T15:40:12.175Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 31,
               "Title": "SharedDbContext.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\SharedDB\\SharedDbContext.cs",
               "RelativeDocumentMoniker": "SharedDB\\SharedDbContext.cs",
@@ -257,142 +671,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "RecvBuffer.cs",
-              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\RecvBuffer.cs",
-              "RelativeDocumentMoniker": "ServerCore\\RecvBuffer.cs",
-              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\RecvBuffer.cs",
-              "RelativeToolTip": "ServerCore\\RecvBuffer.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAABDAAAAAAAAAA==",
+              "DocumentIndex": 32,
+              "Title": "Monster.cs",
+              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Object\\Monster.cs",
+              "RelativeDocumentMoniker": "Server\\Game\\Object\\Monster.cs",
+              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Object\\Monster.cs",
+              "RelativeToolTip": "Server\\Game\\Object\\Monster.cs",
+              "ViewState": "AgIAAIIAAAAAAAAAAAAwwO8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-08T14:00:17.588Z",
+              "WhenOpened": "2025-09-08T16:12:00.336Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "PriorityQueue.cs",
-              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\PriorityQueue.cs",
-              "RelativeDocumentMoniker": "ServerCore\\PriorityQueue.cs",
-              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\PriorityQueue.cs",
-              "RelativeToolTip": "ServerCore\\PriorityQueue.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-08T15:40:18.528Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Connector.cs",
-              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\Connector.cs",
-              "RelativeDocumentMoniker": "ServerCore\\Connector.cs",
-              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\Connector.cs",
-              "RelativeToolTip": "ServerCore\\Connector.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAABkAAAAaAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-08T15:40:12.175Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "Protocol.cs",
-              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Packet\\Protocol.cs",
-              "RelativeDocumentMoniker": "Server\\Packet\\Protocol.cs",
-              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Packet\\Protocol.cs",
-              "RelativeToolTip": "Server\\Packet\\Protocol.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAJcAAAApAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-08T16:11:08.735Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "20250905093401_InitialCreate.cs",
-              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Migrations\\20250905093401_InitialCreate.cs",
-              "RelativeDocumentMoniker": "Server\\Migrations\\20250905093401_InitialCreate.cs",
-              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Migrations\\20250905093401_InitialCreate.cs",
-              "RelativeToolTip": "Server\\Migrations\\20250905093401_InitialCreate.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-08T16:11:47.388Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Arrow.cs",
-              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Object\\Arrow.cs",
-              "RelativeDocumentMoniker": "Server\\Game\\Object\\Arrow.cs",
-              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Object\\Arrow.cs",
-              "RelativeToolTip": "Server\\Game\\Object\\Arrow.cs",
-              "ViewState": "AgIAABgAAAAAAAAAAAAYwAcAAAAgAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-08T16:11:50.729Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "GameObject.cs",
-              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Object\\GameObject.cs",
-              "RelativeDocumentMoniker": "Server\\Game\\Object\\GameObject.cs",
-              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Object\\GameObject.cs",
-              "RelativeToolTip": "Server\\Game\\Object\\GameObject.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-08T16:11:59.544Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "ServerPacketManager.cs",
-              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Packet\\ServerPacketManager.cs",
-              "RelativeDocumentMoniker": "Server\\Packet\\ServerPacketManager.cs",
-              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Packet\\ServerPacketManager.cs",
-              "RelativeToolTip": "Server\\Packet\\ServerPacketManager.cs",
-              "ViewState": "AgIAAA0AAAAAAAAAAAAzwAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-08T15:40:02.422Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "PacketHandler.cs",
-              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Packet\\PacketHandler.cs",
-              "RelativeDocumentMoniker": "Server\\Packet\\PacketHandler.cs",
-              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Packet\\PacketHandler.cs",
-              "RelativeToolTip": "Server\\Packet\\PacketHandler.cs",
-              "ViewState": "AgIAAEIAAAAAAAAAAAAowFoAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-08T15:40:01.362Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "AppDbContextModelSnapshot.cs",
-              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Migrations\\AppDbContextModelSnapshot.cs",
-              "RelativeDocumentMoniker": "Server\\Migrations\\AppDbContextModelSnapshot.cs",
-              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Migrations\\AppDbContextModelSnapshot.cs",
-              "RelativeToolTip": "Server\\Migrations\\AppDbContextModelSnapshot.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAYAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-03T04:34:21.175Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 17,
-              "Title": "Listener.cs",
-              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\Listener.cs",
-              "RelativeDocumentMoniker": "ServerCore\\Listener.cs",
-              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\Listener.cs",
-              "RelativeToolTip": "ServerCore\\Listener.cs",
-              "ViewState": "AgIAABwAAAAAAAAAAAAQwBwAAABQAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-08T15:40:15.576Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 33,
               "Title": "Session.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\Session.cs",
               "RelativeDocumentMoniker": "ServerCore\\Session.cs",
@@ -404,19 +696,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Program.cs",
-              "RelativeDocumentMoniker": "Server\\Program.cs",
-              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Program.cs",
-              "RelativeToolTip": "Server\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAAtAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-08T04:31:37.018Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 34,
               "Title": "SharedDB.csproj",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\SharedDB\\SharedDB.csproj",
               "RelativeDocumentMoniker": "SharedDB\\SharedDB.csproj",
@@ -424,11 +704,12 @@
               "RelativeToolTip": "SharedDB\\SharedDB.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-09-01T13:17:44.994Z"
+              "WhenOpened": "2025-09-01T13:17:44.994Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 36,
               "Title": "ConfigManager.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Data\\ConfigManager.cs",
               "RelativeDocumentMoniker": "Server\\Data\\ConfigManager.cs",
@@ -440,7 +721,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 37,
               "Title": "ServerCore.csproj",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\ServerCore.csproj",
               "RelativeDocumentMoniker": "ServerCore\\ServerCore.csproj",
@@ -448,11 +729,12 @@
               "RelativeToolTip": "ServerCore\\ServerCore.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-09-02T11:48:01.227Z"
+              "WhenOpened": "2025-09-02T11:48:01.227Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 39,
               "Title": "Startup.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\AccountServer\\Startup.cs",
               "RelativeDocumentMoniker": "AccountServer\\Startup.cs",
@@ -464,7 +746,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 29,
+              "DocumentIndex": 45,
               "Title": "DbTransaction_Noti.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\DB\\DbTransaction_Noti.cs",
               "RelativeDocumentMoniker": "Server\\DB\\DbTransaction_Noti.cs",
@@ -476,7 +758,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 41,
               "Title": "AppDbContext.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\AccountServer\\DB\\AppDbContext.cs",
               "RelativeDocumentMoniker": "AccountServer\\DB\\AppDbContext.cs",
@@ -488,7 +770,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 35,
               "Title": "AppDbContext.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\DB\\AppDbContext.cs",
               "RelativeDocumentMoniker": "Server\\DB\\AppDbContext.cs",
@@ -500,7 +782,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 40,
               "Title": "DataManager.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Data\\DataManager.cs",
               "RelativeDocumentMoniker": "Server\\Data\\DataManager.cs",
@@ -512,7 +794,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 31,
+              "DocumentIndex": 47,
               "Title": "DataModel.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\DB\\DataModel.cs",
               "RelativeDocumentMoniker": "Server\\DB\\DataModel.cs",
@@ -524,7 +806,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 42,
               "Title": "Server.csproj",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Server.csproj",
               "RelativeDocumentMoniker": "Server\\Server.csproj",
@@ -532,11 +814,12 @@
               "RelativeToolTip": "Server\\Server.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-09-02T11:54:42.61Z"
+              "WhenOpened": "2025-09-02T11:54:42.61Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 32,
+              "DocumentIndex": 48,
               "Title": "Data.Contents.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Data\\Data.Contents.cs",
               "RelativeDocumentMoniker": "Server\\Data\\Data.Contents.cs",
@@ -548,7 +831,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 30,
+              "DocumentIndex": 46,
               "Title": "DbTransaction.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\DB\\DbTransaction.cs",
               "RelativeDocumentMoniker": "Server\\DB\\DbTransaction.cs",
@@ -560,7 +843,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 44,
               "Title": "Inventory.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Item\\Inventory.cs",
               "RelativeDocumentMoniker": "Server\\Game\\Item\\Inventory.cs",
@@ -572,7 +855,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 43,
               "Title": "Item.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Game\\Item\\Item.cs",
               "RelativeDocumentMoniker": "Server\\Game\\Item\\Item.cs",
@@ -584,19 +867,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 33,
-              "Title": "DummyClient.csproj",
-              "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\DummyClient\\DummyClient.csproj",
-              "RelativeDocumentMoniker": "DummyClient\\DummyClient.csproj",
-              "ToolTip": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\DummyClient\\DummyClient.csproj",
-              "RelativeToolTip": "DummyClient\\DummyClient.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-09-02T12:01:10.97Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 34,
+              "DocumentIndex": 49,
               "Title": "AccountController.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\AccountServer\\Controllers\\AccountController.cs",
               "RelativeDocumentMoniker": "AccountServer\\Controllers\\AccountController.cs",
@@ -608,7 +879,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 35,
+              "DocumentIndex": 50,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\AccountServer\\appsettings.json",
               "RelativeDocumentMoniker": "AccountServer\\appsettings.json",
@@ -620,7 +891,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 36,
+              "DocumentIndex": 51,
               "Title": "20250902125747_InitialCreate.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\AccountServer\\Migrations\\20250902125747_InitialCreate.cs",
               "RelativeDocumentMoniker": "AccountServer\\Migrations\\20250902125747_InitialCreate.cs",
@@ -632,7 +903,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 38,
+              "DocumentIndex": 53,
               "Title": "Extensions.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\AccountServer\\Extensions.cs",
               "RelativeDocumentMoniker": "AccountServer\\Extensions.cs",
@@ -644,7 +915,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 37,
+              "DocumentIndex": 52,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\AccountServer\\Program.cs",
               "RelativeDocumentMoniker": "AccountServer\\Program.cs",
@@ -656,7 +927,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 39,
+              "DocumentIndex": 54,
               "Title": "WebPacket.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\AccountServer\\DB\\WebPacket.cs",
               "RelativeDocumentMoniker": "AccountServer\\DB\\WebPacket.cs",
@@ -668,7 +939,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 40,
+              "DocumentIndex": 55,
               "Title": "DataModel.cs",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\SharedDB\\DataModel.cs",
               "RelativeDocumentMoniker": "SharedDB\\DataModel.cs",
@@ -680,7 +951,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 41,
+              "DocumentIndex": 56,
               "Title": "AccountServer.csproj",
               "DocumentMoniker": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\AccountServer\\AccountServer.csproj",
               "RelativeDocumentMoniker": "AccountServer\\AccountServer.csproj",
@@ -688,7 +959,8 @@
               "RelativeToolTip": "AccountServer\\AccountServer.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-09-01T13:20:55.539Z"
+              "WhenOpened": "2025-09-01T13:20:55.539Z",
+              "EditorCaption": ""
             }
           ]
         }
