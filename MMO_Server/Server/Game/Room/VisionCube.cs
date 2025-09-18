@@ -25,7 +25,7 @@ namespace Server.Game.Room
 
 			List<Zone> zones = Owner.Room.GetAdjacentZones(Owner.CellPos);
 
-			Vector2Int cellPos = Owner.CellPos;
+			Vector3Int cellPos = Owner.CellPos;
 			foreach (Zone zone in zones)
 			{
 				foreach (Player player in zone.Players)

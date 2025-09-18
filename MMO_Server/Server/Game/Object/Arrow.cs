@@ -17,7 +17,7 @@ namespace Server.Game
 			int tick = (int)(1000 / Data.projectile.speed);
 			Room.PushAfter(tick, Update);
 
-			Vector2Int destPos = GetFrontCellPos();
+			Vector3Int destPos = GetFrontCellPos();
 			if (Room.Map.ApplyMove(this, destPos, collision: false))
 			{
 				S_Move movePacket = new S_Move();

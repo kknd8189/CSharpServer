@@ -9,13 +9,14 @@ namespace Server.Game
 {
 	public struct Pos
 	{
-		public Pos(int y, int x) { Y = y; X = x; }
+		public Pos(int y, int x, int z) { Y = y; X = x; Z = z; }
 		public int Y;
 		public int X;
+        public int Z;
 
-		public static bool operator==(Pos lhs, Pos rhs)
+        public static bool operator==(Pos lhs, Pos rhs)
 		{
-			return lhs.Y == rhs.Y && lhs.X == rhs.X;
+			return lhs.Y == rhs.Y && lhs.X == rhs.X && lhs.Z == rhs.Z;
 		}
 
 		public static bool operator!=(Pos lhs, Pos rhs)
@@ -30,11 +31,17 @@ namespace Server.Game
 
 		public override int GetHashCode()
 		{
-			long value = (Y << 32) | X;
-			return value.GetHashCode();
-		}
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 31 + Y;
+                hash = hash * 31 + X;
+                hash = hash * 31 + Z;
+                return hash;
+            }
+        }
 
-		public override string ToString()
+        public override string ToString()
 		{
 			return base.ToString();
 		}
@@ -46,6 +53,7 @@ namespace Server.Game
 		public int G;
 		public int Y;
 		public int X;
+		public int Z;
 
 		public int CompareTo(PQNode other)
 		{
@@ -55,26 +63,29 @@ namespace Server.Game
 		}
 	}
 
-	public struct Vector2Int
+	public struct Vector3Int
 	{
 		public int x;
 		public int y;
+		public int z;
 
-		public Vector2Int(int x, int y) { this.x = x; this.y = y; }
+		public Vector3Int(int x, int y, int z) { this.x = x; this.y = y; this.z = z; }
 
-		public static Vector2Int up { get { return new Vector2Int(0, 1); } }
-		public static Vector2Int down { get { return new Vector2Int(0, -1); } }
-		public static Vector2Int left { get { return new Vector2Int(-1, 0); } }
-		public static Vector2Int right { get { return new Vector2Int(1, 0); } }
+		public static Vector3Int up { get { return new Vector3Int(0, 1 , 0); } }
+		public static Vector3Int down { get { return new Vector3Int(0, -1 , 0); } }
+		public static Vector3Int left { get { return new Vector3Int(-1, 0, 0); } }
+		public static Vector3Int right { get { return new Vector3Int(1, 0, 0 ); } }
+        public static Vector3Int forward { get { return new Vector3Int(0, 0, 1); } }
+        public static Vector3Int backward { get { return new Vector3Int(0, 0, -1); } }
 
-		public static Vector2Int operator+(Vector2Int a, Vector2Int b)
+        public static Vector3Int operator +(Vector3Int a, Vector3Int b)
 		{
-			return new Vector2Int(a.x + b.x, a.y + b.y);
+			return new Vector3Int(a.x + b.x, a.y + b.y, a.z + b.z);
 		}
 
-		public static Vector2Int operator -(Vector2Int a, Vector2Int b)
+		public static Vector3Int operator -(Vector3Int a, Vector3Int b)
 		{
-			return new Vector2Int(a.x - b.x, a.y - b.y);
+			return new Vector3Int(a.x - b.x, a.y - b.y, a.z - b.z);
 		}
 
 		public float magnitude { get { return (float)Math.Sqrt(sqrMagnitude); } }
@@ -88,14 +99,17 @@ namespace Server.Game
 		public int MaxX { get; set; }
 		public int MinY { get; set; }
 		public int MaxY { get; set; }
+        public int MinZ { get; set; }
+        public int MaxZ { get; set; }
 
-		public int SizeX { get { return MaxX - MinX + 1; } }
+        public int SizeX { get { return MaxX - MinX + 1; } }
 		public int SizeY { get { return MaxY - MinY + 1; } }
+        public int SizeZ { get { return MaxZ - MinZ + 1; } }
 
-		bool[,] _collision;
+        bool[,] _collision;
 		GameObject[,] _objects;
 
-		public bool CanGo(Vector2Int cellPos, bool checkObjects = true)
+		public bool CanGo(Vector3Int cellPos, bool checkObjects = true)
 		{
 			if (cellPos.x < MinX || cellPos.x > MaxX)
 				return false;
@@ -107,7 +121,7 @@ namespace Server.Game
 			return !_collision[y, x] && (!checkObjects || _objects[y, x] == null);
 		}
 
-		public GameObject Find(Vector2Int cellPos)
+		public GameObject Find(Vector3Int cellPos)
 		{
 			if (cellPos.x < MinX || cellPos.x > MaxX)
 				return null;
@@ -146,7 +160,7 @@ namespace Server.Game
 			return true;
 		}
 
-		public bool ApplyMove(GameObject gameObject, Vector2Int dest, bool checkObjects = true, bool collision = true)
+		public bool ApplyMove(GameObject gameObject, Vector3Int dest, bool checkObjects = true, bool collision = true)
 		{
 			if (gameObject.Room == null)
 				return false;
@@ -242,14 +256,25 @@ namespace Server.Game
 			}
 		}
 
-		#region A* PathFinding
+        #region A* PathFinding
 
-		// U D L R
-		int[] _deltaY = new int[] { 1, -1, 0, 0 };
-		int[] _deltaX = new int[] { 0, 0, -1, 1 };
-		int[] _cost = new int[] { 10, 10, 10, 10 };
+        // 6방향 이동 (앞/뒤/좌/우/위/아래)
+        int[] _deltaY = { 1, -1, 0, 0, 0, 0 };
+        int[] _deltaX = { 0, 0, -1, 1, 0, 0 };
+        int[] _deltaZ = { 0, 0, 0, 0, 1, -1 };
+        int[] _cost = { 10, 10, 10, 10, 10, 10 };
 
-		public List<Vector2Int> FindPath(Vector2Int startCellPos, Vector2Int destCellPos, bool checkObjects = true, int maxDist = 10)
+        private int Heuristic(Pos a, Pos b)
+        {
+            return 10 * (
+                (a.Y - b.Y) * (a.Y - b.Y) +
+                (a.X - b.X) * (a.X - b.X) +
+                (a.Z - b.Z) * (a.Z - b.Z)
+            );
+        }
+
+
+        public List<Vector3Int> FindPath(Vector3Int startCellPos, Vector3Int destCellPos, bool checkObjects = true, int maxDist = 10)
 		{
 			List<Pos> path = new List<Pos>();
 
@@ -265,27 +290,27 @@ namespace Server.Game
 			// (y, x) 가는 길을 한 번이라도 발견했는지
 			// 발견X => MaxValue
 			// 발견O => F = G + H
-			Dictionary<Pos, int> openList = new Dictionary<Pos, int>(); // OpenList
-			Dictionary<Pos, Pos> parent = new Dictionary<Pos, Pos>();
+			Dictionary<Pos /*발견된 노드*/, int /*F 값*/ > openList = new Dictionary<Pos, int>(); // OpenList 와 F값
+            Dictionary<Pos, Pos> parent = new Dictionary<Pos, Pos>();  // 경로 추적용 부모
 
-			// 오픈리스트에 있는 정보들 중에서, 가장 좋은 후보를 빠르게 뽑아오기 위한 도구
-			PriorityQueue<PQNode> pq = new PriorityQueue<PQNode>();
+            // 오픈리스트에 있는 정보들 중에서, 가장 좋은 후보를 빠르게 뽑아오기 위한 도구
+            PriorityQueue<PQNode> pq = new PriorityQueue<PQNode>();
 
 			// CellPos -> ArrayPos
 			Pos pos = Cell2Pos(startCellPos);
 			Pos dest = Cell2Pos(destCellPos);
 
 			// 시작점 발견 (예약 진행)
-			openList.Add(pos, 10 * (Math.Abs(dest.Y - pos.Y) + Math.Abs(dest.X - pos.X)));
+			openList.Add(pos, Heuristic(dest, pos));
 
-			pq.Push(new PQNode() { F = 10 * (Math.Abs(dest.Y - pos.Y) + Math.Abs(dest.X - pos.X)), G = 0, Y = pos.Y, X = pos.X });
+			pq.Push(new PQNode() { F = Heuristic(dest, pos), G = 0, Y = pos.Y, X = pos.X ,Z = pos.Z});
 			parent.Add(pos, pos);
 
 			while (pq.Count > 0)
 			{
 				// 제일 좋은 후보를 찾는다
 				PQNode pqNode = pq.Pop();
-				Pos node = new Pos(pqNode.Y, pqNode.X);
+				Pos node = new Pos(pqNode.Y, pqNode.X, pqNode.Z);
 				// 동일한 좌표를 여러 경로로 찾아서, 더 빠른 경로로 인해서 이미 방문(closed)된 경우 스킵
 				if (closeList.Contains(node))
 					continue;
@@ -294,21 +319,21 @@ namespace Server.Game
 				closeList.Add(node);
 
 				// 목적지 도착했으면 바로 종료
-				if (node.Y == dest.Y && node.X == dest.X)
+				if (node.Y == dest.Y && node.X == dest.X && node.Z == dest.Z)
 					break;
 
 				// 상하좌우 등 이동할 수 있는 좌표인지 확인해서 예약(open)한다
 				for (int i = 0; i < _deltaY.Length; i++)
 				{
-					Pos next = new Pos(node.Y + _deltaY[i], node.X + _deltaX[i]);
+					Pos next = new Pos(node.Y + _deltaY[i], node.X + _deltaX[i] , node.Z + _deltaZ[i]);
 
 					// 너무 멀면 스킵
-					if (Math.Abs(pos.Y - next.Y) + Math.Abs(pos.X - next.X) > maxDist)
+					if ( Math.Abs(pos.Y - next.Y) + Math.Abs(pos.X - next.X) + Math.Abs(pos.Z - next.Z) > maxDist)
 						continue;
 
 					// 유효 범위를 벗어났으면 스킵
 					// 벽으로 막혀서 갈 수 없으면 스킵
-					if (next.Y != dest.Y || next.X != dest.X)
+					if (next.Y != dest.Y || next.X != dest.X || next.Z != dest.Z)
 					{
 						if (CanGo(Pos2Cell(next), checkObjects) == false) // CellPos
 							continue;
@@ -319,8 +344,11 @@ namespace Server.Game
 						continue;
 
 					// 비용 계산
-					int g = 0;// node.G + _cost[i];
-					int h = 10 * ((dest.Y - next.Y) * (dest.Y - next.Y) + (dest.X - next.X) * (dest.X - next.X));
+					//int g = 0;
+					int g = pqNode.G + _cost[i];
+					int h = Heuristic(dest, next);
+					//int h = 10 * ((dest.Y - next.Y) * (dest.Y - next.Y) + (dest.X - next.X) * (dest.X - next.X));
+
 					// 다른 경로에서 더 빠른 길 이미 찾았으면 스킵
 
 					int value = 0;
@@ -334,7 +362,7 @@ namespace Server.Game
 					if (openList.TryAdd(next, g + h) == false)
 						openList[next] = g + h;
 
-					pq.Push(new PQNode() { F = g + h, G = g, Y = next.Y, X = next.X });
+					pq.Push(new PQNode() { F = g + h, G = g, Y = next.Y, X = next.X , Z = next.Z});
 
 					if (parent.TryAdd(next, node) == false)
 						parent[next] = node;
@@ -344,9 +372,9 @@ namespace Server.Game
 			return CalcCellPathFromParent(parent, dest);
 		}
 
-		List<Vector2Int> CalcCellPathFromParent(Dictionary<Pos, Pos> parent, Pos dest)
+		List<Vector3Int> CalcCellPathFromParent(Dictionary<Pos, Pos> parent, Pos dest)
 		{
-			List<Vector2Int> cells = new List<Vector2Int>();
+			List<Vector3Int> cells = new List<Vector3Int>();
 
 			if (parent.ContainsKey(dest) == false)
 			{
@@ -355,7 +383,7 @@ namespace Server.Game
 
 				foreach (Pos pos in parent.Keys)
 				{
-					int dist = Math.Abs(dest.X - pos.X) + Math.Abs(dest.Y - pos.Y);
+					int dist = Math.Abs(dest.X - pos.X) + Math.Abs(dest.Y - pos.Y) + Math.Abs(dest.Z - pos.Z);
 					// 제일 우수한 후보를 뽑는다
 					if (dist < bestDist)
 					{
@@ -381,16 +409,16 @@ namespace Server.Game
 			return cells;
 		}
 
-		Pos Cell2Pos(Vector2Int cell)
+		Pos Cell2Pos(Vector3Int cell)
 		{
 			// CellPos -> ArrayPos
-			return new Pos(MaxY - cell.y, cell.x - MinX);
+			return new Pos(MaxY - cell.y, cell.x - MinX, cell.z - MinZ);
 		}
 
-		Vector2Int Pos2Cell(Pos pos)
+		Vector3Int Pos2Cell(Pos pos)
 		{
 			// ArrayPos -> CellPos
-			return new Vector2Int(pos.X + MinX, MaxY - pos.Y);
+			return new Vector3Int(pos.X + MinX, MaxY - pos.Y, pos.Z + MinZ);
 		}
 
 		#endregion

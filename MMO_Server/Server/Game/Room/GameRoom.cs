@@ -26,7 +26,7 @@ namespace Server.Game
 		// ㅁㅁㅁ
 		// ㅁㅁㅁ
 		// ㅁㅁㅁ
-		public Zone GetZone(Vector2Int cellPos)
+		public Zone GetZone(Vector3Int cellPos)
 		{
 			int x = (cellPos.x - Map.MinX) / ZoneCells;
 			int y = (Map.MaxY - cellPos.y) / ZoneCells;
@@ -86,11 +86,13 @@ namespace Server.Game
 
 			if (randomPos)
 			{
-				Vector2Int respawnPos;
+				Vector3Int respawnPos;
 				while (true)
 				{
 					respawnPos.x = _rand.Next(Map.MinX, Map.MaxX + 1);
 					respawnPos.y = _rand.Next(Map.MinY, Map.MaxY + 1);
+					respawnPos.z = 0;
+
 					if (Map.Find(respawnPos) == null)
 					{
 						gameObject.CellPos = respawnPos;
@@ -109,7 +111,7 @@ namespace Server.Game
 
 				player.RefreshAdditionalStat();
 
-				Map.ApplyMove(player, new Vector2Int(player.CellPos.x, player.CellPos.y));
+				Map.ApplyMove(player, new Vector3Int(player.CellPos.x, player.CellPos.y, player.CellPos.z));
 				GetZone(player.CellPos).Players.Add(player);
 
 				// 본인한테 정보 전송
@@ -128,7 +130,7 @@ namespace Server.Game
 				monster.Room = this;
 
 				GetZone(monster.CellPos).Monsters.Add(monster);
-				Map.ApplyMove(monster, new Vector2Int(monster.CellPos.x, monster.CellPos.y));
+				Map.ApplyMove(monster, new Vector3Int(monster.CellPos.x, monster.CellPos.y, monster.CellPos.z));
 
 				monster.Update();
 			}
@@ -154,7 +156,7 @@ namespace Server.Game
 		{
 			GameObjectType type = ObjectManager.GetObjectTypeById(objectId);
 
-			Vector2Int cellPos;
+			Vector3Int cellPos;
 
 			if (type == GameObjectType.Player)
 			{
@@ -219,7 +221,7 @@ namespace Server.Game
 		}
 
 		// 살짝 부담스러운 함수
-		public Player FindClosestPlayer(Vector2Int pos, int range)
+		public Player FindClosestPlayer(Vector3Int pos, int range)
 		{
 			List<Player> players = GetAdjacentPlayers(pos, range);
 
@@ -232,7 +234,7 @@ namespace Server.Game
 
 			foreach (Player player in players)
 			{
-				List<Vector2Int> path = Map.FindPath(pos, player.CellPos, checkObjects: true);
+				List<Vector3Int> path = Map.FindPath(pos, player.CellPos, checkObjects: true);
 				if (path.Count < 2 || path.Count > range)
 					continue;
 
@@ -242,7 +244,7 @@ namespace Server.Game
 			return null;
 		}
 
-		public void Broadcast(Vector2Int pos, IMessage packet)
+		public void Broadcast(Vector3Int pos, IMessage packet)
 		{
 			List<Zone> zones = GetAdjacentZones(pos);
 
@@ -259,7 +261,7 @@ namespace Server.Game
 			}
 		}
 
-		public List<Player> GetAdjacentPlayers(Vector2Int pos, int range)
+		public List<Player> GetAdjacentPlayers(Vector3Int pos, int range)
 		{
 			List<Zone> zones = GetAdjacentZones(pos, range);
 			return zones.SelectMany(z => z.Players).ToList();
@@ -269,7 +271,7 @@ namespace Server.Game
 		// ㅁㅁㅁㅁㅁㅁ
 		// ㅁㅁㅁㅁㅁㅁ
 		// ㅁㅁㅁㅁㅁㅁ
-		public List<Zone> GetAdjacentZones(Vector2Int cellPos, int range = GameRoom.VisionCells)
+		public List<Zone> GetAdjacentZones(Vector3Int cellPos, int range = GameRoom.VisionCells)
 		{
 			HashSet<Zone> zones = new HashSet<Zone>();
 
@@ -279,12 +281,12 @@ namespace Server.Game
 			int minX = cellPos.x - range;
 
 			// 좌측 상단
-			Vector2Int leftTop = new Vector2Int(minX, maxY);
+			Vector3Int leftTop = new Vector3Int(minX, maxY, 0);
 			int minIndexY = (Map.MaxY - leftTop.y) / ZoneCells;
 			int minIndexX = (leftTop.x - Map.MinX) / ZoneCells;
 			
 			// 우측 하단
-			Vector2Int rightBot = new Vector2Int(maxX, minY);
+			Vector3Int rightBot = new Vector3Int(maxX, minY, 0);
 			int maxIndexY = (Map.MaxY - rightBot.y) / ZoneCells;
 			int maxIndexX = (rightBot.x - Map.MinX) / ZoneCells;
 

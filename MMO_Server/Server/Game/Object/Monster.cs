@@ -90,7 +90,7 @@ namespace Server.Game
 				return;
 			}
 
-			Vector2Int dir = _target.CellPos - CellPos;
+			Vector3Int dir = _target.CellPos - CellPos;
 			int dist = dir.cellDistFromZero;
 			if (dist == 0 || dist > _chaseCellDist)
 			{
@@ -100,7 +100,7 @@ namespace Server.Game
 				return;
 			}
 
-			List<Vector2Int> path = Room.Map.FindPath(CellPos, _target.CellPos, checkObjects: true);
+			List<Vector3Int> path = Room.Map.FindPath(CellPos, _target.CellPos, checkObjects: true);
 			if (path.Count < 2 || path.Count > _chaseCellDist)
 			{
 				_target = null;
@@ -147,7 +147,7 @@ namespace Server.Game
 				}
 
 				// 스킬이 아직 사용 가능한지
-				Vector2Int dir = (_target.CellPos - CellPos);
+				Vector3Int dir = (_target.CellPos - CellPos);
 				int dist = dir.cellDistFromZero;
 				bool canUseSkill = (dist <= _skillRange && (dir.x == 0 || dir.y == 0));
 				if (canUseSkill == false)
