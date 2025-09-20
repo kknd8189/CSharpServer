@@ -71,12 +71,12 @@ namespace Server.Game
 
 		public Vector3Int(int x, int y, int z) { this.x = x; this.y = y; this.z = z; }
 
-		public static Vector3Int up { get { return new Vector3Int(0, 1 , 0); } }
-		public static Vector3Int down { get { return new Vector3Int(0, -1 , 0); } }
+		public static Vector3Int up { get { return new Vector3Int(0, 0 , 1); } }
+		public static Vector3Int down { get { return new Vector3Int(0, 0 , 1); } }
 		public static Vector3Int left { get { return new Vector3Int(-1, 0, 0); } }
 		public static Vector3Int right { get { return new Vector3Int(1, 0, 0 ); } }
-        public static Vector3Int forward { get { return new Vector3Int(0, 0, 1); } }
-        public static Vector3Int backward { get { return new Vector3Int(0, 0, -1); } }
+        public static Vector3Int forward { get { return new Vector3Int(0, 1, 0); } }
+        public static Vector3Int backward { get { return new Vector3Int(0, -1, 0); } }
 
         public static Vector3Int operator +(Vector3Int a, Vector3Int b)
 		{
@@ -89,8 +89,8 @@ namespace Server.Game
 		}
 
 		public float magnitude { get { return (float)Math.Sqrt(sqrMagnitude); } }
-		public int sqrMagnitude { get { return (x * x + y * y); } }
-		public int cellDistFromZero { get { return Math.Abs(x) + Math.Abs(y); } }
+		public int sqrMagnitude { get { return (x * x + y * y + z * z); } }
+		public int cellDistFromZero { get { return Math.Abs(x) + Math.Abs(y) + Math.Abs(z); } }
 	}
 
 	public class Map
@@ -106,8 +106,8 @@ namespace Server.Game
 		public int SizeY { get { return MaxY - MinY + 1; } }
         public int SizeZ { get { return MaxZ - MinZ + 1; } }
 
-        bool[,] _collision;
-		GameObject[,] _objects;
+        bool[,,] _collision;
+		GameObject[,,] _objects;
 
 		public bool CanGo(Vector3Int cellPos, bool checkObjects = true)
 		{
@@ -115,22 +115,32 @@ namespace Server.Game
 				return false;
 			if (cellPos.y < MinY || cellPos.y > MaxY)
 				return false;
+            if (cellPos.z < MinZ || cellPos.z > MaxZ)
+                return false;
 
-			int x = cellPos.x - MinX;
+            int x = cellPos.x - MinX;
 			int y = MaxY - cellPos.y;
-			return !_collision[y, x] && (!checkObjects || _objects[y, x] == null);
+			int z = cellPos.z - MinZ;
+
+			return !_collision[y, x , z] && (!checkObjects || _objects[y, x, z] == null);
 		}
 
 		public GameObject Find(Vector3Int cellPos)
 		{
 			if (cellPos.x < MinX || cellPos.x > MaxX)
 				return null;
+
 			if (cellPos.y < MinY || cellPos.y > MaxY)
 				return null;
 
-			int x = cellPos.x - MinX;
+            if (cellPos.z < MinZ || cellPos.z > MaxZ)
+                return null;
+
+            int x = cellPos.x - MinX;
 			int y = MaxY - cellPos.y;
-			return _objects[y, x];
+			int z = cellPos.z - MinZ;
+
+			return _objects[y, x, z];
 		}
 
 		public bool ApplyLeave(GameObject gameObject)
@@ -145,16 +155,20 @@ namespace Server.Game
 				return false;
 			if (posInfo.PosY < MinY || posInfo.PosY > MaxY)
 				return false;
+            if (posInfo.PosZ < MinZ || posInfo.PosZ > MaxZ)
+                return false;
 
-			// Zone
-			Zone zone = gameObject.Room.GetZone(gameObject.CellPos);
+            // Zone
+            Zone zone = gameObject.Room.GetZone(gameObject.CellPos);
 			zone.Remove(gameObject);
 
 			{
 				int x = posInfo.PosX - MinX;
 				int y = MaxY - posInfo.PosY;
-				if (_objects[y, x] == gameObject)
-					_objects[y, x] = null;
+                int z = posInfo.PosZ - MinZ;
+
+                if (_objects[y, x , z] == gameObject)
+					_objects[y, x, z] = null;
 			}
 
 			return true;
@@ -176,13 +190,17 @@ namespace Server.Game
 				{
 					int x = posInfo.PosX - MinX;
 					int y = MaxY - posInfo.PosY;
-					if (_objects[y, x] == gameObject)
-						_objects[y, x] = null;
+                    int z = posInfo.PosZ - MinZ;
+
+                    if (_objects[y, x, z] == gameObject)
+						_objects[y, x, z] = null;
 				}
 				{ 
 					int x = dest.x - MinX;
 					int y = MaxY - dest.y;
-					_objects[y, x] = gameObject;
+                    int z = dest.z - MinZ;
+
+                    _objects[y, x, z] = gameObject;
 				}
 			}
 
@@ -225,6 +243,7 @@ namespace Server.Game
 			// 실제 좌표 이동
 			posInfo.PosX = dest.x;
 			posInfo.PosY = dest.y;
+			posInfo.PosZ = dest.z;
 			return true;
 		}
 
@@ -240,19 +259,26 @@ namespace Server.Game
 			MaxX = int.Parse(reader.ReadLine());
 			MinY = int.Parse(reader.ReadLine());
 			MaxY = int.Parse(reader.ReadLine());
+            MinZ = int.Parse(reader.ReadLine());
+            MaxZ = int.Parse(reader.ReadLine());
 
-			int xCount = MaxX - MinX + 1;
+            int xCount = MaxX - MinX + 1;
 			int yCount = MaxY - MinY + 1;
-			_collision = new bool[yCount, xCount];
-			_objects = new GameObject[yCount, xCount];
+			int zCount = MaxZ - MinZ + 1;
+
+            _collision = new bool[yCount, xCount , zCount];
+			_objects = new GameObject[yCount, xCount, zCount];
 
 			for (int y = 0; y < yCount; y++)
 			{
 				string line = reader.ReadLine();
 				for (int x = 0; x < xCount; x++)
 				{
-					_collision[y, x] = (line[x] == '1' ? true : false);
-				}
+					for (int z = 0; z < zCount; z++)
+					{
+						_collision[y, x, z] = (line[x] == '1' ? true : false);
+					}
+				}	
 			}
 		}
 

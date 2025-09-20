@@ -18,7 +18,7 @@ namespace Server.Game
 		Dictionary<int, Monster> _monsters = new Dictionary<int, Monster>();
 		Dictionary<int, Projectile> _projectiles = new Dictionary<int, Projectile>();
 
-		public Zone[,] Zones { get; private set; }
+		public Zone[,,] Zones { get; private set; }
 		public int ZoneCells { get; private set; }
 
 		public Map Map { get; private set; } = new Map();
@@ -30,17 +30,21 @@ namespace Server.Game
 		{
 			int x = (cellPos.x - Map.MinX) / ZoneCells;
 			int y = (Map.MaxY - cellPos.y) / ZoneCells;
-			return GetZone(y, x);
+			int z = (cellPos.z - Map.MinZ) / ZoneCells;
+
+			return GetZone(y, x, z);
 		}
 
-		public Zone GetZone(int indexY, int indexX)
+		public Zone GetZone(int indexY, int indexX, int indexZ)
 		{
 			if (indexX < 0 || indexX >= Zones.GetLength(1))
 				return null;
 			if (indexY < 0 || indexY >= Zones.GetLength(0))
 				return null;
+            if (indexZ < 0 || indexZ >= Zones.GetLength(1))
+                return null;
 
-			return Zones[indexY, indexX];
+            return Zones[indexY, indexX, indexZ];
 		}
 
 		public void Init(int mapId, int zoneCells)
@@ -54,13 +58,18 @@ namespace Server.Game
 			// 21~30칸 = 3존
 			int countY = (Map.SizeY + zoneCells - 1) / zoneCells;
 			int countX = (Map.SizeX + zoneCells - 1) / zoneCells;
-			Zones = new Zone[countY, countX];
+            int countZ = (Map.SizeZ + zoneCells - 1) / zoneCells;
+
+            Zones = new Zone[countY, countX, countZ];
 			for (int y = 0; y < countY; y++)
 			{
 				for (int x = 0; x < countX; x++)
 				{
-					Zones[y, x] = new Zone(y, x);
-				}
+					for(int z =  0; z < countZ; z++)
+					{
+                        Zones[y, x, z] = new Zone(y, x, z);
+                    }
+                }
 			}
 
 			// TEMP
@@ -91,7 +100,7 @@ namespace Server.Game
 				{
 					respawnPos.x = _rand.Next(Map.MinX, Map.MaxX + 1);
 					respawnPos.y = _rand.Next(Map.MinY, Map.MaxY + 1);
-					respawnPos.z = 0;
+					respawnPos.z = _rand.Next(Map.MinZ, Map.MaxZ + 1);
 
 					if (Map.Find(respawnPos) == null)
 					{
@@ -279,26 +288,34 @@ namespace Server.Game
 			int minY = cellPos.y - range;
 			int maxX = cellPos.x + range;
 			int minX = cellPos.x - range;
+            int minZ = cellPos.z - range;
+            int maxZ = cellPos.z + range;
 
-			// 좌측 상단
-			Vector3Int leftTop = new Vector3Int(minX, maxY, 0);
+
+            // 좌측 상단 앞쪽
+            Vector3Int leftTop = new Vector3Int(minX, maxY, minZ);
 			int minIndexY = (Map.MaxY - leftTop.y) / ZoneCells;
 			int minIndexX = (leftTop.x - Map.MinX) / ZoneCells;
-			
-			// 우측 하단
-			Vector3Int rightBot = new Vector3Int(maxX, minY, 0);
+            int minIndexZ = (Map.MaxZ - leftTop.z) / ZoneCells;
+
+            // 우측 하단 뒤쪽
+            Vector3Int rightBot = new Vector3Int(maxX, minY, maxZ);
 			int maxIndexY = (Map.MaxY - rightBot.y) / ZoneCells;
 			int maxIndexX = (rightBot.x - Map.MinX) / ZoneCells;
+            int maxIndexZ = (Map.MaxZ - rightBot.Z) / ZoneCells;
 
-			for (int x = minIndexX; x <= maxIndexX; x++)
+            for (int x = minIndexX; x <= maxIndexX; x++)
 			{
 				for (int y = minIndexY; y <= maxIndexY; y++)
 				{
-					Zone zone = GetZone(y, x);
-					if (zone == null)
-						continue;
+					for(int z = minIndexZ; z <= maxIndexZ; z++)
+					{
+                        Zone zone = GetZone(y, x, z);
+                        if (zone == null)
+                            continue;
 
-					zones.Add(zone);
+                        zones.Add(zone);
+                    }
 				}
 			}
 

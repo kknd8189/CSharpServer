@@ -63,13 +63,14 @@ namespace Server.Game
 		{
 			get
 			{
-				return new Vector3Int(PosInfo.PosX, PosInfo.PosY, 0);
+				return new Vector3Int(PosInfo.PosX, PosInfo.PosY, PosInfo.PosZ);
 			}
 
 			set
 			{
 				PosInfo.PosX = value.x;
 				PosInfo.PosY = value.y;
+				PosInfo.PosZ = value.z;
 			}
 		}
 
@@ -84,7 +85,13 @@ namespace Server.Game
 
 			switch (dir)
 			{
-				case MoveDir.Up:
+                case MoveDir.Forward:
+                    cellPos += Vector3Int.forward;
+					break;
+                case MoveDir.Backward:
+                    cellPos += Vector3Int.backward;
+                    break;
+                case MoveDir.Up:
 					cellPos += Vector3Int.up;
 					break;
 				case MoveDir.Down:

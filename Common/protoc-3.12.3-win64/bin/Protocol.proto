@@ -41,6 +41,8 @@ enum MoveDir {
   DOWN = 1;
   LEFT = 2;
   RIGHT = 3;
+  FORWARD = 4;
+  BACKWARD = 5;
 }
 
 enum GameObjectType {
@@ -201,6 +203,7 @@ message PositionInfo {
   MoveDir moveDir = 2;
   int32 posX = 3;
   int32 posY = 4;
+  int32 posZ =5;
 }
 
 message StatInfo {

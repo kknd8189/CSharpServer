@@ -9,15 +9,17 @@ namespace Server.Game
 	{
 		public int IndexY { get; private set; }
 		public int IndexX { get; private set; }
+		public int IndexZ { get; private set; }	
 
 		public HashSet<Player> Players { get; set; } = new HashSet<Player>();
 		public HashSet<Monster> Monsters { get; set; } = new HashSet<Monster>();
 		public HashSet<Projectile> Projectiles { get; set; } = new HashSet<Projectile>();
 
-		public Zone(int y, int x)
+		public Zone(int y, int x, int z)
 		{
 			IndexY = y;
 			IndexX = x;
+			IndexZ = z;
 		}
 
 		public void Remove(GameObject gameObject)
