@@ -203,7 +203,7 @@ message PositionInfo {
   MoveDir moveDir = 2;
   int32 posX = 3;
   int32 posY = 4;
-  int32 posZ =5;
+  int32 posZ = 5;
 }
 
 message StatInfo {

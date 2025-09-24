@@ -91,12 +91,12 @@ namespace Server.Game
                 case MoveDir.Backward:
                     cellPos += Vector3Int.backward;
                     break;
-                case MoveDir.Up:
-					cellPos += Vector3Int.up;
-					break;
-				case MoveDir.Down:
-					cellPos += Vector3Int.down;
-					break;
+    //            case MoveDir.Up:
+				//	cellPos += Vector3Int.up;
+				//	break;
+				//case MoveDir.Down:
+				//	cellPos += Vector3Int.down;
+				//	break;
 				case MoveDir.Left:
 					cellPos += Vector3Int.left;
 					break;

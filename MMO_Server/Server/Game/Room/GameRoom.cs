@@ -29,22 +29,22 @@ namespace Server.Game
 		public Zone GetZone(Vector3Int cellPos)
 		{
 			int x = (cellPos.x - Map.MinX) / ZoneCells;
-			int y = (Map.MaxY - cellPos.y) / ZoneCells;
+			int y = (cellPos.y - Map.MinY) / ZoneCells;
 			int z = (cellPos.z - Map.MinZ) / ZoneCells;
 
-			return GetZone(y, x, z);
+			return GetZone(x, y, z);
 		}
 
-		public Zone GetZone(int indexY, int indexX, int indexZ)
+		public Zone GetZone(int indexX, int indexY, int indexZ)
 		{
-			if (indexX < 0 || indexX >= Zones.GetLength(1))
+			if (indexX < 0 || indexX >= Zones.GetLength(0))
 				return null;
-			if (indexY < 0 || indexY >= Zones.GetLength(0))
+			if (indexY < 0 || indexY >= Zones.GetLength(1))
 				return null;
-            if (indexZ < 0 || indexZ >= Zones.GetLength(1))
+            if (indexZ < 0 || indexZ >= Zones.GetLength(2))
                 return null;
 
-            return Zones[indexY, indexX, indexZ];
+            return Zones[indexX, indexY, indexZ];
 		}
 
 		public void Init(int mapId, int zoneCells)
@@ -56,24 +56,24 @@ namespace Server.Game
 			// 1~10 칸 = 1존
 			// 11~20칸 = 2존
 			// 21~30칸 = 3존
-			int countY = (Map.SizeY + zoneCells - 1) / zoneCells;
 			int countX = (Map.SizeX + zoneCells - 1) / zoneCells;
+			int countY = (Map.SizeY + zoneCells - 1) / zoneCells;
             int countZ = (Map.SizeZ + zoneCells - 1) / zoneCells;
 
-            Zones = new Zone[countY, countX, countZ];
+            Zones = new Zone[countX, countY, countZ];
 			for (int y = 0; y < countY; y++)
 			{
 				for (int x = 0; x < countX; x++)
 				{
 					for(int z =  0; z < countZ; z++)
 					{
-                        Zones[y, x, z] = new Zone(y, x, z);
+                        Zones[x, y, z] = new Zone(x, y, z);
                     }
                 }
 			}
 
 			// TEMP
-			for (int i = 0; i < 500; i++)
+			for (int i = 0; i < 200; i++)
 			{
 				Monster monster = ObjectManager.Instance.Add<Monster>();
 				monster.Init(1);
@@ -284,25 +284,27 @@ namespace Server.Game
 		{
 			HashSet<Zone> zones = new HashSet<Zone>();
 
-			int maxY = cellPos.y + range;
-			int minY = cellPos.y - range;
-			int maxX = cellPos.x + range;
-			int minX = cellPos.x - range;
-            int minZ = cellPos.z - range;
-            int maxZ = cellPos.z + range;
+			//int maxY = cellPos.y + range;
+			//int minY = cellPos.y - range;
+			//int maxX = cellPos.x + range;
+			//int minX = cellPos.x - range;
+			//int maxZ = cellPos.z + range;
+			//int minZ = cellPos.z - range;
 
+            //int minIndexX = (Map.MinX + leftBotBack.x) / ZoneCells;
+            //int minIndexY = (Map.MinY + leftBotBack.y) / ZoneCells;
+            //int minIndexZ = (Map.MinZ + leftBotBack.z) / ZoneCells;
+            //int maxIndexX = (Map.MaxX + rightUpFor.x) / ZoneCells;
+            //int maxIndexY = (Map.MaxY + rightUpFor.y) / ZoneCells;
+            //int maxIndexZ = (Map.MaxZ + rightUpFor.z) / ZoneCells;
 
-            // 좌측 상단 앞쪽
-            Vector3Int leftTop = new Vector3Int(minX, maxY, minZ);
-			int minIndexY = (Map.MaxY - leftTop.y) / ZoneCells;
-			int minIndexX = (leftTop.x - Map.MinX) / ZoneCells;
-            int minIndexZ = (Map.MaxZ - leftTop.z) / ZoneCells;
+            int minIndexX = (cellPos.x - range - Map.MinX) / ZoneCells;
+            int maxIndexX = (cellPos.x + range - Map.MinX) / ZoneCells;
+            int minIndexY = (cellPos.y - range - Map.MinY) / ZoneCells;
+            int maxIndexY = (cellPos.y + range - Map.MinY) / ZoneCells;
+            int minIndexZ = (cellPos.z - range - Map.MinZ) / ZoneCells;
+            int maxIndexZ = (cellPos.z + range - Map.MinZ) / ZoneCells;
 
-            // 우측 하단 뒤쪽
-            Vector3Int rightBot = new Vector3Int(maxX, minY, maxZ);
-			int maxIndexY = (Map.MaxY - rightBot.y) / ZoneCells;
-			int maxIndexX = (rightBot.x - Map.MinX) / ZoneCells;
-            int maxIndexZ = (Map.MaxZ - rightBot.Z) / ZoneCells;
 
             for (int x = minIndexX; x <= maxIndexX; x++)
 			{
@@ -310,7 +312,7 @@ namespace Server.Game
 				{
 					for(int z = minIndexZ; z <= maxIndexZ; z++)
 					{
-                        Zone zone = GetZone(y, x, z);
+                        Zone zone = GetZone(x, y, z);
                         if (zone == null)
                             continue;
 

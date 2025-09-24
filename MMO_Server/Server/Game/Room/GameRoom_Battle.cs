@@ -19,15 +19,15 @@ namespace Server.Game
 			ObjectInfo info = player.Info;
 
 			// 다른 좌표로 이동할 경우, 갈 수 있는지 체크
-			if (movePosInfo.PosX != info.PosInfo.PosX || movePosInfo.PosY != info.PosInfo.PosY)
+			if (movePosInfo.PosX != info.PosInfo.PosX || movePosInfo.PosY != info.PosInfo.PosY || movePosInfo.PosZ != info.PosInfo.PosZ)
 			{
-				if (Map.CanGo(new Vector3Int(movePosInfo.PosX, movePosInfo.PosY, 0)) == false)
+				if (Map.CanGo(new Vector3Int(movePosInfo.PosX, movePosInfo.PosY, movePosInfo.PosZ)) == false)
 					return;
 			}
 
 			info.PosInfo.State = movePosInfo.State;
 			info.PosInfo.MoveDir = movePosInfo.MoveDir;
-			Map.ApplyMove(player, new Vector3Int(movePosInfo.PosX, movePosInfo.PosY, 0));
+			Map.ApplyMove(player, new Vector3Int(movePosInfo.PosX, movePosInfo.PosY, movePosInfo.PosZ));
 
 			// 다른 플레이어한테도 알려준다
 			S_Move resMovePacket = new S_Move();

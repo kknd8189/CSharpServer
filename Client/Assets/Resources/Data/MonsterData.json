@@ -2,7 +2,7 @@
   "monsters": [
     {
         "id": "1",
-        "name": "도플갱어",
+        "name": "Monster1",
         "stat": {
             "level": "1",
             "maxHp": "20",

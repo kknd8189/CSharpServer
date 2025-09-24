@@ -9,7 +9,7 @@ namespace Server.Game
 {
 	public struct Pos
 	{
-		public Pos(int y, int x, int z) { Y = y; X = x; Z = z; }
+		public Pos(int x, int y, int z) { X = x; Y = y; Z = z; }
 		public int Y;
 		public int X;
         public int Z;
@@ -71,12 +71,12 @@ namespace Server.Game
 
 		public Vector3Int(int x, int y, int z) { this.x = x; this.y = y; this.z = z; }
 
-		public static Vector3Int up { get { return new Vector3Int(0, 0 , 1); } }
-		public static Vector3Int down { get { return new Vector3Int(0, 0 , 1); } }
+		//public static Vector3Int up { get { return new Vector3Int(0, 1 , 0); } }
+		//public static Vector3Int down { get { return new Vector3Int(0, -1 , 0); } }
 		public static Vector3Int left { get { return new Vector3Int(-1, 0, 0); } }
 		public static Vector3Int right { get { return new Vector3Int(1, 0, 0 ); } }
-        public static Vector3Int forward { get { return new Vector3Int(0, 1, 0); } }
-        public static Vector3Int backward { get { return new Vector3Int(0, -1, 0); } }
+        public static Vector3Int forward { get { return new Vector3Int(0, 0, 1); } }
+        public static Vector3Int backward { get { return new Vector3Int(0, 0, -1); } }
 
         public static Vector3Int operator +(Vector3Int a, Vector3Int b)
 		{
@@ -111,18 +111,18 @@ namespace Server.Game
 
 		public bool CanGo(Vector3Int cellPos, bool checkObjects = true)
 		{
-			if (cellPos.x < MinX || cellPos.x > MaxX)
-				return false;
-			if (cellPos.y < MinY || cellPos.y > MaxY)
-				return false;
+            if (cellPos.x < MinX || cellPos.x > MaxX)
+                return false;
+            if (cellPos.y < MinY || cellPos.y > MaxY)
+                return false;
             if (cellPos.z < MinZ || cellPos.z > MaxZ)
                 return false;
 
             int x = cellPos.x - MinX;
-			int y = MaxY - cellPos.y;
-			int z = cellPos.z - MinZ;
+            int y = cellPos.y - MinY;
+            int z = cellPos.z - MinZ;
 
-			return !_collision[y, x , z] && (!checkObjects || _objects[y, x, z] == null);
+            return !_collision[x, y , z] && (!checkObjects || _objects[x, y, z] == null);
 		}
 
 		public GameObject Find(Vector3Int cellPos)
@@ -137,10 +137,10 @@ namespace Server.Game
                 return null;
 
             int x = cellPos.x - MinX;
-			int y = MaxY - cellPos.y;
-			int z = cellPos.z - MinZ;
+            int y = cellPos.y - MinY;
+            int z = cellPos.z - MinZ;
 
-			return _objects[y, x, z];
+            return _objects[x, y, z];
 		}
 
 		public bool ApplyLeave(GameObject gameObject)
@@ -164,11 +164,11 @@ namespace Server.Game
 
 			{
 				int x = posInfo.PosX - MinX;
-				int y = MaxY - posInfo.PosY;
+				int y = posInfo.PosY - MinY;
                 int z = posInfo.PosZ - MinZ;
 
-                if (_objects[y, x , z] == gameObject)
-					_objects[y, x, z] = null;
+                if (_objects[x, y , z] == gameObject)
+					_objects[x, y, z] = null;
 			}
 
 			return true;
@@ -189,18 +189,18 @@ namespace Server.Game
 			{
 				{
 					int x = posInfo.PosX - MinX;
-					int y = MaxY - posInfo.PosY;
+					int y = posInfo.PosY - MinY;
                     int z = posInfo.PosZ - MinZ;
 
-                    if (_objects[y, x, z] == gameObject)
-						_objects[y, x, z] = null;
+                    if (_objects[x, y, z] == gameObject)
+						_objects[x, y, z] = null;
 				}
 				{ 
 					int x = dest.x - MinX;
-					int y = MaxY - dest.y;
+					int y = dest.y - MinY;
                     int z = dest.z - MinZ;
 
-                    _objects[y, x, z] = gameObject;
+                    _objects[x, y, z] = gameObject;
 				}
 			}
 
@@ -255,19 +255,20 @@ namespace Server.Game
 			string text = File.ReadAllText($"{pathPrefix}/{mapName}.txt");
 			StringReader reader = new StringReader(text);
 
-			MinX = int.Parse(reader.ReadLine());
-			MaxX = int.Parse(reader.ReadLine());
-			MinY = int.Parse(reader.ReadLine());
-			MaxY = int.Parse(reader.ReadLine());
-            MinZ = int.Parse(reader.ReadLine());
+            MaxX = int.Parse(reader.ReadLine());
+            MinX = int.Parse(reader.ReadLine());
             MaxZ = int.Parse(reader.ReadLine());
+            MinZ = int.Parse(reader.ReadLine());
+
+            MinY = int.Parse(reader.ReadLine());
+            MaxY = MinY;
 
             int xCount = MaxX - MinX + 1;
 			int yCount = MaxY - MinY + 1;
 			int zCount = MaxZ - MinZ + 1;
 
-            _collision = new bool[yCount, xCount , zCount];
-			_objects = new GameObject[yCount, xCount, zCount];
+            _collision = new bool[xCount, yCount , zCount];
+			_objects = new GameObject[xCount, yCount, zCount];
 
 			for (int y = 0; y < yCount; y++)
 			{
@@ -276,7 +277,7 @@ namespace Server.Game
 				{
 					for (int z = 0; z < zCount; z++)
 					{
-						_collision[y, x, z] = (line[x] == '1' ? true : false);
+						_collision[x, y, z] = (line[z] == '1' ? true : false);
 					}
 				}	
 			}
@@ -285,20 +286,15 @@ namespace Server.Game
         #region A* PathFinding
 
         // 6방향 이동 (앞/뒤/좌/우/위/아래)
-        int[] _deltaY = { 1, -1, 0, 0, 0, 0 };
-        int[] _deltaX = { 0, 0, -1, 1, 0, 0 };
+        int[] _deltaX = { 1, -1, 0, 0, 0, 0 };
+        int[] _deltaY = { 0, 0, 1, -1, 0, 0 };
         int[] _deltaZ = { 0, 0, 0, 0, 1, -1 };
         int[] _cost = { 10, 10, 10, 10, 10, 10 };
 
         private int Heuristic(Pos a, Pos b)
         {
-            return 10 * (
-                (a.Y - b.Y) * (a.Y - b.Y) +
-                (a.X - b.X) * (a.X - b.X) +
-                (a.Z - b.Z) * (a.Z - b.Z)
-            );
+            return 10 * (Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y) + Math.Abs(a.Z - b.Z));
         }
-
 
         public List<Vector3Int> FindPath(Vector3Int startCellPos, Vector3Int destCellPos, bool checkObjects = true, int maxDist = 10)
 		{
@@ -310,10 +306,10 @@ namespace Server.Game
 			// G = 시작점에서 해당 좌표까지 이동하는데 드는 비용 (작을 수록 좋음, 경로에 따라 달라짐)
 			// H = 목적지에서 얼마나 가까운지 (작을 수록 좋음, 고정)
 
-			// (y, x) 이미 방문했는지 여부 (방문 = closed 상태)
+			// (y, x, z) 이미 방문했는지 여부 (방문 = closed 상태)
 			HashSet<Pos> closeList = new HashSet<Pos>(); // CloseList
 
-			// (y, x) 가는 길을 한 번이라도 발견했는지
+			// (y, x, z) 가는 길을 한 번이라도 발견했는지
 			// 발견X => MaxValue
 			// 발견O => F = G + H
 			Dictionary<Pos /*발견된 노드*/, int /*F 값*/ > openList = new Dictionary<Pos, int>(); // OpenList 와 F값
@@ -329,14 +325,14 @@ namespace Server.Game
 			// 시작점 발견 (예약 진행)
 			openList.Add(pos, Heuristic(dest, pos));
 
-			pq.Push(new PQNode() { F = Heuristic(dest, pos), G = 0, Y = pos.Y, X = pos.X ,Z = pos.Z});
+			pq.Push(new PQNode() { F = Heuristic(dest, pos), G = 0, X = pos.X, Y = pos.Y, Z = pos.Z});
 			parent.Add(pos, pos);
 
 			while (pq.Count > 0)
 			{
 				// 제일 좋은 후보를 찾는다
 				PQNode pqNode = pq.Pop();
-				Pos node = new Pos(pqNode.Y, pqNode.X, pqNode.Z);
+				Pos node = new Pos(pqNode.X, pqNode.Y, pqNode.Z);
 				// 동일한 좌표를 여러 경로로 찾아서, 더 빠른 경로로 인해서 이미 방문(closed)된 경우 스킵
 				if (closeList.Contains(node))
 					continue;
@@ -349,12 +345,12 @@ namespace Server.Game
 					break;
 
 				// 상하좌우 등 이동할 수 있는 좌표인지 확인해서 예약(open)한다
-				for (int i = 0; i < _deltaY.Length; i++)
+				for (int i = 0; i < _deltaX.Length; i++)
 				{
-					Pos next = new Pos(node.Y + _deltaY[i], node.X + _deltaX[i] , node.Z + _deltaZ[i]);
+					Pos next = new Pos(node.X + _deltaX[i], node.Y + _deltaY[i] , node.Z + _deltaZ[i]);
 
 					// 너무 멀면 스킵
-					if ( Math.Abs(pos.Y - next.Y) + Math.Abs(pos.X - next.X) + Math.Abs(pos.Z - next.Z) > maxDist)
+					if (Math.Abs(pos.Y - next.Y) + Math.Abs(pos.X - next.X) + Math.Abs(pos.Z - next.Z) > maxDist)
 						continue;
 
 					// 유효 범위를 벗어났으면 스킵
@@ -423,7 +419,8 @@ namespace Server.Game
 
 			{
 				Pos pos = dest;
-				while (parent[pos] != pos)
+
+                while (parent[pos] != pos)
 				{
 					cells.Add(Pos2Cell(pos));
 					pos = parent[pos];
@@ -438,13 +435,13 @@ namespace Server.Game
 		Pos Cell2Pos(Vector3Int cell)
 		{
 			// CellPos -> ArrayPos
-			return new Pos(MaxY - cell.y, cell.x - MinX, cell.z - MinZ);
+			return new Pos(cell.x - MinX, cell.y - MinY , cell.z - MinZ);
 		}
 
 		Vector3Int Pos2Cell(Pos pos)
 		{
 			// ArrayPos -> CellPos
-			return new Vector3Int(pos.X + MinX, MaxY - pos.Y, pos.Z + MinZ);
+			return new Vector3Int(pos.X + MinX, pos.Y + MinY, pos.Z + MinZ);
 		}
 
 		#endregion
