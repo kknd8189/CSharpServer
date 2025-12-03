@@ -1,10 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "vTyJ1ho1pPw=",
+  "dgSpecHash": "rTWQ2U2DlsU=",
   "success": true,
-  "projectFilePath": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\DummyClient\\DummyClient.csproj",
+  "projectFilePath": "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\DummyClient\\DummyClient.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\ehehd\\.nuget\\packages\\google.protobuf\\3.32.0\\google.protobuf.3.32.0.nupkg.sha512"
+    "C:\\Users\\user\\.nuget\\packages\\google.protobuf\\3.32.0\\google.protobuf.3.32.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.22\\microsoft.windowsdesktop.app.ref.8.0.22.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.22\\microsoft.netcore.app.ref.8.0.22.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.22\\microsoft.aspnetcore.app.ref.8.0.22.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\8.0.22\\microsoft.netcore.app.host.win-x64.8.0.22.nupkg.sha512"
   ],
   "logs": []
 }

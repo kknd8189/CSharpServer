@@ -3216,24 +3216,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\ehehd\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\user\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Server.csproj",
+      "projectUniqueName": "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\Server\\Server.csproj",
       "projectName": "Server",
-      "projectPath": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\Server.csproj",
-      "packagesPath": "C:\\Users\\ehehd\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\Server\\obj\\",
+      "projectPath": "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\Server\\Server.csproj",
+      "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\Server\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\ehehd\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -3247,11 +3242,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\ServerCore.csproj": {
-              "projectPath": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\ServerCore\\ServerCore.csproj"
+            "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\ServerCore\\ServerCore.csproj": {
+              "projectPath": "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\ServerCore\\ServerCore.csproj"
             },
-            "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\SharedDB\\SharedDB.csproj": {
-              "projectPath": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\SharedDB\\SharedDB.csproj"
+            "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\SharedDB\\SharedDB.csproj": {
+              "projectPath": "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\SharedDB\\SharedDB.csproj"
             }
           }
         }
@@ -3266,7 +3261,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "10.0.100"
     },
     "frameworks": {
       "net8.0": {
@@ -3311,7 +3306,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.100/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

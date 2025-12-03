@@ -4,7 +4,12 @@ CSharpSeveer Programming for portfolio
 
 TODO LIST
 1. Flat buffer -> Ring Buffer 변경
-
+2. 패킷처리 lock 기반 Queue에서 MPSC QUEUE로 변경
+3. 보안로직 Game Server에 바로 붙지 못하게 LoginServer에서 토큰 발급 및 GameServer에 검증 절차 추가
+4. 대용량 패킷 컨텐츠 제작 -> 레이드, 경매장
+    4-1. Lock 기반 처리
+    4-2. MPSC Queue 처리
+    성능 비교
 
 완료 List
 2. DATABASE 연동
