@@ -10,6 +10,9 @@ TODO LIST
     4-1. Lock 기반 처리
     4-2. MPSC Queue 처리
     성능 비교
+5. 패킷처리부분 - byte 배열에서 span을 사용하여 복사비용을 들이지 않고 빠르게 처리할수 있는 방식 만들기
+
+
 
 완료 List
 2. DATABASE 연동
