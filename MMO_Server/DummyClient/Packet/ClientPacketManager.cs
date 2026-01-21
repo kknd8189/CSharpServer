@@ -2,6 +2,7 @@ using Google.Protobuf;
 using Google.Protobuf.Protocol;
 using ServerCore;
 using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 
 class PacketManager
@@ -21,7 +22,10 @@ class PacketManager
 		
 	public Action<PacketSession, IMessage, ushort> CustomHandler { get; set; }
 
-	public void Register()
+    public delegate void PacketHandlerSpan(PacketSession session, ReadOnlySpan<byte> buffer, ushort id);
+    Dictionary<ushort, PacketHandlerSpan> _onRecvSpan = new Dictionary<ushort, PacketHandlerSpan>();
+
+    public void Register()
 	{		
 		_onRecv.Add((ushort)MsgId.SEnterGame, MakePacket<S_EnterGame>);
 		_handler.Add((ushort)MsgId.SEnterGame, PacketHandler.S_EnterGameHandler);		
@@ -70,8 +74,24 @@ class PacketManager
 		if (_onRecv.TryGetValue(id, out action))
 			action.Invoke(session, buffer, id);
 	}
+    public void OnRecvPacketSpan(PacketSession session, ReadOnlySpan<byte> buffer)
+    {
+        ushort count = 0;
 
-	void MakePacket<T>(PacketSession session, ArraySegment<byte> buffer, ushort id) where T : IMessage, new()
+        count += 2;
+        ushort size = BinaryPrimitives.ReadUInt16LittleEndian(buffer.Slice(count));
+        count += 2;
+        ushort id = BinaryPrimitives.ReadUInt16LittleEndian(buffer.Slice(count));
+
+        if (_onRecvSpan.TryGetValue(id, out PacketHandlerSpan action))
+        {
+            // Span을 그대로 넘겨주어 복사 비용 '0' 유지
+            action.Invoke(session, buffer, id);
+        }
+    }
+
+
+    void MakePacket<T>(PacketSession session, ArraySegment<byte> buffer, ushort id) where T : IMessage, new()
 	{
 		T pkt = new T();
 		pkt.MergeFrom(buffer.Array, buffer.Offset + 4, buffer.Count - 4);

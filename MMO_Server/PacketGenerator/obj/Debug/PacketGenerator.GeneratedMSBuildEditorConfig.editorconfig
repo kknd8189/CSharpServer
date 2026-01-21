@@ -1,6 +1,6 @@
 is_global = true
 build_property.RootNamespace = PacketGenerator
-build_property.ProjectDir = C:\Users\ehehd\Desktop\GitHub\CSharpServer\MMO_Server\PacketGenerator\
+build_property.ProjectDir = C:\Users\user\Desktop\CSharpServer\MMO_Server\PacketGenerator\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.CsWinRTUseWindowsUIXamlProjections = false

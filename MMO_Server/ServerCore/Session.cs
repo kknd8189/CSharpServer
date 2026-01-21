@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 
 namespace ServerCore
@@ -36,10 +36,38 @@ namespace ServerCore
 			return processLen;
 		}
 
-		public abstract void OnRecvPacket(ArraySegment<byte> buffer);
-	}
+        public sealed override int OnRecvSpan(ReadOnlySpan<byte> buffer)
+        {
+            int processLen = 0;
+            while (true)
+            {
+                // 최소한 헤더는 파싱할 수 있는지 확인
+                if (buffer.Length < HeaderSize)
+                    break;
 
-	public abstract class Session
+                // 패킷이 완전체로 도착했는지 확인
+                ushort dataSize = BinaryPrimitives.ReadUInt16LittleEndian(buffer);
+
+                //패킷 완전체가 도착했는지 확인 (패킷 크기만큼 데이터가 있는지)
+                if (buffer.Length < dataSize)
+                    break;
+
+                OnRecvPacketSpan(buffer.Slice(0, dataSize));
+                processLen += dataSize;
+                buffer = buffer.Slice(dataSize);
+            }
+
+            return processLen;
+        }
+
+        public abstract void OnRecvPacket(ArraySegment<byte> buffer);
+
+        public abstract void OnRecvPacketSpan(ReadOnlySpan<byte> buffer);
+
+    }
+
+
+    public abstract class Session
 	{
 		Socket _socket;
 		int _disconnected = 0;
@@ -54,7 +82,9 @@ namespace ServerCore
 
 		public abstract void OnConnected(EndPoint endPoint);
 		public abstract int  OnRecv(ArraySegment<byte> buffer);
-		public abstract void OnSend(int numOfBytes);
+		public abstract int OnRecvSpan(ReadOnlySpan<byte> buffer);
+
+        public abstract void OnSend(int numOfBytes);
 		public abstract void OnDisconnected(EndPoint endPoint);
 
 		void Clear()
@@ -70,7 +100,7 @@ namespace ServerCore
 		{
 			_socket = socket;
 
-			_recvArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnRecvCompleted);
+			_recvArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnRecvCompletedSpan);
 			_sendArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnSendCompleted);
 
 			RegisterRecv();
@@ -179,7 +209,7 @@ namespace ServerCore
 			{
 				bool pending = _socket.ReceiveAsync(_recvArgs);
 				if (pending == false)
-					OnRecvCompleted(null, _recvArgs);
+					OnRecvCompletedSpan(null, _recvArgs);
 			}
 			catch (Exception e)
 			{
@@ -202,7 +232,7 @@ namespace ServerCore
 
 					// 컨텐츠 쪽으로 데이터를 넘겨주고 얼마나 처리했는지 받는다
 					int processLen = OnRecv(_recvBuffer.ReadSegment);
-					if (processLen < 0 || _recvBuffer.DataSize < processLen)
+                    if (processLen < 0 || _recvBuffer.DataSize < processLen)
 					{
 						Disconnect();
 						return;
@@ -227,7 +257,46 @@ namespace ServerCore
 				Disconnect();
 			}
 		}
+        void OnRecvCompletedSpan(object sender, SocketAsyncEventArgs args)
+        {
+            if (args.BytesTransferred > 0 && args.SocketError == SocketError.Success)
+            {
+                try
+                {
+                    // Write 커서 이동
+                    if (_recvBuffer.OnWrite(args.BytesTransferred) == false)
+                    {
+                        Disconnect();
+                        return;
+                    }
 
-		#endregion
-	}
+                    // 컨텐츠 쪽으로 데이터를 넘겨주고 얼마나 처리했는지 받는다
+                    int processLen = OnRecvSpan(_recvBuffer.ReadSpan);
+                    if (processLen < 0 || _recvBuffer.DataSize < processLen)
+                    {
+                        Disconnect();
+                        return;
+                    }
+
+                    // Read 커서 이동
+                    if (_recvBuffer.OnRead(processLen) == false)
+                    {
+                        Disconnect();
+                        return;
+                    }
+
+                    RegisterRecv();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"OnRecvCompleted Failed {e}");
+                }
+            }
+            else
+            {
+                Disconnect();
+            }
+        }
+        #endregion
+    }
 }

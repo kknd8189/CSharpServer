@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
 using ServerCore;
 using System.Net;
 using Google.Protobuf.Protocol;
 using Google.Protobuf;
 using Server.Game;
-using Server.Data;
 
 namespace Server
 {
@@ -21,6 +16,7 @@ namespace Server
 		public int SessionId { get; set; }
 
 		object _lock = new object();
+
 		List<ArraySegment<byte>> _reserveQueue = new List<ArraySegment<byte>>();
 
 		// 패킷 모아 보내기
@@ -110,6 +106,13 @@ namespace Server
 		{
 			PacketManager.Instance.OnRecvPacket(this, buffer);
 		}
+
+        public override void OnRecvPacketSpan(ReadOnlySpan<byte> buffer)
+        {
+			PacketManager.Instance.OnRecvPacketSpan(this, buffer);
+        }
+		
+		//public override 
 
 		public override void OnDisconnected(EndPoint endPoint)
 		{

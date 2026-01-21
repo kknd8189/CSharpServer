@@ -7,12 +7,12 @@ using System.Text;
 
 namespace Server.Game
 {
-	public struct Pos
-	{
+	public struct Pos : IEquatable<Pos>
+    {
 		public Pos(int x, int y, int z) { X = x; Y = y; Z = z; }
-		public int Y;
-		public int X;
-        public int Z;
+		readonly public int Y;
+        readonly public int X;
+        readonly public int Z;
 
         public static bool operator==(Pos lhs, Pos rhs)
 		{
@@ -26,10 +26,15 @@ namespace Server.Game
 
 		public override bool Equals(object obj)
 		{
-			return (Pos)obj == this;
-		}
+            return (obj is Pos other) && this == other;
+        }
 
-		public override int GetHashCode()
+        public bool Equals(Pos other)
+        {
+            return this == other;
+        }
+
+        public override int GetHashCode()
 		{
             unchecked
             {

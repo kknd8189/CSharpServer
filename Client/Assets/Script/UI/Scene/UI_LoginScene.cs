@@ -30,8 +30,8 @@ public class UI_LoginScene : UI_Scene
 
     public void OnClickCreateButton(PointerEventData evt)
     {
-        string account = Get<GameObject>((int)GameObjects.AccountName).GetComponent<InputField>().text;
-        string password = Get<GameObject>((int)GameObjects.Password).GetComponent<InputField>().text;
+        string account = Get<GameObject>((int)GameObjects.AccountName).GetComponent<TMP_InputField>().text;
+        string password = Get<GameObject>((int)GameObjects.Password).GetComponent<TMP_InputField>().text;
 
         CreateAccountPacketReq packet = new CreateAccountPacketReq()
         {

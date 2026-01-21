@@ -36,8 +36,12 @@ public class ServerSession : PacketSession
 	{
 		PacketManager.Instance.OnRecvPacket(this, buffer);
 	}
+    public override void OnRecvPacketSpan(ReadOnlySpan<byte> buffer)
+    {
+        PacketManager.Instance.OnRecvPacketSpan(this, buffer);
+    }
 
-	public override void OnSend(int numOfBytes)
+    public override void OnSend(int numOfBytes)
 	{
 		//Console.WriteLine($"Transferred bytes: {numOfBytes}");
 	}

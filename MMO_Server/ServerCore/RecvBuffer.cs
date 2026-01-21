@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ServerCore
 {
@@ -62,6 +60,16 @@ namespace ServerCore
 
 			_writePos += numOfBytes;
 			return true;
+		}
+
+		public ReadOnlySpan<byte> ReadSpan
+		{
+			get { return new ReadOnlySpan<byte>(_buffer.Array, _buffer.Offset + _readPos, DataSize); }
+		}
+
+		public Span<byte> WriteSpan
+		{
+			get { return new Span<byte>(_buffer.Array, _buffer.Offset + _writePos, FreeSize); }
 		}
 	}
 }

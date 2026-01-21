@@ -1,24 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\PacketGenerator\\PacketGenerator.csproj": {}
+    "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\PacketGenerator\\PacketGenerator.csproj": {}
   },
   "projects": {
-    "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\PacketGenerator\\PacketGenerator.csproj": {
+    "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\PacketGenerator\\PacketGenerator.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\PacketGenerator\\PacketGenerator.csproj",
+        "projectUniqueName": "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\PacketGenerator\\PacketGenerator.csproj",
         "projectName": "PacketGenerator",
-        "projectPath": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\PacketGenerator\\PacketGenerator.csproj",
-        "packagesPath": "C:\\Users\\ehehd\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ehehd\\Desktop\\GitHub\\CSharpServer\\MMO_Server\\PacketGenerator\\obj\\",
+        "projectPath": "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\PacketGenerator\\PacketGenerator.csproj",
+        "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\PacketGenerator\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\ehehd\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -44,7 +40,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "netcoreapp3.1": {
@@ -79,7 +75,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102\\RuntimeIdentifierGraph.json"
         }
       }
     }

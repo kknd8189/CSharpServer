@@ -125,26 +125,41 @@ namespace Google.Protobuf.Protocol {
   #region Enums
   public enum MsgId {
     [pbr::OriginalName("S_ENTER_GAME")] SEnterGame = 0,
+
     [pbr::OriginalName("S_LEAVE_GAME")] SLeaveGame = 1,
+
     [pbr::OriginalName("S_SPAWN")] SSpawn = 2,
     [pbr::OriginalName("S_DESPAWN")] SDespawn = 3,
+
     [pbr::OriginalName("C_MOVE")] CMove = 4,
     [pbr::OriginalName("S_MOVE")] SMove = 5,
+
     [pbr::OriginalName("C_SKILL")] CSkill = 6,
     [pbr::OriginalName("S_SKILL")] SSkill = 7,
+
     [pbr::OriginalName("S_CHANGE_HP")] SChangeHp = 8,
+
     [pbr::OriginalName("S_DIE")] SDie = 9,
+
     [pbr::OriginalName("S_CONNECTED")] SConnected = 10,
+
     [pbr::OriginalName("C_LOGIN")] CLogin = 11,
     [pbr::OriginalName("S_LOGIN")] SLogin = 12,
+
     [pbr::OriginalName("C_ENTER_GAME")] CEnterGame = 13,
+
     [pbr::OriginalName("C_CREATE_PLAYER")] CCreatePlayer = 14,
     [pbr::OriginalName("S_CREATE_PLAYER")] SCreatePlayer = 15,
+
     [pbr::OriginalName("S_ITEM_LIST")] SItemList = 16,
+
     [pbr::OriginalName("S_ADD_ITEM")] SAddItem = 17,
+
     [pbr::OriginalName("C_EQUIP_ITEM")] CEquipItem = 18,
     [pbr::OriginalName("S_EQUIP_ITEM")] SEquipItem = 19,
+
     [pbr::OriginalName("S_CHANGE_STAT")] SChangeStat = 20,
+
     [pbr::OriginalName("S_PING")] SPing = 21,
     [pbr::OriginalName("C_PONG")] CPong = 22,
   }
