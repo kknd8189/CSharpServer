@@ -27,7 +27,7 @@ namespace ServerCore
 			get { return new ArraySegment<byte>(_buffer.Array, _buffer.Offset + _writePos, FreeSize); }
 		}
 
-		public void Clean()
+        public void Clean()
 		{
 			int dataSize = DataSize;
 			if (dataSize == 0)
@@ -62,14 +62,5 @@ namespace ServerCore
 			return true;
 		}
 
-		public ReadOnlySpan<byte> ReadSpan
-		{
-			get { return new ReadOnlySpan<byte>(_buffer.Array, _buffer.Offset + _readPos, DataSize); }
-		}
-
-		public Span<byte> WriteSpan
-		{
-			get { return new Span<byte>(_buffer.Array, _buffer.Offset + _writePos, FreeSize); }
-		}
 	}
 }

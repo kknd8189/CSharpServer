@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using ServerCore;
-using System.Net;
+﻿using Google.Protobuf;
 using Google.Protobuf.Protocol;
-using Google.Protobuf;
 using Server.Game;
+using ServerCore;
+using System;
+using System.Buffers.Binary;
+using System.Collections.Generic;
+using System.Net;
 
 namespace Server
 {
@@ -55,17 +56,34 @@ namespace Server
 			string msgName = packet.Descriptor.Name.Replace("_", string.Empty);
 			MsgId msgId = (MsgId)Enum.Parse(typeof(MsgId), msgName);
 			ushort size = (ushort)packet.CalculateSize();
-			byte[] sendBuffer = new byte[size + 4];
-			Array.Copy(BitConverter.GetBytes((ushort)(size + 4)), 0, sendBuffer, 0, sizeof(ushort));
-			Array.Copy(BitConverter.GetBytes((ushort)msgId), 0, sendBuffer, 2, sizeof(ushort));
-			Array.Copy(packet.ToByteArray(), 0, sendBuffer, 4, size);
+			ushort totalSize = (ushort)(size + 4);
+      
+            Span<byte> span = SendBufferSpanHelper.Open(totalSize);
 
-			lock (_lock)
-			{
-				_reserveQueue.Add(sendBuffer);
-				_reservedSendBytes += sendBuffer.Length;
+            BinaryPrimitives.WriteUInt16LittleEndian(span.Slice(0), totalSize);
+            BinaryPrimitives.WriteUInt16LittleEndian(span.Slice(2), (ushort)msgId);
+
+            packet.WriteTo(span.Slice(4));
+
+            ArraySegment<byte> pendingBuffer = SendBufferSpanHelper.Close(totalSize);
+
+            lock (_lock)
+            {
+                _reserveQueue.Add(pendingBuffer);
+				_reservedSendBytes += totalSize;
 			}
-		}
+
+            //byte[] sendBuffer = new byte[size + 4];
+            //Array.Copy(BitConverter.GetBytes((ushort)(size + 4)), 0, sendBuffer, 0, sizeof(ushort));
+            //Array.Copy(BitConverter.GetBytes((ushort)msgId), 0, sendBuffer, 2, sizeof(ushort));
+            //Array.Copy(packet.ToByteArray(), 0, sendBuffer, 4, size);
+
+            //lock (_lock)
+            //{
+            //	_reserveQueue.Add(sendBuffer);
+            //	_reservedSendBytes += sendBuffer.Length;
+            //}
+        }
 
 		// 실제 Network IO 보내는 부분
 		public void FlushSend()
@@ -74,8 +92,11 @@ namespace Server
 
 			lock (_lock)
 			{
-				// 0.1초가 지났거나, 너무 패킷이 많이 모일 때 (1만 바이트)
-				long delta = (System.Environment.TickCount64 - _lastSendTick);
+                if (_reserveQueue.Count == 0)
+                    return;
+
+                // 0.1초가 지났거나, 너무 패킷이 많이 모일 때 (1만 바이트)
+                long delta = (System.Environment.TickCount64 - _lastSendTick);
 				if (delta < 100 && _reservedSendBytes < 10000)
 					return;
 
@@ -93,7 +114,6 @@ namespace Server
 		public override void OnConnected(EndPoint endPoint)
 		{
 			//Console.WriteLine($"OnConnected : {endPoint}");
-
 			{
 				S_Connected connectedPacket = new S_Connected();
 				Send(connectedPacket);
@@ -102,18 +122,16 @@ namespace Server
 			GameLogic.Instance.PushAfter(5000, Ping);
 		}
 
-		public override void OnRecvPacket(ArraySegment<byte> buffer)
-		{
-			PacketManager.Instance.OnRecvPacket(this, buffer);
-		}
+		//public override void OnRecvPacket(ArraySegment<byte> buffer)
+		//{
+		//	PacketManager.Instance.OnRecvPacket(this, buffer);
+		//}
 
         public override void OnRecvPacketSpan(ReadOnlySpan<byte> buffer)
         {
 			PacketManager.Instance.OnRecvPacketSpan(this, buffer);
         }
 		
-		//public override 
-
 		public override void OnDisconnected(EndPoint endPoint)
 		{
 			GameLogic.Instance.Push(() =>

@@ -276,27 +276,9 @@ namespace Server.Game
 			return zones.SelectMany(z => z.Players).ToList();
 		}
 
-		// ㅁㅁㅁㅁㅁㅁ
-		// ㅁㅁㅁㅁㅁㅁ
-		// ㅁㅁㅁㅁㅁㅁ
-		// ㅁㅁㅁㅁㅁㅁ
 		public List<Zone> GetAdjacentZones(Vector3Int cellPos, int range = GameRoom.VisionCells)
 		{
 			HashSet<Zone> zones = new HashSet<Zone>();
-
-			//int maxY = cellPos.y + range;
-			//int minY = cellPos.y - range;
-			//int maxX = cellPos.x + range;
-			//int minX = cellPos.x - range;
-			//int maxZ = cellPos.z + range;
-			//int minZ = cellPos.z - range;
-
-            //int minIndexX = (Map.MinX + leftBotBack.x) / ZoneCells;
-            //int minIndexY = (Map.MinY + leftBotBack.y) / ZoneCells;
-            //int minIndexZ = (Map.MinZ + leftBotBack.z) / ZoneCells;
-            //int maxIndexX = (Map.MaxX + rightUpFor.x) / ZoneCells;
-            //int maxIndexY = (Map.MaxY + rightUpFor.y) / ZoneCells;
-            //int maxIndexZ = (Map.MaxZ + rightUpFor.z) / ZoneCells;
 
             int minIndexX = (cellPos.x - range - Map.MinX) / ZoneCells;
             int maxIndexX = (cellPos.x + range - Map.MinX) / ZoneCells;
@@ -304,7 +286,6 @@ namespace Server.Game
             int maxIndexY = (cellPos.y + range - Map.MinY) / ZoneCells;
             int minIndexZ = (cellPos.z - range - Map.MinZ) / ZoneCells;
             int maxIndexZ = (cellPos.z + range - Map.MinZ) / ZoneCells;
-
 
             for (int x = minIndexX; x <= maxIndexX; x++)
 			{
