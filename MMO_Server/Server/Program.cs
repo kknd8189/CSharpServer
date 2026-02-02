@@ -1,15 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using System.Reflection;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using Google.Protobuf;
-using Google.Protobuf.Protocol;
-using Google.Protobuf.WellKnownTypes;
 using Server.Data;
 using Server.DB;
 using Server.Game;
@@ -47,19 +39,18 @@ namespace Server
 			}
 		}
 
-		static void NetworkTask()
-		{
-			while (true)
-			{
-				List<ClientSession> sessions = SessionManager.Instance.GetSessions();
-				foreach (ClientSession session in sessions)
-				{
-					session.FlushSend();
-				}
-
-				Thread.Sleep(0);
-			}
-		}
+		//static void NetworkTask()
+		//{
+		//	while (true)
+		//	{
+		//		List<ClientSession> sessions = SessionManager.Instance.GetSessions();
+		//		foreach (ClientSession session in sessions)
+		//		{
+		//			session.FlushSend();
+		//		}
+		//		Thread.Sleep(0);
+		//	}
+		//}
 
 		static void StartServerInfoTask()
 		{
@@ -136,11 +127,11 @@ namespace Server
 			}
 
 			// NetworkTask
-			{
-				Thread t = new Thread(NetworkTask);
-				t.Name = "Network Send";
-				t.Start();
-			}
+			//{
+			//	Thread t = new Thread(NetworkTask);
+			//	t.Name = "Network Send";
+			//	t.Start();
+			//}
 
 			// GameLogic
 			Thread.CurrentThread.Name = "GameLogic";

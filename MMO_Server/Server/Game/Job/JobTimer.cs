@@ -7,13 +7,13 @@ namespace Server.Game
 {
 	struct JobTimerElem : IComparable<JobTimerElem>
 	{
-		public int execTick; // 실행 시간
+		public long execTick; // 실행 시간
 		public IJob job;
 
 		public int CompareTo(JobTimerElem other)
 		{
-			return other.execTick - execTick;
-		}
+            return other.execTick.CompareTo(execTick);
+        }
 	}
 
 	public class JobTimer
@@ -37,9 +37,9 @@ namespace Server.Game
 		{
 			while (true)
 			{
-				int now = System.Environment.TickCount;
+                long now = System.Environment.TickCount64;
 
-				JobTimerElem jobElement;
+                JobTimerElem jobElement;
 
 				lock (_lock)
 				{

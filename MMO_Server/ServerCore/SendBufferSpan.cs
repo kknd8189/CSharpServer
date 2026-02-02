@@ -12,6 +12,10 @@ namespace ServerCore
 
         public static Span<byte> Open(int reserveSize)
         {
+            //혹시 나중에 ChunkSize보다 큰 값으로 패킷을 만들 경우 해당 로직 구현 -> LOH에 저장되어도 어쩔수 없이 좀더 큰 버퍼를 만드는식으로
+            if (reserveSize > ChunkSize)
+                throw new ArgumentException($"reserveSize({reserveSize}) > ChunkSize({ChunkSize})");
+
             if (CurrentBuffer.Value == null)
                 CurrentBuffer.Value = new SendBufferSpan(ChunkSize);
 
@@ -42,7 +46,7 @@ namespace ServerCore
         public Span<byte> Open(int reserveSize)
         {
             if (reserveSize > FreeSize)
-                return null;
+                return default;
 
             return new Span<byte>(_buffer, _usedSize, reserveSize);
         }

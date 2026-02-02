@@ -74,19 +74,21 @@ class PacketManager
 		if (_onRecv.TryGetValue(id, out action))
 			action.Invoke(session, buffer, id);
 	}
+
     public void OnRecvPacketSpan(PacketSession session, ReadOnlySpan<byte> buffer)
     {
         ushort count = 0;
 
-        count += 2;
         ushort size = BinaryPrimitives.ReadUInt16LittleEndian(buffer.Slice(count));
         count += 2;
         ushort id = BinaryPrimitives.ReadUInt16LittleEndian(buffer.Slice(count));
+        count += 2;
 
         if (_onRecvSpan.TryGetValue(id, out PacketHandlerSpan action))
         {
             // Span을 그대로 넘겨주어 복사 비용 '0' 유지
-            action.Invoke(session, buffer, id);
+			// Buffer에 Payload만 넘겨줌
+            action.Invoke(session, buffer.Slice(count), id);
         }
     }
 
