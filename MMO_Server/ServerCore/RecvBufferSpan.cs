@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Threading;
 
 namespace ServerCore
 {
@@ -13,17 +14,20 @@ namespace ServerCore
         public RecvBufferSpan(int bufferSize)
         {
             //_buffer = new byte[bufferSize];
-            _buffer = ArrayPool<byte>.Shared.Rent(bufferSize); 
+            _buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
             _capacity = bufferSize; // 빌린 크기 != 실제 크기 따라서 bufferSize를 _capacity에 따로 저장
         }
-        
+
         // 사용한 버퍼 반납
+        // Interlocked.Exchange로 원자적으로 null 교환 → 이중 반환 방지
+        // ClearArray = true를 하지 않는 이유 -> 항상 쓴 만큼만 읽고 읽지 않는 영역은 접근하지 않음, 이전 세션의 잔여 데이터가 버퍼에 남아있어도 커서 범위 바깥,
+        // clearArray: true는 memset(0)으로 65KB를 매번 밀어버리는 건데 불필요한 비용이 큼
         public void Dispose()
         {
-            if(_buffer != null)
+            byte[] buffer = Interlocked.Exchange(ref _buffer, null);
+            if (buffer != null)
             {
-                ArrayPool<byte>.Shared.Return(_buffer);
-                _buffer = null;
+                ArrayPool<byte>.Shared.Return(buffer);
             }
         }
 

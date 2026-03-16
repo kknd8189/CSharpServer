@@ -98,22 +98,27 @@ namespace ServerCore
     {
         Socket _socket;
         int _disconnected = 0;
+        protected bool Connected { get { return Volatile.Read(ref _disconnected) == 0; } }
 
-        //RecvBuffer _recvBuffer = new RecvBuffer(65535);
-
-        RecvBufferSpan _recvBufferSpan = new RecvBufferSpan(65535);
-
-        //object _lock = new object();
-        //Queue<ArraySegment<byte>> _sendQueue = new Queue<ArraySegment<byte>>();
+        RecvBufferSpan _recvBufferSpan;
 
         //MPSCQueue로 락프리 구현
         ConcurrentQueue<ArraySegment<byte>> _sendQueue = new ConcurrentQueue<ArraySegment<byte>>();
+        // Send Queue 최대 크기 - 초과 시 느린 클라이언트로 판단하고 연결 끊음
+        // ConcurrentQueue.Count는 O(N) 스냅샷이므로, 별도의 원자적 카운터로 추적
+        int _sendQueueCount = 0;
+        const int MAX_SEND_QUEUE_SIZE = 1000;
         //Lock 대체용 원자성 플래그 (0: 대기중 , 1:전송중)
         int _sendRegistered = 0;
-
+        int _socketClosed = 0;
         List<ArraySegment<byte>> _pendingList = new List<ArraySegment<byte>>();
-        SocketAsyncEventArgs _sendArgs = new SocketAsyncEventArgs();
-        SocketAsyncEventArgs _recvArgs = new SocketAsyncEventArgs();
+        SocketAsyncEventArgs _sendArgs;
+        SocketAsyncEventArgs _recvArgs;
+
+        // I/O 참조 카운팅: 비동기 I/O가 진행 중인 동안 리소스 Dispose를 방지
+        // 세션 활성(1) + 비동기 Recv(+1) + 비동기 Send(+1)
+        // 모든 카운트가 해제되어 0이 되면 안전하게 리소스 정리
+        int _ioCount = 1; // 세션 자체의 참조 (CloseSocket에서 해제)
 
         public abstract void OnConnected(EndPoint endPoint);
         //public abstract int  OnRecv(ArraySegment<byte> buffer);
@@ -123,21 +128,74 @@ namespace ServerCore
 
         void Clear()
         {
-            //lock (_lock)
-            //{
             _sendQueue.Clear();
             _pendingList.Clear();
-            //}
+        }
+
+        // I/O 참조 카운트를 감소시키고, 0이 되면 리소스 정리
+        // CloseSocket, OnRecvCompleted, OnSendCompleted 등에서 호출
+        void ReleaseIO()
+        {
+            if (Interlocked.Decrement(ref _ioCount) == 0)
+            {
+                _sendArgs.Dispose();
+                _recvArgs.Dispose();
+                _recvBufferSpan?.Dispose();
+                _recvBufferSpan = null;
+            }
         }
 
         public void Start(Socket socket)
         {
             _socket = socket;
 
-            _recvArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnRecvCompletedSpan);
-            _sendArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnSendCompleted);
+            // 상태 초기화 (세션 재사용 시 이전 상태가 남아있지 않도록)
+            _disconnected = 0;
+            _socketClosed = 0;
+            _sendRegistered = 0;
+            _ioCount = 1;
+            _sendQueueCount = 0;
+            _recvBufferSpan = new RecvBufferSpan(65535);
+
+            // 매 Start마다 새 SocketAsyncEventArgs 생성 + 이벤트 등록
+            // ReleaseIO에서 이전 args를 Dispose하므로, 재사용 시 새로 만들어야 함
+            // 새 객체에 += 하는 것이므로 이벤트 핸들러 누적 문제 없음
+            _sendArgs = new SocketAsyncEventArgs();
+            _recvArgs = new SocketAsyncEventArgs();
+            _sendArgs.Completed += OnSendCompleted;
+            _recvArgs.Completed += OnRecvCompletedSpan;
 
             RegisterRecv();
+        }
+
+        //실제 소켓을 닫은 함수를 따로 분리
+        public void CloseSocket()
+        {
+            if (_socket == null) return;
+
+            if (Interlocked.Exchange(ref _socketClosed, 1) == 1)
+                return;
+
+            EndPoint endPoint = null;
+            try { endPoint = _socket.RemoteEndPoint; }
+            catch { }
+
+            try
+            {
+                _socket.Shutdown(SocketShutdown.Both);
+                _socket.Close();
+            }   
+            catch {}
+
+            Clear();
+
+            _socket = null;
+
+            OnDisconnected(endPoint);
+
+            // 세션 참조 해제 (비동기 I/O가 아직 진행 중이면 _ioCount > 0이므로 Dispose되지 않음)
+            // 마지막 IOCP 콜백이 완료될 때 _ioCount가 0이 되면서 Dispose 실행
+            ReleaseIO();
         }
 
         public void Send(List<ArraySegment<byte>> sendBuffList)
@@ -145,20 +203,16 @@ namespace ServerCore
             if (sendBuffList.Count == 0)
                 return;
 
-            //lock (_lock)
-            //{
-            //	foreach (ArraySegment<byte> sendBuff in sendBuffList)
-            //		_sendQueue.Enqueue(sendBuff);
-
-            //	
-            //	if (_pendingList.Count == 0)
-            //		RegisterSend();
-            //}
-
             foreach (ArraySegment<byte> sendBuff in sendBuffList)
                 _sendQueue.Enqueue(sendBuff);
 
-            // 현재 전송 중인 패킷이 없다면 전송 시작
+            // 원자적 카운터로 큐 크기 추적
+            if (Interlocked.Add(ref _sendQueueCount, sendBuffList.Count) > MAX_SEND_QUEUE_SIZE)
+            {
+                Disconnect();
+                return;
+            }
+
             if (Interlocked.Exchange(ref _sendRegistered, 1) == 0)
             {
                 RegisterSend();
@@ -167,14 +221,13 @@ namespace ServerCore
 
         public void Send(ArraySegment<byte> sendBuff)
         {
-            //lock (_lock)
-            //{
-            //	_sendQueue.Enqueue(sendBuff);
-            //	if (_pendingList.Count == 0)
-            //		RegisterSend();
-            //}
-
             _sendQueue.Enqueue(sendBuff);
+
+            if (Interlocked.Increment(ref _sendQueueCount) > MAX_SEND_QUEUE_SIZE)
+            {
+                Disconnect();
+                return;
+            }
 
             if (Interlocked.Exchange(ref _sendRegistered, 1) == 0)
             {
@@ -184,22 +237,17 @@ namespace ServerCore
 
         public void Disconnect()
         {
-            // 중복 처리 방지
+            // 1. "종료 모드"로 전환 (Flag On)
             if (Interlocked.Exchange(ref _disconnected, 1) == 1)
                 return;
 
-            OnDisconnected(_socket.RemoteEndPoint);
-
-            _socket.Shutdown(SocketShutdown.Both);
-            _socket.Close();
-
-            _recvBufferSpan?.Dispose();
-            _recvBufferSpan = null;
-
-            Clear();
-
-            _sendArgs.Dispose();
-            _recvArgs.Dispose();
+            // 2. 소켓을 바로 닫는 게 아니라, 전송 큐를 확인하러 보냄
+            // - 만약 전송 중이라면: 그 스레드가 다 보내고 닫을 것임
+            // - 만약 쉬고 있다면: 지금 깨워서 남은 거 보내고 닫게 함
+            if (Interlocked.Exchange(ref _sendRegistered, 1) == 0)
+            {
+                RegisterSend();
+            }
         }
 
         #region 네트워크 통신
@@ -208,7 +256,7 @@ namespace ServerCore
             // SocketError가 Success가 아니거나, 보낸 바이트가 0이면 연결 끊긴 것으로 간주
             if (args.SocketError != SocketError.Success || args.BytesTransferred <= 0)
             {
-                Disconnect();
+                CloseSocket();
                 return false;
             }
 
@@ -222,8 +270,14 @@ namespace ServerCore
 
         void RegisterSend()
         {
-            if (_disconnected == 1)
+            if (Volatile.Read(ref _disconnected ) == 1 && _sendQueue.IsEmpty && _pendingList.Count == 0)
+            {
+                CloseSocket();
                 return;
+            }
+
+            //지역 변수 스냅샷
+            List<ArraySegment<byte>> pendingList = _pendingList;
 
             // 큐에 있는 모든 패킷을 리스트로 이동 (Batching)
             //         while (_sendQueue.Count > 0)
@@ -237,16 +291,30 @@ namespace ServerCore
                 // PendingList 채우기 , 큐에 있는 거 싹 긁어모으기
                 // ConcurrentQueue는 Count가 정확하지 않을 수 있어서 TryDequeue로 뺌
 
-                //Gather
+                //Gather - 큐에서 꺼낸 만큼 카운터 감소
+                int dequeued = 0;
                 while (_sendQueue.TryDequeue(out ArraySegment<byte> buff))
                 {
-                    _pendingList.Add(buff);
+                    pendingList.Add(buff);
+                    dequeued++;
                 }
+                if (dequeued > 0)
+                    Interlocked.Add(ref _sendQueueCount, -dequeued);
 
                 // Check & Exit
-                if (_pendingList.Count == 0)
+                if (pendingList.Count == 0)
                 {
+                    //더 보낼 건 없는데, "종료 예약"이 걸려있다?
+                    if (Volatile.Read(ref _disconnected) == 1)
+                    {
+                        CloseSocket(); // 여기서 진짜 종료!
+                        return;
+                    }
+
+                    //종료 예약도 없고, 보낼 것도 없으면 대기 상태로
                     Interlocked.Exchange(ref _sendRegistered, 0);
+
+                    // (Double Check) 그 사이에 누가 또 넣었으면 다시 시작
                     if (_sendQueue.IsEmpty == false)
                     {
                         if (Interlocked.Exchange(ref _sendRegistered, 1) == 0)
@@ -260,30 +328,34 @@ namespace ServerCore
 
                 try
                 {
+                    // [I/O 참조 카운팅] SendAsync 호출 전에 카운트 증가
+                    Interlocked.Increment(ref _ioCount);
+
                     bool pending = _socket.SendAsync(_sendArgs);
 
-                    // 동기 완료 (즉시 전송됨)
+                    // 동기 완료 (즉시 전송됨) - IOCP 콜백이 오지 않으므로 카운트 원복
                     if (pending == false)
                     {
-                        //성공 여부 체크
+                        Interlocked.Decrement(ref _ioCount);
+
                         if (ProcessSendSuccess(_sendArgs) == false)
                         {
-                            // 실패했으면(Disconnect됨) 루프 종료
                             return;
                         }
 
-                        // 성공했으면 루프 처음으로 돌아가서 다음 큐 처리
                         continue;
                     }
                 }
                 catch (Exception e)
                 {
+                    // SendAsync 자체 예외: 증가시킨 카운트 원복
+                    Interlocked.Decrement(ref _ioCount);
                     Console.WriteLine($"RegisterSend Failed {e}");
-                    Disconnect(); // SendAsync 자체에서 예외 나면 연결 끊기
+                    CloseSocket();
                     return;
                 }
 
-                return;
+                return; // Pending 상태면 종료 (콜백의 finally에서 ReleaseIO)
             }
         }
 
@@ -317,7 +389,6 @@ namespace ServerCore
             {
                 if (ProcessSendSuccess(args))
                 {
-                    // 성공했다면 다음 큐 확인하러 가기
                     RegisterSend();
                 }
             }
@@ -326,6 +397,10 @@ namespace ServerCore
                 Console.WriteLine($"OnSendCompleted Failed {e}");
                 Disconnect();
             }
+            finally
+            {
+                ReleaseIO();
+            }
         }
         bool ProcessRecv(SocketAsyncEventArgs args)
         {
@@ -333,31 +408,40 @@ namespace ServerCore
             {
                 try
                 {
+                    // [경합 방어] 로컬 변수로 캡처
+                    // CloseSocket()이 다른 스레드에서 _recvBufferSpan = null을 할 수 있으므로
+                    // 필드를 직접 반복 접근하면 도중에 null이 될 수 있다.
+                    // 로컬 변수에 한 번 캡처하면, 이후 null 체크 한 번으로 안전하게 사용 가능.
+                    var recvBuffer = _recvBufferSpan;
+                    if (recvBuffer == null)
+                    {
+                        Disconnect();
+                        return false;
+                    }
+
                     // 1. Write 커서 이동
-                    if (_recvBufferSpan.OnWrite(args.BytesTransferred) == false)
+                    if (recvBuffer.OnWrite(args.BytesTransferred) == false)
                     {
                         Disconnect();
                         return false;
                     }
 
                     // 2. 컨텐츠 쪽으로 데이터 넘기기 (패킷 파싱)
-                    // OnRecvSpan 내부에서 처리한 만큼 길이를 리턴받음
-                    int processLen = OnRecvSpan(_recvBufferSpan.ReadSpan);
+                    int processLen = OnRecvSpan(recvBuffer.ReadSpan);
 
-                    if (processLen < 0 || _recvBufferSpan.DataSize < processLen)
+                    if (processLen < 0 || recvBuffer.DataSize < processLen)
                     {
                         Disconnect();
                         return false;
                     }
 
                     // 3. Read 커서 이동 (처리한 만큼 버퍼 비우기)
-                    if (_recvBufferSpan.OnRead(processLen) == false)
+                    if (recvBuffer.OnRead(processLen) == false)
                     {
                         Disconnect();
                         return false;
                     }
 
-                    // 성공적으로 처리함
                     return true;
                 }
                 catch (Exception e)
@@ -373,46 +457,59 @@ namespace ServerCore
 
         void RegisterRecv()
         {
-            if (_disconnected == 1)
+            if (Volatile.Read(ref _disconnected) == 1)
                 return;
 
             // [핵심] 재귀 호출을 막기 위한 루프
             while (true)
             {
+                // [경합 방어] 로컬 변수 캡처 + null 체크
+                // CloseSocket()이 다른 스레드에서 실행되면 _recvBufferSpan이 null이 될 수 있음
+                var recvBuffer = _recvBufferSpan;
+                if (recvBuffer == null)
+                    return;
+
                 // 1. 버퍼 정리 및 공간 확보
-                _recvBufferSpan.Clean();
-                ArraySegment<byte> segment = _recvBufferSpan.WriteSegment;
+                recvBuffer.Clean();
+                ArraySegment<byte> segment = recvBuffer.WriteSegment;
                 _recvArgs.SetBuffer(segment.Array, segment.Offset, segment.Count);
 
                 try
                 {
+                    // [I/O 참조 카운팅] ReceiveAsync 호출 전에 카운트 증가
+                    // 반드시 호출 "전에" 증가시켜야 함
+                    // 이유: ReceiveAsync가 pending 반환 후 IOCP 콜백이 다른 스레드에서
+                    //       즉시 실행될 수 있음. 콜백의 ReleaseIO보다 먼저 증가해야 올바른 카운트 유지
+                    Interlocked.Increment(ref _ioCount);
+
                     // 2. 수신 요청
                     bool pending = _socket.ReceiveAsync(_recvArgs);
 
-                    // 3. 동기 완료 (즉시 받음)
+                    // 3. 동기 완료 (즉시 받음) - IOCP 콜백이 오지 않으므로 카운트 원복
                     if (pending == false)
                     {
-                        // 처리 로직 수행
+                        Interlocked.Decrement(ref _ioCount);
+
                         if (ProcessRecv(_recvArgs))
                         {
-                            // 성공했으면 루프를 돌면서 "즉시" 다시 수신 대기
                             continue;
                         }
                         else
                         {
-                            // 연결 끊김 등으로 실패했으면 종료
                             return;
                         }
                     }
 
                     // 4. 비동기 완료 (Pending)
-                    // IOCP 스레드가 나중에 OnRecvCompletedSpan을 호출해줌
+                    // IOCP 콜백(OnRecvCompletedSpan)의 finally에서 ReleaseIO로 카운트 감소
                     break;
                 }
                 catch (Exception e)
                 {
+                    // ReceiveAsync 자체 예외: 증가시킨 카운트 원복
+                    Interlocked.Decrement(ref _ioCount);
                     Console.WriteLine($"RegisterRecv Failed {e}");
-                    Disconnect(); // ReceiveAsync 자체 에러 처리
+                    Disconnect();
                     return;
                 }
             }
@@ -462,10 +559,8 @@ namespace ServerCore
         {
             try
             {
-                // 받은 데이터 처리
                 if (ProcessRecv(args))
                 {
-                    //  성공했으면 다시 수신 대기 루프 시작
                     RegisterRecv();
                 }
             }
@@ -473,6 +568,13 @@ namespace ServerCore
             {
                 Console.WriteLine($"OnRecvCompletedSpan Failed {e}");
                 Disconnect();
+            }
+            finally
+            {
+                // 이 IOCP 콜백에 대한 I/O 참조 해제
+                // RegisterRecv에서 새 ReceiveAsync를 시작했다면 이미 새로운 Increment가 됨
+                // 따라서 여기서 Decrement해도 새 I/O의 참조는 유지됨
+                ReleaseIO();
             }
         }
         #endregion

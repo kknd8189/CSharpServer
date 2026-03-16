@@ -9,36 +9,44 @@ namespace ServerCore
 {
 	public class Connector
 	{
-		Func<Session> _sessionFactory;
+		// UserToken에 Socket과 SessionFactory를 함께 전달하기 위한 컨텍스트
+		// 인스턴스 필드 대신 각 연결마다 독립적인 컨텍스트를 사용하여 경합 방지
+		class ConnectContext
+		{
+			public Socket Socket { get; }
+			public Func<Session> SessionFactory { get; }
+
+			public ConnectContext(Socket socket, Func<Session> sessionFactory)
+			{
+				Socket = socket;
+				SessionFactory = sessionFactory;
+			}
+		}
 
 		public void Connect(IPEndPoint endPoint, Func<Session> sessionFactory, int count = 1)
 		{
 			for (int i = 0; i < count; i++)
 			{
 				Socket socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-				_sessionFactory = sessionFactory;
 
 				SocketAsyncEventArgs args = new SocketAsyncEventArgs();
 				args.Completed += OnConnectCompleted;
 				args.RemoteEndPoint = endPoint;
-				args.UserToken = socket;
+				args.UserToken = new ConnectContext(socket, sessionFactory);
 
 				RegisterConnect(args);
-
-				// TEMP
-				Thread.Sleep(10);
 			}
 		}
 
 		void RegisterConnect(SocketAsyncEventArgs args)
 		{
-			Socket socket = args.UserToken as Socket;
-			if (socket == null)
+			ConnectContext context = args.UserToken as ConnectContext;
+			if (context == null)
 				return;
 
 			try
 			{
-				bool pending = socket.ConnectAsync(args);
+				bool pending = context.Socket.ConnectAsync(args);
 				if (pending == false)
 					OnConnectCompleted(null, args);
 			}
@@ -54,7 +62,8 @@ namespace ServerCore
 			{
 				if (args.SocketError == SocketError.Success)
 				{
-					Session session = _sessionFactory.Invoke();
+					ConnectContext context = args.UserToken as ConnectContext;
+					Session session = context.SessionFactory.Invoke();
 					session.Start(args.ConnectSocket);
 					session.OnConnected(args.RemoteEndPoint);
 				}
@@ -66,6 +75,12 @@ namespace ServerCore
 			catch (Exception e)
 			{
 				Console.WriteLine(e);
+			}
+			finally
+			{
+				// 연결 완료 후 더 이상 필요 없으므로 네이티브 리소스 해제
+				args.UserToken = null;
+				args.Dispose();
 			}
 		}
 	}

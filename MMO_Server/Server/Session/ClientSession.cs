@@ -5,6 +5,7 @@ using ServerCore;
 using System;
 using System.Buffers.Binary;
 using System.Net;
+using System.Threading;
 
 namespace Server
 {
@@ -49,6 +50,8 @@ namespace Server
         // 예약만 하고 보내지는 않는다
         public void Send(IMessage packet)
         {
+            if(Connected == false) return;
+
             string msgName = packet.Descriptor.Name.Replace("_", string.Empty);
             MsgId msgId = (MsgId)Enum.Parse(typeof(MsgId), msgName);
             ushort size = (ushort)packet.CalculateSize();
@@ -132,6 +135,9 @@ namespace Server
 
         public override void OnDisconnected(EndPoint endPoint)
         {
+
+            SessionManager.Instance.Remove(this);
+
             GameLogic.Instance.Push(() =>
             {
                 if (MyPlayer == null)
@@ -141,7 +147,6 @@ namespace Server
                 room.Push(room.LeaveGame, MyPlayer.Info.ObjectId);
             });
 
-            SessionManager.Instance.Remove(this);
         }
 
         public override void OnSend(int numOfBytes)

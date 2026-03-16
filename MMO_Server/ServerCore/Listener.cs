@@ -14,7 +14,7 @@ namespace ServerCore
         public void Init(IPEndPoint endPoint, Func<Session> sessionFactory, int register = 10, int backlog = 100)
         {
             _listenSocket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            _sessionFactory += sessionFactory;
+            _sessionFactory = sessionFactory;
 
             _listenSocket.Bind(endPoint);
 
@@ -53,6 +53,8 @@ namespace ServerCore
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                // 예외가 발생해도 accept 슬롯을 재등록하여 영구 손실 방지
+                RegisterAccept(args);
             }
         }
 

@@ -35,11 +35,14 @@ namespace ServerCore
 
 		public T Pop()
 		{
-			// 반환할 데이터를 따로 저장
-			T ret = _heap[0];
+            if (_heap.Count == 0)
+                return default(T);
 
-			// 마지막 데이터를 루트로 이동한다
-			int lastIndex = _heap.Count - 1;
+            // 반환할 데이터를 따로 저장
+            T ret = _heap[0];
+
+            // 마지막 데이터를 루트로 이동한다
+            int lastIndex = _heap.Count - 1;
 			_heap[0] = _heap[lastIndex];
 			_heap.RemoveAt(lastIndex);
 			lastIndex--;

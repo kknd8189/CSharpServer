@@ -154,6 +154,7 @@ namespace Google.Protobuf.Protocol {
     [pbr::OriginalName("MOVING")] Moving = 1,
     [pbr::OriginalName("SKILL")] Skill = 2,
     [pbr::OriginalName("DEAD")] Dead = 3,
+
   }
 
   public enum MoveDir {

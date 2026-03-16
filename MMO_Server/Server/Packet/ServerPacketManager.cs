@@ -30,19 +30,19 @@ class PacketManager
 
     public void Register()
 	{		
-		_onRecv.Add((ushort)MsgId.CMove, MakePacket<C_Move>);
+		//_onRecv.Add((ushort)MsgId.CMove, MakePacketSpan<C_Move>);
 		_handler.Add((ushort)MsgId.CMove, PacketHandler.C_MoveHandler);		
-		_onRecv.Add((ushort)MsgId.CSkill, MakePacket<C_Skill>);
+		//_onRecv.Add((ushort)MsgId.CSkill, MakePacketSpan<C_Skill>);
 		_handler.Add((ushort)MsgId.CSkill, PacketHandler.C_SkillHandler);		
-		_onRecv.Add((ushort)MsgId.CLogin, MakePacket<C_Login>);
+		//_onRecv.Add((ushort)MsgId.CLogin, MakePacketSpan<C_Login>);
 		_handler.Add((ushort)MsgId.CLogin, PacketHandler.C_LoginHandler);		
-		_onRecv.Add((ushort)MsgId.CEnterGame, MakePacket<C_EnterGame>);
+		//_onRecv.Add((ushort)MsgId.CEnterGame, MakePacketSpan<C_EnterGame>);
 		_handler.Add((ushort)MsgId.CEnterGame, PacketHandler.C_EnterGameHandler);		
-		_onRecv.Add((ushort)MsgId.CCreatePlayer, MakePacket<C_CreatePlayer>);
+		//_onRecv.Add((ushort)MsgId.CCreatePlayer, MakePacketSpan<C_CreatePlayer>);
 		_handler.Add((ushort)MsgId.CCreatePlayer, PacketHandler.C_CreatePlayerHandler);		
-		_onRecv.Add((ushort)MsgId.CEquipItem, MakePacket<C_EquipItem>);
+		//_onRecv.Add((ushort)MsgId.CEquipItem, MakePacketSpan<C_EquipItem>);
 		_handler.Add((ushort)MsgId.CEquipItem, PacketHandler.C_EquipItemHandler);		
-		_onRecv.Add((ushort)MsgId.CPong, MakePacket<C_Pong>);
+		//_onRecv.Add((ushort)MsgId.CPong, MakePacketSpan<C_Pong>);
 		_handler.Add((ushort)MsgId.CPong, PacketHandler.C_PongHandler);
 
 		_onRecvSpan.Add((ushort)MsgId.CMove, MakePacketSpan<C_Move>);
@@ -85,22 +85,22 @@ class PacketManager
         }
     }
 
-    void MakePacket<T>(PacketSession session, ArraySegment<byte> buffer, ushort id) where T : IMessage, new()
-	{
-		T pkt = new T();
-		pkt.MergeFrom(buffer.Array, buffer.Offset + 4, buffer.Count - 4);
+ //   void MakePacket<T>(PacketSession session, ArraySegment<byte> buffer, ushort id) where T : IMessage, new()
+	//{
+	//	T pkt = new T();
+	//	pkt.MergeFrom(buffer.Array, buffer.Offset + 4, buffer.Count - 4);
 
-		if (CustomHandler != null)
-		{
-			CustomHandler.Invoke(session, pkt, id);
-		}
-		else
-		{
-			Action<PacketSession, IMessage> action = null;
-			if (_handler.TryGetValue(id, out action))
-				action.Invoke(session, pkt);
-		}
-	}
+	//	if (CustomHandler != null)
+	//	{
+	//		CustomHandler.Invoke(session, pkt, id);
+	//	}
+	//	else
+	//	{
+	//		Action<PacketSession, IMessage> action = null;
+	//		if (_handler.TryGetValue(id, out action))
+	//			action.Invoke(session, pkt);
+	//	}
+	//}
 	                                        
 	void MakePacketSpan<T>(PacketSession session, ReadOnlySpan<byte> buffer, ushort id) where T : IMessage, new()
 	{
