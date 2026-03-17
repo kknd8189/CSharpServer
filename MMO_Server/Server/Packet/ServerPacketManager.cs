@@ -70,6 +70,7 @@ class PacketManager
 
     public void OnRecvPacketSpan(PacketSession session, ReadOnlySpan<byte> buffer)
     {
+        Server.ServerMetrics.IncrementPacketsReceived();
         ushort count = 0;
 
         ushort size = BinaryPrimitives.ReadUInt16LittleEndian(buffer.Slice(count));

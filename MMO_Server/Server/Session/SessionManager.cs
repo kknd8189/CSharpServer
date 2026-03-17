@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using Serilog;
 
 namespace Server
 {
@@ -11,66 +14,46 @@ namespace Server
 		public static SessionManager Instance { get { return _session; } }
 
 		int _sessionId = 0;
-		Dictionary<int, ClientSession> _sessions = new Dictionary<int, ClientSession>();
-		object _lock = new object();
+		ConcurrentDictionary<int, ClientSession> _sessions = new ConcurrentDictionary<int, ClientSession>();
 
 		public int GetBusyScore()
 		{
-			int count = 0;
+			return _sessions.Count / 100;
+		}
 
-			lock (_lock)
-			{
-				count = _sessions.Count;
-			}
-
-			return count / 100;
+		public int GetPlayerCount()
+		{
+			return _sessions.Count;
 		}
 
 		public List<ClientSession> GetSessions()
 		{
-			List<ClientSession> sessions = new List<ClientSession>();
-
-			lock (_lock)
-			{
-				sessions = _sessions.Values.ToList();
-			}
-
-			return sessions;
+			return _sessions.Values.ToList();
 		}
 
 		public ClientSession Generate()
 		{
-			lock (_lock)
-			{
-				int sessionId = ++_sessionId;
+			int sessionId = Interlocked.Increment(ref _sessionId);
 
-				ClientSession session = new ClientSession();
-				session.SessionId = sessionId;
-				_sessions.Add(sessionId, session);
+			ClientSession session = new ClientSession();
+			session.SessionId = sessionId;
+			_sessions.TryAdd(sessionId, session);
 
-				Console.WriteLine($"Connected ({_sessions.Count}) Players");
+			Log.Information("Player connected. Total={PlayerCount}", _sessions.Count);
 
-				return session;
-			}
+			return session;
 		}
 
 		public ClientSession Find(int id)
 		{
-			lock (_lock)
-			{
-				ClientSession session = null;
-				_sessions.TryGetValue(id, out session);
-				return session;
-			}
+			_sessions.TryGetValue(id, out ClientSession session);
+			return session;
 		}
 
 		public void Remove(ClientSession session)
 		{
-			lock (_lock)
-			{
-				_sessions.Remove(session.SessionId);
-				Console.WriteLine($"Connected ({_sessions.Count}) Players");
-			}
+			_sessions.TryRemove(session.SessionId, out _);
+			Log.Information("Player disconnected. Total={PlayerCount}", _sessions.Count);
 		}
 	}
 }

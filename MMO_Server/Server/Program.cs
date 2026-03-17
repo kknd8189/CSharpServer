@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Threading;
+using Serilog;
 using Server.Data;
 using Server.DB;
 using Server.Game;
@@ -98,8 +99,42 @@ namespace Server
             return endPoint;
         }
 
+		static void StartMetricsLoggingTask()
+		{
+			System.Timers.Timer t = new System.Timers.Timer();
+			t.AutoReset = true;
+			t.Interval = 5000;
+			t.Elapsed += (s, e) =>
+			{
+				long recv = ServerMetrics.ExchangePacketsReceived();
+				long sent = ServerMetrics.ExchangePacketsSent();
+				long tickMs = ServerMetrics.GetTickDuration();
+				int players = SessionManager.Instance.GetPlayerCount();
+
+				Log.Information(
+					"[Metrics] PacketsRecv/s={PacketsRecvPerSec:F1} PacketsSent/s={PacketsSentPerSec:F1} TickMs={TickMs} Players={Players}",
+					recv / 5.0, sent / 5.0, tickMs, players);
+			};
+			t.Start();
+		}
+
 		static void Main(string[] args)
 		{
+			Log.Logger = new LoggerConfiguration()
+				.MinimumLevel.Information()
+				.WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+				.WriteTo.File("logs/server-.txt",
+					rollingInterval: RollingInterval.Day,
+					retainedFileCountLimit: 14,
+					outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+				.CreateLogger();
+
+			AppDomain.CurrentDomain.ProcessExit += (s, e) =>
+			{
+				Log.Information("Server shutting down");
+				Log.CloseAndFlush();
+			};
+
 			//함수 순서 주의
 			ConfigManager.LoadConfig();
 			DataManager.LoadData();
@@ -111,13 +146,10 @@ namespace Server
 
 			_listener.Init( SetDNSInfoTask(), () => { return SessionManager.Instance.Generate(); });
 
-			Console.WriteLine( $"ServerInfo\n" 
-				+ $"WorldName : {Program.Name}\n" 
-				+ $"Port : {Program.Port}\n"
-				+ $"IpAddress : {Program.IpAddress}\n"
-				+ "Listening...");
+			Log.Information("Server started. World={WorldName} Port={Port} IP={IpAddress}", Name, Port, IpAddress);
 
 			StartServerInfoTask();
+			StartMetricsLoggingTask();
 
 			// DbTask
 			{

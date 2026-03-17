@@ -13,12 +13,16 @@ namespace Server.Game
 
 		public void Update()
 		{
+			long start = System.Environment.TickCount64;
+
 			Flush();
 
 			foreach (GameRoom room in _rooms.Values)
 			{
 				room.Update();
 			}
+
+			ServerMetrics.SetTickDuration(System.Environment.TickCount64 - start);
 		}
 
 		public GameRoom Add(int mapId)
