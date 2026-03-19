@@ -8,8 +8,7 @@ namespace PacketGenerator
 	{
 		// {0} 패킷 등록
 		public static string managerFormat =
-@"using Google.Protobuf;
-using Google.Protobuf.Protocol;
+@"
 using ServerCore;
 using System;
 using System.Collections.Generic;

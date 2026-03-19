@@ -1,0 +1,41 @@
+{% for run in runs %}
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Test Results</title>
+<style>
+  body { font-family: 'Segoe UI', sans-serif; margin: 40px; background: #f5f5f5; }
+  h1 { color: #333; }
+  .summary { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .summary span { margin-right: 20px; font-size: 18px; }
+  .pass-count { color: #2e7d32; font-weight: bold; }
+  .fail-count { color: #c62828; font-weight: bold; }
+  table { border-collapse: collapse; width: 100%; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  th { background: #333; color: white; padding: 12px; text-align: left; }
+  td { border-bottom: 1px solid #eee; padding: 10px 12px; }
+  tr:hover { background: #f9f9f9; }
+  .pass { color: #2e7d32; font-weight: bold; }
+  .fail { color: #c62828; font-weight: bold; }
+</style>
+</head>
+<body>
+<h1>Test Results</h1>
+<div class="summary">
+  <span>Total: <strong>{{ run.result-sets.first.results | size }}</strong></span>
+  <span class="pass-count">Passed: {{ run.passed | size }}</span>
+  <span class="fail-count">Failed: {{ run.failed | size }}</span>
+</div>
+<table>
+<tr><th>Result</th><th>Test</th><th>Duration</th></tr>
+{% for set in run.result-sets %}{% for result in set.results %}
+<tr>
+  <td class="{% if result.outcome == 'Passed' %}pass{% else %}fail{% endif %}">{{ result.outcome }}</td>
+  <td>{{ result.test-case.display-name }}</td>
+  <td>{{ result.duration | format_duration }}</td>
+</tr>
+{% endfor %}{% endfor %}
+</table>
+</body>
+</html>
+{% endfor %}
