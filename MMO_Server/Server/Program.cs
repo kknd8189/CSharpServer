@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Threading;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 using Serilog;
 using Server.Data;
 using Server.DB;
@@ -22,9 +23,48 @@ namespace Server
         public static int Port { get; set; }
         public static string IpAddress { get; set; }
 
+        private static CancellationTokenSource _cts = new CancellationTokenSource();
+
+		private static Thread _dbThread;
+
+        private static System.Timers.Timer _busyCheckTimer = new System.Timers.Timer();
+        private static System.Timers.Timer _metricsLogTimer = new System.Timers.Timer();
+
+        static void DoGracefulShutdown()
+		{
+            // 1.새로운 유저 차단
+			// TODO : listener 중지 매서드 구현
+            // _listener.Stop();
+            Log.Information("1. Listener 중지 완료.");
+
+			//타이머 종료
+			_busyCheckTimer.Stop();
+			_metricsLogTimer.Stop();
+
+			//2. 유저 안내 및 쫓아내기
+			//TODO : 서버 종료 패킷 구현
+			 foreach (var session in SessionManager.Instance.GetSessions())
+			{
+				//session.Send(new S_ServerClose()); // "서버가 종료됩니다" 패킷
+				session.Disconnect();
+			}
+
+			Log.Information("2. 접속 중인 유저 안전 종료 완료.");
+
+            // 3. 메모리 데이터를 DB에 저장 (가장 중요!)
+            // TODO : 구현 해야 함
+
+            _dbThread.Join(TimeSpan.FromSeconds(5));
+            Log.Information("3. 인메모리 데이터 DB 저장 완료.");
+
+            // 4.  로그 플러시 및 메인 스레드 놔주기
+            Log.CloseAndFlush(); // 비동기로 남은 로그들을 파일에 확실히 다 씀
+        }
+
+
         static void GameLogicTask()
 		{
-			while (true)
+			while (!_cts.Token.IsCancellationRequested)
 			{
 				GameLogic.Instance.Update();
 				Thread.Sleep(0);
@@ -33,31 +73,30 @@ namespace Server
 
 		static void DbTask()
 		{
-			while (true)
+			while (!_cts.Token.IsCancellationRequested)
 			{
 				DbTransaction.Instance.Flush();
 				Thread.Sleep(0);
 			}
 		}
 
-		//static void NetworkTask()
-		//{
-		//	while (true)
-		//	{
-		//		List<ClientSession> sessions = SessionManager.Instance.GetSessions();
-		//		foreach (ClientSession session in sessions)
-		//		{
-		//			session.FlushSend();
-		//		}
-		//		Thread.Sleep(0);
-		//	}
-		//}
+        //static void NetworkTask()
+        //{
+        //	while (true)
+        //	{
+        //		List<ClientSession> sessions = SessionManager.Instance.GetSessions();
+        //		foreach (ClientSession session in sessions)
+        //		{
+        //			session.FlushSend();
+        //		}
+        //		Thread.Sleep(0);
+        //	}
+        //}
 
-		static void StartServerInfoTask()
+        static void StartServerInfoTask()
 		{
-			System.Timers.Timer t = new System.Timers.Timer();
-			t.AutoReset = true;
-			t.Elapsed += new System.Timers.ElapsedEventHandler((s, e) =>
+            _busyCheckTimer.AutoReset = true;
+            _busyCheckTimer.Elapsed += new System.Timers.ElapsedEventHandler((s, e) =>
 			{
 				using (SharedDbContext shared = new SharedDbContext())
 				{
@@ -83,8 +122,8 @@ namespace Server
 					}
 				}
 			});
-			t.Interval = 10 * 1000;
-			t.Start();
+            _busyCheckTimer.Interval = 10 * 1000;
+            _busyCheckTimer.Start();
 		}
 
 		static IPEndPoint SetDNSInfoTask()
@@ -99,12 +138,11 @@ namespace Server
             return endPoint;
         }
 
-		static void StartMetricsLoggingTask()
+        static void StartMetricsLoggingTask()
 		{
-			System.Timers.Timer t = new System.Timers.Timer();
-			t.AutoReset = true;
-			t.Interval = 5000;
-			t.Elapsed += (s, e) =>
+			_metricsLogTimer.AutoReset = true;
+			_metricsLogTimer.Interval = 5000;
+            _metricsLogTimer.Elapsed += (s, e) =>
 			{
 				long recv = ServerMetrics.ExchangePacketsReceived();
 				long sent = ServerMetrics.ExchangePacketsSent();
@@ -115,7 +153,7 @@ namespace Server
 					"[Metrics] PacketsRecv/s={PacketsRecvPerSec:F1} PacketsSent/s={PacketsSentPerSec:F1} TickMs={TickMs} Players={Players}",
 					recv / 5.0, sent / 5.0, tickMs, players);
 			};
-			t.Start();
+            _metricsLogTimer.Start();
 		}
 
 		static void Main(string[] args)
@@ -129,14 +167,19 @@ namespace Server
 					outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
 				.CreateLogger();
 
-			AppDomain.CurrentDomain.ProcessExit += (s, e) =>
-			{
-				Log.Information("Server shutting down");
-				Log.CloseAndFlush();
-			};
+            Console.CancelKeyPress += (sender, e) =>
+            {
+                Log.Information("🛑 서버 종료 시그널 감지! Graceful Shutdown 시작...");
 
-			//함수 순서 주의
-			ConfigManager.LoadConfig();
+                // OS야, 프로세스 바로 죽이지 마! 내가 알아서 정리하고 끌게!
+                e.Cancel = true;
+
+				//Thread Loop 종료
+                _cts.Cancel();
+            };
+
+            //함수 순서 주의
+            ConfigManager.LoadConfig();
 			DataManager.LoadData();
 
 			GameLogic.Instance.Push(() => { GameLogic.Instance.Add(1); });
@@ -153,9 +196,8 @@ namespace Server
 
 			// DbTask
 			{
-				Thread t = new Thread(DbTask);
-				t.Name = "DB";
-				t.Start();
+				_dbThread = new Thread(DbTask) { Name = "DB" };
+                _dbThread.Start();
 			}
 
 			// NetworkTask
@@ -168,6 +210,9 @@ namespace Server
 			// GameLogic
 			Thread.CurrentThread.Name = "GameLogic";
 			GameLogicTask();
-		}
-	}
+
+            //Thread Loop 종료후 Graceful Shutdown
+            DoGracefulShutdown();
+        }
+    }
 }
