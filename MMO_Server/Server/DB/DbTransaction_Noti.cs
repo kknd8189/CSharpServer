@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Server.DB
 {
-	public partial class DbTransaction : JobSerializer
+	public partial class DbTransaction /*: JobSerializer*/
 	{
 		public static void EquipItemNoti(Player player, Item item)
 		{
@@ -22,7 +22,7 @@ namespace Server.DB
 			};
 
 			// You
-			Instance.Push(() =>
+			Instance._jobQueue.Add(() =>
 			{
 				using (AppDbContext db = new AppDbContext())
 				{

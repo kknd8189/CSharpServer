@@ -11,7 +11,8 @@ namespace Server.Data
 		public string dataPath;
 		public string connectionString;
 		public string worldName;
-		public int port;
+		public string redisConnectionString;
+        public int port;
     }
 
     public class ConfigManager

@@ -5,6 +5,7 @@ using ServerCore;
 using System;
 using System.Buffers.Binary;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 
 namespace Server
@@ -14,6 +15,8 @@ namespace Server
         public PlayerServerState ServerState { get; private set; } = PlayerServerState.ServerStateLogin;
         public Player MyPlayer { get; set; }
         public int SessionId { get; set; }
+
+        private string _clientIP = "Unknown";
 
         //object _lock = new object();
         //List<ArraySegment<byte>> _reserveQueue = new List<ArraySegment<byte>>();
@@ -116,12 +119,22 @@ namespace Server
         public override void OnConnected(EndPoint endPoint)
         {
             //Console.WriteLine($"OnConnected : {endPoint}");
+
+            if(endPoint is IPEndPoint ipEndPoint)
+            {
+                _clientIP = ipEndPoint.Address.ToString();
+            }
             {
                 S_Connected connectedPacket = new S_Connected();
                 Send(connectedPacket);
             }
 
             GameLogic.Instance.PushAfter(5000, Ping);
+        }
+
+        public string GetIpAddress()
+        {
+            return _clientIP;
         }
 
         //public override void OnRecvPacket(ArraySegment<byte> buffer)
@@ -154,6 +167,7 @@ namespace Server
         {
             //Console.WriteLine($"Transferred bytes: {numOfBytes}");
         }
+
         #endregion
     }
 }

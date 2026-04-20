@@ -96,10 +96,10 @@ namespace ServerCore
 
     public abstract class Session
     {
-        Socket _socket;
-        int _disconnected = 0;
         protected bool Connected { get { return Volatile.Read(ref _disconnected) == 0; } }
+        protected Socket _socket;
 
+        int _disconnected = 0;
         RecvBufferSpan _recvBufferSpan;
 
         //MPSCQueue로 락프리 구현

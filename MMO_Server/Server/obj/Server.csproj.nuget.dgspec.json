@@ -114,6 +114,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.1.72, )"
+            },
             "Google.Protobuf": {
               "target": "Package",
               "version": "[3.32.0, )"
@@ -147,6 +151,10 @@
             "Serilog.Sinks.File": {
               "target": "Package",
               "version": "[7.0.0, )"
+            },
+            "StackExchange.Redis": {
+              "target": "Package",
+              "version": "[2.12.14, )"
             }
           },
           "imports": [
@@ -230,6 +238,10 @@
             "Pomelo.EntityFrameworkCore.MySql": {
               "target": "Package",
               "version": "[9.0.0, )"
+            },
+            "StackExchange.Redis": {
+              "target": "Package",
+              "version": "[2.12.14, )"
             }
           },
           "imports": [

@@ -24,7 +24,7 @@ namespace Server.Game
 		public void Push(IJob job, int tickAfter = 0)
 		{
 			JobTimerElem jobElement;
-			jobElement.execTick = System.Environment.TickCount + tickAfter;
+			jobElement.execTick = System.Environment.TickCount64 + tickAfter;
 			jobElement.job = job;
 
 			lock (_lock)

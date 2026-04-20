@@ -40,6 +40,13 @@ namespace ServerCore
             }
         }
 
+        public void Stop()
+        {
+            _listenSocket.Close();
+            _listenSocket.Dispose();
+            _listenSocket = null;
+        }
+
         void RegisterAccept(SocketAsyncEventArgs args)
         {
             args.AcceptSocket = null;
@@ -60,6 +67,12 @@ namespace ServerCore
 
         void OnAcceptCompleted(object sender, SocketAsyncEventArgs args)
         {
+            //서버가 종료될때 AcceptAsync가 OperationAborted나 Interrupted 에러를 반환할 수 있습니다. 이 경우는 무시하고 종료합니다.
+            if (args.SocketError == SocketError.OperationAborted || args.SocketError == SocketError.Interrupted)
+            {
+                return;
+            }
+
             try
             {
                 if (args.SocketError == SocketError.Success)

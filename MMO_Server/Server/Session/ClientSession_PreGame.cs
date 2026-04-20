@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Server.Data;
 using Server.DB;
+using Server.DB.LogDB;
 using Server.Game;
 using ServerCore;
 using System;
@@ -32,7 +33,7 @@ namespace Server
 			using (AppDbContext db = new AppDbContext())
 			{
 				AccountDb findAccount = db.Accounts
-					.Include(a => a.Players)
+						.Include(a => a.Players)
 					.Where(a => a.AccountName == loginPacket.UniqueId).FirstOrDefault();
 
 				if (findAccount != null)
@@ -85,7 +86,9 @@ namespace Server
 					// 로비로 이동
 					ServerState = PlayerServerState.ServerStateLobby;
 				}
-			}
+
+				LogManager.(accountDbId: AccountDbId, rewardType: RewardType.Login, amount: 0);
+            }
 		}
 
 		public void HandleEnterGame(C_EnterGame enterGamePacket)

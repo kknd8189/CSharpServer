@@ -3,8 +3,7 @@ using Google.Protobuf.Protocol;
 using Server;
 using Server.Game;
 using ServerCore;
-using System;
-
+using Server.DB.LogDB;
 
 class PacketHandler
 {
@@ -45,6 +44,9 @@ class PacketHandler
 		C_Login loginPacket = packet as C_Login;
 		ClientSession clientSession = session as ClientSession;
 		clientSession.HandleLogin(loginPacket);
+
+		LogHelper.LogLogin(clientSession.AccountDbId, true, clientSession.GetIpAddress());
+
 	}
 
 	public static void C_EnterGameHandler(PacketSession session, IMessage packet)

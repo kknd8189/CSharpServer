@@ -4,6 +4,8 @@ using System.Text;
 
 namespace Server.Game
 {
+
+	//사실상 RoomManager
 	public class GameLogic : JobSerializer
 	{
 		public static GameLogic Instance { get; } = new GameLogic();
