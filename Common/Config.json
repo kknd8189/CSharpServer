@@ -1,6 +1,7 @@
 {
   "DataPath": "../../../../../Common/Data",
   "connectionString": "Server=localhost;Port=3306;Database=GameDb;User=DY;Password=3306;",
+  "redisConnectionString": "localhost:6379",
   "worldName" : "World1",
   "port" : 7777
 }

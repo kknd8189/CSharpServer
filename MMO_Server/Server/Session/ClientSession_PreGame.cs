@@ -87,7 +87,6 @@ namespace Server
 					ServerState = PlayerServerState.ServerStateLobby;
 				}
 
-				LogManager.(accountDbId: AccountDbId, rewardType: RewardType.Login, amount: 0);
             }
 		}
 

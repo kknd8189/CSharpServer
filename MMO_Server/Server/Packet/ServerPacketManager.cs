@@ -6,6 +6,10 @@ using System.Buffers;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 
+/// <summary>
+/// 이 클래스는 자동 생성 됩니다. 절대 직접 수정하지 마세요
+/// </summary>
+/// 
 class PacketManager
 {
 	#region Singleton
@@ -128,7 +132,6 @@ class PacketManager
                     action.Invoke(session, pkt);
             }
         }
-
 		catch (Exception e)
 		{
 			Console.WriteLine($"MakePacketSpan Error: {e}");
