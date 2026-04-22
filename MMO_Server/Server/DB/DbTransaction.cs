@@ -6,6 +6,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace Server.DB
 {
@@ -15,7 +16,34 @@ namespace Server.DB
 
         //Graceful Shutdown을 위해 JobSerializer를 상속받는 대신, DbTransaction이 JobSerializer를 포함하도록 변경
         //Poison Pill 패턴을 위해 BlockingCollection 사용
+        //외부에서는 반드시 PushJob()을 통해서만 큐에 접근할 것 (직접 _jobQueue.Add 금지)
         private readonly BlockingCollection<Action> _jobQueue = new();
+		private long _droppedJobCount;
+
+		public long DroppedJobCount => Interlocked.Read(ref _droppedJobCount);
+
+		// 셧다운 race 방어: CompleteAdding 이후 Add가 호출되어도 예외 대신 드롭
+		public bool PushJob(Action job)
+		{
+			if (_jobQueue.IsAddingCompleted)
+			{
+				Interlocked.Increment(ref _droppedJobCount);
+				return false;
+			}
+
+			try
+			{
+				_jobQueue.Add(job);
+				return true;
+			}
+			catch (InvalidOperationException)
+			{
+				// TOCTOU: IsAddingCompleted 체크와 Add 사이에 StopAcceptingJobs가 끼어든 경우
+				Interlocked.Increment(ref _droppedJobCount);
+				return false;
+			}
+		}
+
 		public void StopAcceptingJobs()
 		{
 			_jobQueue.CompleteAdding();
@@ -53,7 +81,7 @@ namespace Server.DB
 			playerDb.Hp = player.Stat.Hp;
 
             // You
-            Instance._jobQueue.Add(() =>
+            Instance.PushJob(() =>
 			{
 				using (AppDbContext db = new AppDbContext())
 				{
@@ -65,7 +93,7 @@ namespace Server.DB
 						// Me
 					}
 				}
-			});			
+			});
 		}
 
 		// Me (GameRoom)
@@ -79,7 +107,7 @@ namespace Server.DB
 			playerDb.PlayerDbId = player.PlayerDbId;
 			playerDb.Hp = player.Stat.Hp;
 			//Instance._jobQueue.Push<PlayerDb, GameRoom>(SavePlayerStatus_Step2, playerDb, room);
-            Instance._jobQueue.Add(() => SavePlayerStatus_Step2(playerDb, room));
+            Instance.PushJob(() => SavePlayerStatus_Step2(playerDb, room));
         }
 
 		// You (Db)
@@ -125,7 +153,7 @@ namespace Server.DB
 			};
 
 			// You
-			Instance._jobQueue.Add(() =>
+			Instance.PushJob(() =>
 			{
 				using (AppDbContext db = new AppDbContext())
 				{

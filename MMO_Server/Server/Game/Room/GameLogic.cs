@@ -27,6 +27,17 @@ namespace Server.Game
 			ServerMetrics.SetTickDuration(System.Environment.TickCount64 - start);
 		}
 
+		// Graceful Shutdown 전용: GameLogic 자기 큐 + 모든 Room 큐까지 전부 Flush
+		public void FlushAll()
+		{
+			Flush();
+
+			foreach (GameRoom room in _rooms.Values)
+			{
+				room.Flush();
+			}
+		}
+
 		public GameRoom Add(int mapId)
 		{
 			GameRoom gameRoom = new GameRoom();

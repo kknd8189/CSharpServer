@@ -52,23 +52,37 @@ namespace Server
             }
             Log.Information("접속 중인 유저 안전 종료.");
             //마지막으로 GameLogic에 잡 전부 Flush 시켜서 남은 데이터들 DB에 저장하게 하기
-            GameLogic.Instance.Flush();
+            //(GameLogic 자기 큐 + 모든 Room 큐까지 전부 비움)
+            GameLogic.Instance.FlushAll();
 
             // 3. 메모리 데이터를 DB에 저장 (가장 중요!)
             DbTransaction.Instance.StopAcceptingJobs();
-            _dbThread.Join(TimeSpan.FromSeconds(5));
-            Log.Information("인메모리 데이터 DB 저장.");
+            if (_dbThread.Join(TimeSpan.FromSeconds(5)))
+                Log.Information("인메모리 데이터 DB 저장 완료.");
+            else
+                Log.Warning("DB 스레드 5초 내 종료 실패. 일부 DB 저장 손실 가능.");
 
             LogTransaction.Instance.StopAcceptingJobs();
-            _logDbThread.Join();
-            Log.Information("큐에 있던 모든 로그 DB 저장.");
+            if (_logDbThread.Join(TimeSpan.FromSeconds(5)))
+                Log.Information("큐에 있던 모든 로그 DB 저장 완료.");
+            else
+                Log.Warning("LogDB 스레드 5초 내 종료 실패. 일부 로그 손실 가능.");
 
             //4 Redis 연결 종료
             RedisManager.Instance.Close();
             Log.Information("Redis 연결 종료.");
 
-            // 5  로그 플러시 및 메인 스레드 놔주기
-            Log.CloseAndFlush(); // 비동기로 남은 로그들을 파일에 확실히 다 씀   
+            // 5 셧다운 중 드롭된 Job 집계 (포스트모템용, 정상 셧다운이면 0)
+            long dbDropped = DbTransaction.Instance.DroppedJobCount;
+            long logDropped = LogTransaction.Instance.DroppedLogCount;
+            if (dbDropped > 0 || logDropped > 0)
+                Log.Warning("셧다운 중 드롭된 Job: DB={DbDropped}건, Log={LogDropped}건",
+                    dbDropped, logDropped);
+            else
+                Log.Information("모든 Job이 정상 플러시됨.");
+
+            // 6  로그 플러시 및 메인 스레드 놔주기
+            Log.CloseAndFlush(); // 비동기로 남은 로그들을 파일에 확실히 다 씀
         }
 
 

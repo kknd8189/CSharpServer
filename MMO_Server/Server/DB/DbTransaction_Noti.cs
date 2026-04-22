@@ -22,7 +22,7 @@ namespace Server.DB
 			};
 
 			// You
-			Instance._jobQueue.Add(() =>
+			Instance.PushJob(() =>
 			{
 				using (AppDbContext db = new AppDbContext())
 				{
