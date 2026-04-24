@@ -1,5 +1,5 @@
-﻿using Google.Protobuf;
-using Google.Protobuf.Protocol;
+﻿using ServerCore;
+using Protocol;
 using Server.Data;
 using System;
 using System.Collections.Generic;
@@ -59,7 +59,7 @@ namespace Server.Game
 
 			switch (skillData.skillType)
 			{
-				case SkillType.SkillAuto:
+				case SkillType.Auto:
 					{
 						Vector3Int skillPos = player.GetFrontCellPos(info.PosInfo.MoveDir);
 						GameObject target = Map.Find(skillPos);
@@ -69,7 +69,7 @@ namespace Server.Game
 						}
 					}
 					break;
-				case SkillType.SkillProjectile:
+				case SkillType.Projectile:
 					{
 						Arrow arrow = ObjectManager.Instance.Add<Arrow>();
 						if (arrow == null)

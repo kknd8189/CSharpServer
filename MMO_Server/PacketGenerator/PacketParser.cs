@@ -36,6 +36,19 @@ namespace PacketGenerator
 
     public class PacketParser
     {
+        // Google Sheets API는 trailing empty cell을 잘라서 반환한다.
+        // (예: payload 없는 패킷 행 `1 \t S_LeaveGame \t \t` 는 `[1, S_LeaveGame]` 2개만 돌아옴)
+        // → 행이 짧아도 무시하지 말고 빈 문자열로 패딩해서 인덱싱이 안전하도록.
+        private static string[] PadCols(string raw, int minCols)
+        {
+            string[] cols = raw.Split('\t');
+            if (cols.Length >= minCols) return cols;
+            string[] padded = new string[minCols];
+            for (int i = 0; i < minCols; i++)
+                padded[i] = i < cols.Length ? cols[i] : "";
+            return padded;
+        }
+
         // 1. Packet 파싱
         public List<PacketDef> ParsePackets(string tsvData)
         {
@@ -45,8 +58,9 @@ namespace PacketGenerator
 
             for (int i = 1; i < lines.Length; i++)
             {
-                string[] cols = lines[i].Split('\t');
-                if (cols.Length < 4) continue;
+                // 최소 2열(id, name)만 있으면 패킷 선언 행으로 간주 가능.
+                // 필드 행은 cols[2](FieldType)가 채워진 경우에만 추가.
+                string[] cols = PadCols(lines[i], 4);
 
                 string idStr = cols[0].Trim();
                 if (!string.IsNullOrEmpty(idStr))
@@ -76,8 +90,7 @@ namespace PacketGenerator
 
             for (int i = 1; i < lines.Length; i++)
             {
-                string[] cols = lines[i].Split('\t');
-                if (cols.Length < 3) continue;
+                string[] cols = PadCols(lines[i], 3);
 
                 string structName = cols[0].Trim();
                 if (!string.IsNullOrEmpty(structName))
@@ -106,8 +119,7 @@ namespace PacketGenerator
 
             for (int i = 1; i < lines.Length; i++)
             {
-                string[] cols = lines[i].Split('\t');
-                if (cols.Length < 3) continue;
+                string[] cols = PadCols(lines[i], 3);
 
                 string enumName = cols[0].Trim();
                 if (!string.IsNullOrEmpty(enumName))

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "JfpKvkMAG0I=",
+  "dgSpecHash": "U/hrFwcd5w0=",
   "success": true,
   "projectFilePath": "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\PacketGenerator\\PacketGenerator.csproj",
   "expectedPackageFiles": [
@@ -14,5 +14,30 @@
     "C:\\Users\\user\\.nuget\\packages\\system.management\\7.0.2\\system.management.7.0.2.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\4.7.1\\system.runtime.compilerservices.unsafe.4.7.1.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference System.Buffers은(는) 잘리지 않습니다. 이 패키지는 불필요할 수 있으므로 종속성에서 제거하는 것이 좋습니다.",
+      "projectPath": "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\PacketGenerator\\PacketGenerator.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\PacketGenerator\\PacketGenerator.csproj",
+      "libraryId": "System.Buffers",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference System.Runtime.CompilerServices.Unsafe은(는) 잘리지 않습니다. 이 패키지는 불필요할 수 있으므로 종속성에서 제거하는 것이 좋습니다.",
+      "projectPath": "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\PacketGenerator\\PacketGenerator.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\PacketGenerator\\PacketGenerator.csproj",
+      "libraryId": "System.Runtime.CompilerServices.Unsafe",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
 }

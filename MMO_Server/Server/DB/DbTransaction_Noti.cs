@@ -1,4 +1,4 @@
-﻿using Google.Protobuf.Protocol;
+﻿using Protocol;
 using Microsoft.EntityFrameworkCore;
 using Server.Data;
 using Server.Game;

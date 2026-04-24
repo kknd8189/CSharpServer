@@ -1,5 +1,5 @@
-﻿using Google.Protobuf;
-using Google.Protobuf.Protocol;
+﻿using ServerCore;
+using Protocol;
 using Server.Data;
 using System;
 using System.Collections.Generic;
@@ -253,7 +253,7 @@ namespace Server.Game
 			return null;
 		}
 
-		public void Broadcast(Vector3Int pos, IMessage packet)
+		public void Broadcast(Vector3Int pos, IPacket packet)
 		{
 			List<Zone> zones = GetAdjacentZones(pos);
 

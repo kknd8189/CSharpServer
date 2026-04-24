@@ -9,6 +9,9 @@ using ServerCore;
 using System;
 using System.Buffers.Binary;
 
+namespace Protocol
+{{
+
 /// <summary>
 /// 이 클래스는 자동 생성 됩니다. 절대 직접 수정하지 마세요.
 /// </summary>
@@ -31,7 +34,7 @@ public class PacketManager
     //Dictionary를 버리고(Array)로 변경! 크기는 {1}
     PacketHandlerSpan[] _onRecvSpan = new PacketHandlerSpan[{1}];
     Action<PacketSession, IPacket>[] _handler = new Action<PacketSession, IPacket>[{1}];
-        
+
     public Action<PacketSession, IPacket, ushort> CustomHandler {{ get; set; }}
 
     public void Register()
@@ -64,7 +67,7 @@ public class PacketManager
         try
         {{
             T pkt = new T();
-            pkt.Read(buffer); 
+            pkt.Read(buffer);
 
             if (CustomHandler != null)
             {{
@@ -89,6 +92,8 @@ public class PacketManager
             return _handler[id];
         return null;
     }}
+}}
+
 }}";
 
         // {0} 패킷 이름 (예: C_Move)

@@ -1,12 +1,9 @@
-﻿using Google.Protobuf;
-using Google.Protobuf.Protocol;
-using Server.Game;
+﻿using Server.Game;
 using ServerCore;
 using System;
 using System.Buffers.Binary;
 using System.Net;
-using System.Net.Sockets;
-using System.Threading;
+using Protocol;
 
 namespace Server
 {
@@ -50,32 +47,29 @@ namespace Server
         }
 
         #region Network
+        // 커스텀 제너레이터의 패킷 최대 크기. CLAUDE.md 기준 10KB 한도.
+        // Write 전에 사이즈를 못 구하므로 한도만큼 예약 후 Close로 실제 사용분만 커밋.
+        private const int MaxPacketSize = 10 * 1024;
+
         // 예약만 하고 보내지는 않는다
-        public void Send(IMessage packet)
+        public void Send(IPacket packet)
         {
-            if(Connected == false) return;
+            if (Connected == false) return;
 
             ServerMetrics.IncrementPacketsSent();
-            string msgName = packet.Descriptor.Name.Replace("_", string.Empty);
-            MsgId msgId = (MsgId)Enum.Parse(typeof(MsgId), msgName);
-            ushort size = (ushort)packet.CalculateSize();
-            ushort totalSize = (ushort)(size + 4);
 
-            Span<byte> span = SendBufferSpanHelper.Open(totalSize);
-
+            // 제너레이터가 구운 Write는 (size + msgId) 헤더를 span 선두에 직접 박고
+            // 실제 기록된 바이트 수를 out size로 돌려준다.
+            Span<byte> span = SendBufferSpanHelper.Open(MaxPacketSize);
             if (span.IsEmpty)
             {
-                // 60KB 이상의 패킷이 오지 않는다면 이 코드는 실행될 일 없음
-                Console.WriteLine($"[Error] SendBuffer Open Failed. PacketSize: {totalSize}");
+                Console.WriteLine($"[Error] SendBuffer Open Failed. Reserved: {MaxPacketSize}");
                 return;
             }
 
-            BinaryPrimitives.WriteUInt16LittleEndian(span.Slice(0), totalSize);
-            BinaryPrimitives.WriteUInt16LittleEndian(span.Slice(2), (ushort)msgId);
+            packet.Write(span, out ushort size);
 
-            packet.WriteTo(span.Slice(4));
-
-            ArraySegment<byte> pendingBuffer = SendBufferSpanHelper.Close(totalSize);
+            ArraySegment<byte> pendingBuffer = SendBufferSpanHelper.Close(size);
 
             Send(pendingBuffer);
             //lock (_lock)

@@ -25,9 +25,9 @@ public class PacketManager
     // Span은 제네릭 타입 인자로 사용할 수 없기 때문
     public delegate void PacketHandlerSpan(PacketSession session, ReadOnlySpan<byte> buffer, ushort id);
 
-    //Dictionary를 버리고(Array)로 변경! 크기는 23
-    PacketHandlerSpan[] _onRecvSpan = new PacketHandlerSpan[23];
-    Action<PacketSession, IPacket>[] _handler = new Action<PacketSession, IPacket>[23];
+    //Dictionary를 버리고(Array)로 변경! 크기는 21
+    PacketHandlerSpan[] _onRecvSpan = new PacketHandlerSpan[21];
+    Action<PacketSession, IPacket>[] _handler = new Action<PacketSession, IPacket>[21];
 
     public Action<PacketSession, IPacket, ushort> CustomHandler { get; set; }
 
@@ -36,17 +36,20 @@ public class PacketManager
         _onRecvSpan[(int)MsgId.S_EnterGame] = MakePacketSpan<S_EnterGame>;
         _handler[(int)MsgId.S_EnterGame] = PacketHandler.S_EnterGameHandler;
 		
-        _onRecvSpan[(int)MsgId.S_LeaveGame] = MakePacketSpan<S_LeaveGame>;
-        _handler[(int)MsgId.S_LeaveGame] = PacketHandler.S_LeaveGameHandler;
-		
         _onRecvSpan[(int)MsgId.S_Spawn] = MakePacketSpan<S_Spawn>;
         _handler[(int)MsgId.S_Spawn] = PacketHandler.S_SpawnHandler;
 		
         _onRecvSpan[(int)MsgId.S_Despawn] = MakePacketSpan<S_Despawn>;
         _handler[(int)MsgId.S_Despawn] = PacketHandler.S_DespawnHandler;
 		
+        _onRecvSpan[(int)MsgId.C_Move] = MakePacketSpan<C_Move>;
+        _handler[(int)MsgId.C_Move] = PacketHandler.C_MoveHandler;
+		
         _onRecvSpan[(int)MsgId.S_Move] = MakePacketSpan<S_Move>;
         _handler[(int)MsgId.S_Move] = PacketHandler.S_MoveHandler;
+		
+        _onRecvSpan[(int)MsgId.C_Skill] = MakePacketSpan<C_Skill>;
+        _handler[(int)MsgId.C_Skill] = PacketHandler.C_SkillHandler;
 		
         _onRecvSpan[(int)MsgId.S_Skill] = MakePacketSpan<S_Skill>;
         _handler[(int)MsgId.S_Skill] = PacketHandler.S_SkillHandler;
@@ -57,11 +60,17 @@ public class PacketManager
         _onRecvSpan[(int)MsgId.S_Die] = MakePacketSpan<S_Die>;
         _handler[(int)MsgId.S_Die] = PacketHandler.S_DieHandler;
 		
-        _onRecvSpan[(int)MsgId.S_Connected] = MakePacketSpan<S_Connected>;
-        _handler[(int)MsgId.S_Connected] = PacketHandler.S_ConnectedHandler;
+        _onRecvSpan[(int)MsgId.C_Login] = MakePacketSpan<C_Login>;
+        _handler[(int)MsgId.C_Login] = PacketHandler.C_LoginHandler;
 		
         _onRecvSpan[(int)MsgId.S_Login] = MakePacketSpan<S_Login>;
         _handler[(int)MsgId.S_Login] = PacketHandler.S_LoginHandler;
+		
+        _onRecvSpan[(int)MsgId.C_EnterGame] = MakePacketSpan<C_EnterGame>;
+        _handler[(int)MsgId.C_EnterGame] = PacketHandler.C_EnterGameHandler;
+		
+        _onRecvSpan[(int)MsgId.C_CreatePlayer] = MakePacketSpan<C_CreatePlayer>;
+        _handler[(int)MsgId.C_CreatePlayer] = PacketHandler.C_CreatePlayerHandler;
 		
         _onRecvSpan[(int)MsgId.S_CreatePlayer] = MakePacketSpan<S_CreatePlayer>;
         _handler[(int)MsgId.S_CreatePlayer] = PacketHandler.S_CreatePlayerHandler;
@@ -72,14 +81,14 @@ public class PacketManager
         _onRecvSpan[(int)MsgId.S_AddItem] = MakePacketSpan<S_AddItem>;
         _handler[(int)MsgId.S_AddItem] = PacketHandler.S_AddItemHandler;
 		
+        _onRecvSpan[(int)MsgId.C_EquipItem] = MakePacketSpan<C_EquipItem>;
+        _handler[(int)MsgId.C_EquipItem] = PacketHandler.C_EquipItemHandler;
+		
         _onRecvSpan[(int)MsgId.S_EquipItem] = MakePacketSpan<S_EquipItem>;
         _handler[(int)MsgId.S_EquipItem] = PacketHandler.S_EquipItemHandler;
 		
         _onRecvSpan[(int)MsgId.S_ChangeStat] = MakePacketSpan<S_ChangeStat>;
         _handler[(int)MsgId.S_ChangeStat] = PacketHandler.S_ChangeStatHandler;
-		
-        _onRecvSpan[(int)MsgId.S_Ping] = MakePacketSpan<S_Ping>;
-        _handler[(int)MsgId.S_Ping] = PacketHandler.S_PingHandler;
 
     }
 
@@ -95,7 +104,7 @@ public class PacketManager
         count += 2;
 
         //  Dictionary의 TryGetValue 없이 인덱스로 한방에 꽂아버림 (O(1))
-        if (id >= 0 && id < 23)
+        if (id >= 0 && id < 21)
         {
             PacketHandlerSpan action = _onRecvSpan[id];
             if (action != null)
@@ -130,7 +139,7 @@ public class PacketManager
 
     public Action<PacketSession, IPacket> GetPacketHandler(ushort id)
     {
-        if (id >= 0 && id < 23)
+        if (id >= 0 && id < 21)
             return _handler[id];
         return null;
     }
