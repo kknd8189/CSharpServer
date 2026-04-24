@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 
 namespace Server.DB.LogDB
@@ -112,9 +113,61 @@ namespace Server.DB.LogDB
             }
             catch (Exception e)
             {
-                // 배치 전체 실패: 배치 크기만큼 드롭으로 기록 (포스트모템용)
-                Interlocked.Add(ref _droppedLogCount, batch.Count);
-                Console.WriteLine($"LogDB Batch Error ({batch.Count} rows): {e.Message}");
+                // 배치 전체 실패: DLQ 파일로 덤프 → 수동 복구 가능하게
+                // (DLQ 쓰기까지 실패해야 완전 유실)
+                bool dlqSaved = WriteToDeadLetter(batch, e);
+
+                if (dlqSaved)
+                {
+                    Interlocked.Add(ref _deadLetterCount, batch.Count);
+                    Console.WriteLine(
+                        $"LogDB Batch Error ({batch.Count} rows → DLQ): {e.Message}");
+                }
+                else
+                {
+                    Interlocked.Add(ref _droppedLogCount, batch.Count);
+                    Console.WriteLine(
+                        $"LogDB Batch Error ({batch.Count} rows LOST - DLQ write failed): {e.Message}");
+                }
+            }
+        }
+
+        // 실패한 배치를 JSON Lines 형식으로 logs/deadletter/logdb-YYYYMMDD.jsonl 에 append
+        // 각 라인 구조: { "ts", "sql", "data": <runtime type 기반 직렬화>, "error" }
+        private static bool WriteToDeadLetter(List<LogJob> batch, Exception failure)
+        {
+            try
+            {
+                Directory.CreateDirectory(DeadLetterDir);
+                string path = Path.Combine(
+                    DeadLetterDir, $"logdb-{DateTime.Now:yyyyMMdd}.jsonl");
+
+                string isoTs = DateTime.UtcNow.ToString("O");
+                string errJson = JsonSerializer.Serialize(failure.Message);
+
+                // append: true → 크래시 루프에서도 누적, 한 줄 한 Job
+                using (var writer = new StreamWriter(path, append: true))
+                {
+                    foreach (var job in batch)
+                    {
+                        // data가 object로 선언돼 있어서 런타임 타입을 명시해야
+                        // Log_LoginDb / Log_RewardDb 같은 POCO 프로퍼티가 빠짐없이 직렬화됨
+                        string dataJson = job.Data == null
+                            ? "null"
+                            : JsonSerializer.Serialize(job.Data, job.Data.GetType());
+                        string sqlJson = JsonSerializer.Serialize(job.Sql ?? "");
+
+                        writer.WriteLine(
+                            $"{{\"ts\":\"{isoTs}\",\"sql\":{sqlJson},\"data\":{dataJson},\"error\":{errJson}}}");
+                    }
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                // 디스크가 꽉 찼거나 권한 문제 → 진짜 유실. Console에라도 남김
+                Console.WriteLine($"[CRITICAL] Dead-letter write failed: {e.Message}");
+                return false;
             }
         }
 

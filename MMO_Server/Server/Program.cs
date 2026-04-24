@@ -72,13 +72,19 @@ namespace Server
             RedisManager.Instance.Close();
             Log.Information("Redis 연결 종료.");
 
-            // 5 셧다운 중 드롭된 Job 집계 (포스트모템용, 정상 셧다운이면 0)
+            // 5 셧다운 중 드롭/DLQ 집계 (포스트모템용, 정상 셧다운이면 모두 0)
             long dbDropped = DbTransaction.Instance.DroppedJobCount;
             long logDropped = LogTransaction.Instance.DroppedLogCount;
+            long logDeadLetter = LogTransaction.Instance.DeadLetterCount;
+
+            if (logDeadLetter > 0)
+                Log.Warning("LogDB DLQ에 {Count}건 덤프됨. 수동 복구 경로: {Path}",
+                    logDeadLetter, LogTransaction.DeadLetterDirectory);
+
             if (dbDropped > 0 || logDropped > 0)
-                Log.Warning("셧다운 중 드롭된 Job: DB={DbDropped}건, Log={LogDropped}건",
+                Log.Warning("셧다운 중 유실된 Job: DB={DbDropped}건, Log={LogDropped}건",
                     dbDropped, logDropped);
-            else
+            else if (logDeadLetter == 0)
                 Log.Information("모든 Job이 정상 플러시됨.");
 
             // 6  로그 플러시 및 메인 스레드 놔주기
