@@ -6,7 +6,7 @@ namespace Server.Benchmarks
 	[MemoryDiagnoser]
 	public class ConcurrencyBenchmarks
 	{
-		private JobSerializer _serializer;
+		private JobSerializer? _serializer;
 
 		[GlobalSetup]
 		public void Setup()
@@ -18,8 +18,8 @@ namespace Server.Benchmarks
 		public void JobSerializer_SingleThread_1000Push()
 		{
 			for (int i = 0; i < 1000; i++)
-				_serializer.Push(() => { });
-			_serializer.Flush();
+				_serializer!.Push(() => { });
+			_serializer!.Flush();
 		}
 
 		[Benchmark]
@@ -30,10 +30,10 @@ namespace Server.Benchmarks
 			{
 				barrier.SignalAndWait();
 				for (int i = 0; i < 250; i++)
-					_serializer.Push(() => { });
+					_serializer!.Push(() => { });
 			})).ToArray();
 			Task.WaitAll(tasks);
-			_serializer.Flush();
+			_serializer!.Flush();
 		}
 
 		[Benchmark]
@@ -44,10 +44,10 @@ namespace Server.Benchmarks
 			{
 				barrier.SignalAndWait();
 				for (int i = 0; i < 125; i++)
-					_serializer.Push(() => { });
+					_serializer!.Push(() => { });
 			})).ToArray();
 			Task.WaitAll(tasks);
-			_serializer.Flush();
+			_serializer!.Flush();
 		}
 
 		[Benchmark]

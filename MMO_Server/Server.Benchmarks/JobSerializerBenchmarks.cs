@@ -6,7 +6,7 @@ namespace Server.Benchmarks
 	[MemoryDiagnoser]
 	public class JobSerializerBenchmarks
 	{
-		private JobSerializer _serializer;
+		private JobSerializer? _serializer;
 
 		[GlobalSetup]
 		public void Setup()
@@ -17,7 +17,7 @@ namespace Server.Benchmarks
 		[Benchmark]
 		public void PushAndFlush_1Job()
 		{
-			_serializer.Push(() => { });
+			_serializer!.Push(() => { });
 			_serializer.Flush();
 		}
 
@@ -25,24 +25,24 @@ namespace Server.Benchmarks
 		public void PushAndFlush_100Jobs()
 		{
 			for (int i = 0; i < 100; i++)
-				_serializer.Push(() => { });
-			_serializer.Flush();
+				_serializer!.Push(() => { });
+			_serializer!.Flush();
 		}
 
 		[Benchmark]
 		public void PushAndFlush_1000Jobs()
 		{
 			for (int i = 0; i < 1000; i++)
-				_serializer.Push(() => { });
-			_serializer.Flush();
+				_serializer!.Push(() => { });
+			_serializer!.Flush();
 		}
 
 		[Benchmark]
 		public void PushWithParams_AndFlush()
 		{
 			for (int i = 0; i < 100; i++)
-				_serializer.Push((int a, int b) => { var _ = a + b; }, 10, 20);
-			_serializer.Flush();
+				_serializer!.Push((int a, int b) => { var _ = a + b; }, 10, 20);
+			_serializer!.Flush();
 		}
 	}
 }

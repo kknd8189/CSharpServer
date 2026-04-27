@@ -26,6 +26,7 @@
         },
         "frameworks": {
           "net10.0": {
+            "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {}
           }
@@ -44,19 +45,12 @@
       },
       "frameworks": {
         "net10.0": {
+          "framework": "net10.0",
           "targetAlias": "net10.0",
           "dependencies": {
             "Google.Apis.Sheets.v4": {
               "target": "Package",
               "version": "[1.73.0.4061, )"
-            },
-            "System.Buffers": {
-              "target": "Package",
-              "version": "[4.5.1, )"
-            },
-            "System.Runtime.CompilerServices.Unsafe": {
-              "target": "Package",
-              "version": "[4.7.1, )"
             }
           },
           "imports": [

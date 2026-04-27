@@ -1,4 +1,4 @@
-using Google.Protobuf.Protocol;
+using Protocol;
 using Server.Game;
 
 namespace Server.Tests

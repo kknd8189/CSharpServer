@@ -82,15 +82,6 @@
           }
         }
       },
-      "System.Buffers/4.5.1": {
-        "type": "package",
-        "compile": {
-          "ref/netcoreapp2.0/_._": {}
-        },
-        "runtime": {
-          "lib/netcoreapp2.0/_._": {}
-        }
-      },
       "System.CodeDom/7.0.0": {
         "type": "package",
         "compile": {
@@ -129,19 +120,6 @@
           "runtimes/win/lib/net7.0/System.Management.dll": {
             "assetType": "runtime",
             "rid": "win"
-          }
-        }
-      },
-      "System.Runtime.CompilerServices.Unsafe/4.7.1": {
-        "type": "package",
-        "compile": {
-          "ref/netstandard2.0/_._": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netcoreapp2.0/_._": {
-            "related": ".xml"
           }
         }
       }
@@ -266,37 +244,6 @@
         "packageIcon.png"
       ]
     },
-    "System.Buffers/4.5.1": {
-      "sha512": "Rw7ijyl1qqRS0YQD/WycNst8hUUMgrMH4FCn1nNm27M4VxchZ1js3fVjQaANHO5f3sN4isvP4a+Met9Y4YomAg==",
-      "type": "package",
-      "path": "system.buffers/4.5.1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "LICENSE.TXT",
-        "THIRD-PARTY-NOTICES.TXT",
-        "lib/net461/System.Buffers.dll",
-        "lib/net461/System.Buffers.xml",
-        "lib/netcoreapp2.0/_._",
-        "lib/netstandard1.1/System.Buffers.dll",
-        "lib/netstandard1.1/System.Buffers.xml",
-        "lib/netstandard2.0/System.Buffers.dll",
-        "lib/netstandard2.0/System.Buffers.xml",
-        "lib/uap10.0.16299/_._",
-        "ref/net45/System.Buffers.dll",
-        "ref/net45/System.Buffers.xml",
-        "ref/netcoreapp2.0/_._",
-        "ref/netstandard1.1/System.Buffers.dll",
-        "ref/netstandard1.1/System.Buffers.xml",
-        "ref/netstandard2.0/System.Buffers.dll",
-        "ref/netstandard2.0/System.Buffers.xml",
-        "ref/uap10.0.16299/_._",
-        "system.buffers.4.5.1.nupkg.sha512",
-        "system.buffers.nuspec",
-        "useSharedDesignerContext.txt",
-        "version.txt"
-      ]
-    },
     "System.CodeDom/7.0.0": {
       "sha512": "GLltyqEsE5/3IE+zYRP5sNa1l44qKl9v+bfdMcwg+M9qnQf47wK3H0SUR/T+3N4JEQXF3vV4CSuuo0rsg+nq2A==",
       "type": "package",
@@ -351,43 +298,11 @@
         "system.management.nuspec",
         "useSharedDesignerContext.txt"
       ]
-    },
-    "System.Runtime.CompilerServices.Unsafe/4.7.1": {
-      "sha512": "zOHkQmzPCn5zm/BH+cxC1XbUS3P4Yoi3xzW7eRgVpDR2tPGSzyMZ17Ig1iRkfJuY0nhxkQQde8pgePNiA7z7TQ==",
-      "type": "package",
-      "path": "system.runtime.compilerservices.unsafe/4.7.1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "Icon.png",
-        "LICENSE.TXT",
-        "THIRD-PARTY-NOTICES.TXT",
-        "lib/net461/System.Runtime.CompilerServices.Unsafe.dll",
-        "lib/net461/System.Runtime.CompilerServices.Unsafe.xml",
-        "lib/netcoreapp2.0/System.Runtime.CompilerServices.Unsafe.dll",
-        "lib/netcoreapp2.0/System.Runtime.CompilerServices.Unsafe.xml",
-        "lib/netstandard1.0/System.Runtime.CompilerServices.Unsafe.dll",
-        "lib/netstandard1.0/System.Runtime.CompilerServices.Unsafe.xml",
-        "lib/netstandard2.0/System.Runtime.CompilerServices.Unsafe.dll",
-        "lib/netstandard2.0/System.Runtime.CompilerServices.Unsafe.xml",
-        "ref/net461/System.Runtime.CompilerServices.Unsafe.dll",
-        "ref/net461/System.Runtime.CompilerServices.Unsafe.xml",
-        "ref/netstandard1.0/System.Runtime.CompilerServices.Unsafe.dll",
-        "ref/netstandard1.0/System.Runtime.CompilerServices.Unsafe.xml",
-        "ref/netstandard2.0/System.Runtime.CompilerServices.Unsafe.dll",
-        "ref/netstandard2.0/System.Runtime.CompilerServices.Unsafe.xml",
-        "system.runtime.compilerservices.unsafe.4.7.1.nupkg.sha512",
-        "system.runtime.compilerservices.unsafe.nuspec",
-        "useSharedDesignerContext.txt",
-        "version.txt"
-      ]
     }
   },
   "projectFileDependencyGroups": {
     "net10.0": [
-      "Google.Apis.Sheets.v4 >= 1.73.0.4061",
-      "System.Buffers >= 4.5.1",
-      "System.Runtime.CompilerServices.Unsafe >= 4.7.1"
+      "Google.Apis.Sheets.v4 >= 1.73.0.4061"
     ]
   },
   "packageFolders": {
@@ -440,14 +355,6 @@
           "Google.Apis.Sheets.v4": {
             "target": "Package",
             "version": "[1.73.0.4061, )"
-          },
-          "System.Buffers": {
-            "target": "Package",
-            "version": "[4.5.1, )"
-          },
-          "System.Runtime.CompilerServices.Unsafe": {
-            "target": "Package",
-            "version": "[4.7.1, )"
           }
         },
         "imports": [
@@ -743,27 +650,5 @@
         }
       }
     }
-  },
-  "logs": [
-    {
-      "code": "NU1510",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "PackageReference System.Buffers은(는) 잘리지 않습니다. 이 패키지는 불필요할 수 있으므로 종속성에서 제거하는 것이 좋습니다.",
-      "libraryId": "System.Buffers",
-      "targetGraphs": [
-        "net10.0"
-      ]
-    },
-    {
-      "code": "NU1510",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "PackageReference System.Runtime.CompilerServices.Unsafe은(는) 잘리지 않습니다. 이 패키지는 불필요할 수 있으므로 종속성에서 제거하는 것이 좋습니다.",
-      "libraryId": "System.Runtime.CompilerServices.Unsafe",
-      "targetGraphs": [
-        "net10.0"
-      ]
-    }
-  ]
+  }
 }

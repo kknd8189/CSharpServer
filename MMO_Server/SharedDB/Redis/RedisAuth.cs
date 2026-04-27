@@ -14,7 +14,7 @@ namespace SharedDB.Redis
             var db = RedisManager.Instance.GetDatabase();
             string key = $"Session:{accountId}";
 
-            return db.StringSet(key, token, TimeSpan.FromSeconds(60));
+            return db.StringSet(key, token, TimeSpan.FromSeconds(300));
         }
 
         //GameServer가 C_Auth 패킷을 받았을 때 호출할 함수

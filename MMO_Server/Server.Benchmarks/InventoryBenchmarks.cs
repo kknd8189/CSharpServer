@@ -1,5 +1,5 @@
 using BenchmarkDotNet.Attributes;
-using Google.Protobuf.Protocol;
+using Protocol;
 using Server.Game;
 
 namespace Server.Benchmarks
@@ -7,9 +7,9 @@ namespace Server.Benchmarks
 	[MemoryDiagnoser]
 	public class InventoryBenchmarks
 	{
-		private Inventory _emptyInventory;
-		private Inventory _halfFullInventory;
-		private Inventory _fullInventory;
+		private Inventory? _emptyInventory;
+		private Inventory? _halfFullInventory;
+		private Inventory? _fullInventory;
 
 		[GlobalSetup]
 		public void Setup()
@@ -32,21 +32,21 @@ namespace Server.Benchmarks
 		}
 
 		[Benchmark]
-		public int? GetEmptySlot_Empty() => _emptyInventory.GetEmptySlot();
+		public int? GetEmptySlot_Empty() => _emptyInventory!.GetEmptySlot();
 
 		[Benchmark]
-		public int? GetEmptySlot_HalfFull() => _halfFullInventory.GetEmptySlot();
+		public int? GetEmptySlot_HalfFull() => _halfFullInventory!.GetEmptySlot();
 
 		[Benchmark]
-		public int? GetEmptySlot_Full() => _fullInventory.GetEmptySlot();
+		public int? GetEmptySlot_Full() => _fullInventory!.GetEmptySlot();
 
 		[Benchmark]
-		public Item Get_Existing() => _fullInventory.Get(10);
+		public Item Get_Existing() => _fullInventory!.Get(10);
 
 		[Benchmark]
-		public Item Get_NonExisting() => _fullInventory.Get(999);
+		public Item Get_NonExisting() => _fullInventory!.Get(999);
 
 		[Benchmark]
-		public Item Find_BySlot() => _fullInventory.Find(i => i.Slot == 15);
+		public Item Find_BySlot() => _fullInventory!.Find(i => i.Slot == 15);
 	}
 }

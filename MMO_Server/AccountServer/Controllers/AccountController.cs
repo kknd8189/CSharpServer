@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SharedDB;
+using SharedDB.Redis;
 
 namespace AccountServer.Controllers
 {
@@ -72,31 +73,17 @@ namespace AccountServer.Controllers
 			{
 				res.LoginOk = true;
 
-				// 토큰 발급
-				DateTime expired = DateTime.UtcNow;
-				expired.AddSeconds(600);
-
-				TokenDb tokenDb = _shared.Tokens.Where(t => t.AccountDbId == account.AccountDbId).FirstOrDefault();
-				if (tokenDb != null)
+				// 세션 토큰 생성 + Redis 저장 (TTL 300s)
+				string sessionToken = Guid.NewGuid().ToString("N");
+				bool ok = RedisAuth.SaveSessionToken(account.AccountDbId, sessionToken);
+				if (!ok)
 				{
-					tokenDb.Token = new Random().Next(Int32.MinValue, Int32.MaxValue);
-					tokenDb.Expired = expired;
-					_shared.SaveChangesEx();
-				}
-				else
-				{
-					tokenDb = new TokenDb()
-					{
-						AccountDbId = account.AccountDbId,
-						Token = new Random().Next(Int32.MinValue, Int32.MaxValue),
-						Expired = expired
-					};
-					_shared.Add(tokenDb);
-					_shared.SaveChangesEx();
+					res.LoginOk = false;
+					return res;
 				}
 
 				res.AccountId = account.AccountDbId;
-				res.Token = tokenDb.Token;
+				res.Token = sessionToken;
 				res.ServerList = new List<ServerInfo>();
 
 				foreach (ServerDb serverDb in _shared.Servers)

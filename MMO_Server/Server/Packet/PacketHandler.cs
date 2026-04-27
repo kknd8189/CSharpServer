@@ -42,10 +42,11 @@ class PacketHandler
 	{
 		C_Login loginPacket = packet as C_Login;
 		ClientSession clientSession = session as ClientSession;
-		clientSession.HandleLogin(loginPacket);
+		bool ok = clientSession.HandleLogin(loginPacket);
 
-		LogHelper.LogLogin(clientSession.AccountDbId, true, clientSession.GetIpAddress());
-
+		// 성공: 확정된 AccountDbId / 실패: 클라가 보낸 AccountID로 로그 (잘못된 토큰 시도 추적)
+		int accountId = ok ? clientSession.AccountDbId : loginPacket.AccountID;
+		LogHelper.LogLogin(accountId, ok, clientSession.GetIpAddress());
 	}
 
 	public static void C_EnterGameHandler(PacketSession session, IPacket packet)
