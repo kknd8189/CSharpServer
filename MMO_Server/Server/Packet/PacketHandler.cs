@@ -3,6 +3,9 @@ using Server.Game;
 using ServerCore;
 using Server.DB.LogDB;
 using Protocol;
+using Serilog;
+using System;
+using System.Threading.Tasks;
 
 class PacketHandler
 {
@@ -42,11 +45,26 @@ class PacketHandler
 	{
 		C_Login loginPacket = packet as C_Login;
 		ClientSession clientSession = session as ClientSession;
-		bool ok = clientSession.HandleLogin(loginPacket);
 
-		// 성공: 확정된 AccountDbId / 실패: 클라가 보낸 AccountID로 로그 (잘못된 토큰 시도 추적)
-		int accountId = ok ? clientSession.AccountDbId : loginPacket.AccountID;
-		LogHelper.LogLogin(accountId, ok, clientSession.GetIpAddress());
+		// IOCP 스레드 즉시 반환. async 작업은 ThreadPool에서.
+		// (sync로 await하면 Redis 호출 동안 IOCP 점유 → AcceptAsync 적체 → ConnectionRefused 캐스케이드)
+		_ = ProcessLoginAsync(clientSession, loginPacket);
+	}
+
+	private static async Task ProcessLoginAsync(ClientSession clientSession, C_Login loginPacket)
+	{
+		try
+		{
+			bool ok = await clientSession.HandleLoginAsync(loginPacket);
+
+			// 성공: 확정된 AccountDbId / 실패: 클라가 보낸 AccountID로 로그 (잘못된 토큰 시도 추적)
+			int accountId = ok ? clientSession.AccountDbId : loginPacket.AccountID;
+			LogHelper.LogLogin(accountId, ok, clientSession.GetIpAddress());
+		}
+		catch (Exception ex)
+		{
+			Log.Error(ex, "ProcessLoginAsync error");
+		}
 	}
 
 	public static void C_EnterGameHandler(PacketSession session, IPacket packet)

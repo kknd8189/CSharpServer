@@ -56,7 +56,7 @@ namespace AccountServer.Controllers
 
 		[HttpPost]
 		[Route("login")]
-		public LoginAccountPacketRes LoginAccount([FromBody] LoginAccountPacketReq req)
+		public async Task<LoginAccountPacketRes> LoginAccount([FromBody] LoginAccountPacketReq req)
 		{
 			LoginAccountPacketRes res = new LoginAccountPacketRes();
 
@@ -73,9 +73,9 @@ namespace AccountServer.Controllers
 			{
 				res.LoginOk = true;
 
-				// 세션 토큰 생성 + Redis 저장 (TTL 300s)
+				// 세션 토큰 생성 + Redis 저장 (TTL 300s) — async로 요청 스레드 블로킹 회피
 				string sessionToken = Guid.NewGuid().ToString("N");
-				bool ok = RedisAuth.SaveSessionToken(account.AccountDbId, sessionToken);
+				bool ok = await RedisAuth.SaveSessionTokenAsync(account.AccountDbId, sessionToken);
 				if (!ok)
 				{
 					res.LoginOk = false;

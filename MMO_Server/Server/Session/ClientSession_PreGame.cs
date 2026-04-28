@@ -8,6 +8,7 @@ using ServerCore;
 using SharedDB.Redis;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Server
 {
@@ -16,13 +17,13 @@ namespace Server
 		public int AccountDbId { get; private set; }
 		public List<LobbyPlayerInfo> LobbyPlayers { get; set; } = new List<LobbyPlayerInfo>();
 
-		public bool HandleLogin(C_Login loginPacket)
+		public async Task<bool> HandleLoginAsync(C_Login loginPacket)
 		{
 			if (ServerState != PlayerServerState.ServerStateLogin)
 				return false;
 
-			// Redis 세션 토큰 검증 (1회용, AccountServer가 발급)
-			if (RedisAuth.VerifyToken(loginPacket.AccountID, loginPacket.Token) == false)
+			// Redis 세션 토큰 검증 (1회용, AccountServer가 발급) — async로 IOCP/요청 스레드 블로킹 회피
+			if (await RedisAuth.VerifyTokenAsync(loginPacket.AccountID, loginPacket.Token) == false)
 			{
 				Send(new S_Login() { LoginOk = 0 });
 				Disconnect();

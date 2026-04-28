@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace DummyClient.Session
 {
@@ -12,13 +11,14 @@ namespace DummyClient.Session
 		object _lock = new object();
 		int _dummyId = 1;
 
-		public ServerSession Generate()
+		public ServerSession Generate(int accountId, string token)
 		{
 			lock (_lock)
 			{
 				ServerSession session = new ServerSession();
-				session.DummyId = _dummyId;
-				_dummyId++;
+				session.DummyId = _dummyId++;
+				session.AccountId = accountId;
+				session.Token = token;
 
 				_sessions.Add(session);
 				Console.WriteLine($"Connected ({_sessions.Count}) Players");

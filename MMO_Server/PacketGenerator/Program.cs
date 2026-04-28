@@ -33,6 +33,12 @@ namespace PacketGenerator
                 ManagerFile = "ClientPacketManager.cs",
                 PrefixFilter = "S_",
             },
+            new OutputTarget
+            {
+                Dir = "../../DummyClient/Packet",
+                ManagerFile = "ClientPacketManager.cs",
+                PrefixFilter = "S_",
+            },
         };
 
         static async Task Main(string[] args)

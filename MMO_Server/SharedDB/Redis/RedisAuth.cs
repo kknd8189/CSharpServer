@@ -33,5 +33,29 @@ namespace SharedDB.Redis
 
             return false;
         }
+
+        // async 버전: IOCP/요청 스레드를 묶지 않고 multiplexer에 비동기로 위임.
+        // 부하 환경에서 sync 호출 시 스레드 풀 고갈 → ConnectionRefused 캐스케이드 방지.
+        public static async Task<bool> SaveSessionTokenAsync(int accountId, string token)
+        {
+            var db = RedisManager.Instance.GetDatabase();
+            string key = $"Session:{accountId}";
+            return await db.StringSetAsync(key, token, TimeSpan.FromSeconds(300));
+        }
+
+        public static async Task<bool> VerifyTokenAsync(int accountId, string clientToken)
+        {
+            var db = RedisManager.Instance.GetDatabase();
+            string key = $"Session:{accountId}";
+            string storedToken = await db.StringGetAsync(key);
+
+            if (storedToken != null && storedToken == clientToken)
+            {
+                await db.KeyDeleteAsync(key);
+                return true;
+            }
+
+            return false;
+        }
     }
 }

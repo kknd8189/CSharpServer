@@ -30,7 +30,7 @@ namespace Server.DB.LogDB
         public static LogTransaction Instance { get; } = new LogTransaction();
         private readonly BlockingCollection<LogJob> _logQueue = new();
 
-        private readonly string _connectionString = ConfigManager.Config.connectionString;
+        private readonly string _connectionString = ConfigManager.Config.logConnectionString;
 
         private long _droppedLogCount;
         public long DroppedLogCount => Interlocked.Read(ref _droppedLogCount);
@@ -186,7 +186,7 @@ namespace Server.DB.LogDB
             };
 
             string sql = @"
-                INSERT INTO Log_Login (PlayerDbId, IsLogin, IpAddress, Timestamp) 
+                INSERT INTO log_login (PlayerDbId, IsLogin, IpAddress, Timestamp)
                 VALUES (@PlayerDbId, @IsLogin, @IpAddress, @Timestamp)";
 
             // 3. 람다 없이 아주 깔끔하게 큐에 밀어 넣기! (비동기 처리)
@@ -204,7 +204,7 @@ namespace Server.DB.LogDB
                 Timestamp = DateTime.Now
             };
 
-            string sql = "INSERT INTO Log_Reward (PlayerDbId, ItemId, Count, Reason, Timestamp)" +
+            string sql = "INSERT INTO log_reward (PlayerDbId, ItemId, Count, Reason, Timestamp)" +
                 " VALUES (@PlayerDbId, @ItemId, @Count, @Reason, @Timestamp)";
 
             LogTransaction.Instance.Push(sql, log);

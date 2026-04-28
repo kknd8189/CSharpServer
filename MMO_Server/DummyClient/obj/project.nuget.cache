@@ -1,10 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "TQ7xzIIl+Rg=",
+  "dgSpecHash": "DSy5uTlDELw=",
   "success": true,
   "projectFilePath": "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\DummyClient\\DummyClient.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\user\\.nuget\\packages\\google.protobuf\\3.32.0\\google.protobuf.3.32.0.nupkg.sha512"
-  ],
+  "expectedPackageFiles": [],
   "logs": []
 }

@@ -218,7 +218,8 @@ namespace Server
             Name = ConfigManager.Config.worldName;
             Port = ConfigManager.Config.port;
 
-            _listener.Init(SetDNSInfoTask(), () => { return SessionManager.Instance.Generate(); });
+            _listener.Init(SetDNSInfoTask(), () => { return SessionManager.Instance.Generate(); },
+                register: 50, backlog: 1024);
 
             Log.Information("Server started. World={WorldName} Port={Port} IP={IpAddress}", Name, Port, IpAddress);
 

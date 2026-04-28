@@ -1,120 +1,139 @@
-using Google.Protobuf;
-using Google.Protobuf.Protocol;
+
 using ServerCore;
 using System;
 using System.Buffers.Binary;
-using System.Collections.Generic;
 
-class PacketManager
+namespace Protocol
 {
-	#region Singleton
-	static PacketManager _instance = new PacketManager();
-	public static PacketManager Instance { get { return _instance; } }
-	#endregion
 
-	PacketManager()
-	{
-		Register();
-	}
+/// <summary>
+/// 이 클래스는 자동 생성 됩니다. 절대 직접 수정하지 마세요.
+/// </summary>
+public class PacketManager
+{
+    #region Singleton
+    static PacketManager _instance = new PacketManager();
+    public static PacketManager Instance { get { return _instance; } }
+    #endregion
 
-	Dictionary<ushort, Action<PacketSession, ArraySegment<byte>, ushort>> _onRecv = new Dictionary<ushort, Action<PacketSession, ArraySegment<byte>, ushort>>();
-	Dictionary<ushort, Action<PacketSession, IMessage>> _handler = new Dictionary<ushort, Action<PacketSession, IMessage>>();
-		
-	public Action<PacketSession, IMessage, ushort> CustomHandler { get; set; }
+    PacketManager()
+    {
+        Register();
+    }
 
+    // Action<T> 대신 Span을 받을 수 있는 커스텀 델리게이트 선언
+    // Span은 제네릭 타입 인자로 사용할 수 없기 때문
     public delegate void PacketHandlerSpan(PacketSession session, ReadOnlySpan<byte> buffer, ushort id);
-    Dictionary<ushort, PacketHandlerSpan> _onRecvSpan = new Dictionary<ushort, PacketHandlerSpan>();
+
+    //Dictionary를 버리고(Array)로 변경! 크기는 23
+    PacketHandlerSpan[] _onRecvSpan = new PacketHandlerSpan[23];
+    Action<PacketSession, IPacket>[] _handler = new Action<PacketSession, IPacket>[23];
+
+    public Action<PacketSession, IPacket, ushort> CustomHandler { get; set; }
 
     public void Register()
-	{		
-		_onRecv.Add((ushort)MsgId.SEnterGame, MakePacket<S_EnterGame>);
-		_handler.Add((ushort)MsgId.SEnterGame, PacketHandler.S_EnterGameHandler);		
-		_onRecv.Add((ushort)MsgId.SLeaveGame, MakePacket<S_LeaveGame>);
-		_handler.Add((ushort)MsgId.SLeaveGame, PacketHandler.S_LeaveGameHandler);		
-		_onRecv.Add((ushort)MsgId.SSpawn, MakePacket<S_Spawn>);
-		_handler.Add((ushort)MsgId.SSpawn, PacketHandler.S_SpawnHandler);		
-		_onRecv.Add((ushort)MsgId.SDespawn, MakePacket<S_Despawn>);
-		_handler.Add((ushort)MsgId.SDespawn, PacketHandler.S_DespawnHandler);		
-		_onRecv.Add((ushort)MsgId.SMove, MakePacket<S_Move>);
-		_handler.Add((ushort)MsgId.SMove, PacketHandler.S_MoveHandler);		
-		_onRecv.Add((ushort)MsgId.SSkill, MakePacket<S_Skill>);
-		_handler.Add((ushort)MsgId.SSkill, PacketHandler.S_SkillHandler);		
-		_onRecv.Add((ushort)MsgId.SChangeHp, MakePacket<S_ChangeHp>);
-		_handler.Add((ushort)MsgId.SChangeHp, PacketHandler.S_ChangeHpHandler);		
-		_onRecv.Add((ushort)MsgId.SDie, MakePacket<S_Die>);
-		_handler.Add((ushort)MsgId.SDie, PacketHandler.S_DieHandler);		
-		_onRecv.Add((ushort)MsgId.SConnected, MakePacket<S_Connected>);
-		_handler.Add((ushort)MsgId.SConnected, PacketHandler.S_ConnectedHandler);		
-		_onRecv.Add((ushort)MsgId.SLogin, MakePacket<S_Login>);
-		_handler.Add((ushort)MsgId.SLogin, PacketHandler.S_LoginHandler);		
-		_onRecv.Add((ushort)MsgId.SCreatePlayer, MakePacket<S_CreatePlayer>);
-		_handler.Add((ushort)MsgId.SCreatePlayer, PacketHandler.S_CreatePlayerHandler);		
-		_onRecv.Add((ushort)MsgId.SItemList, MakePacket<S_ItemList>);
-		_handler.Add((ushort)MsgId.SItemList, PacketHandler.S_ItemListHandler);		
-		_onRecv.Add((ushort)MsgId.SAddItem, MakePacket<S_AddItem>);
-		_handler.Add((ushort)MsgId.SAddItem, PacketHandler.S_AddItemHandler);		
-		_onRecv.Add((ushort)MsgId.SEquipItem, MakePacket<S_EquipItem>);
-		_handler.Add((ushort)MsgId.SEquipItem, PacketHandler.S_EquipItemHandler);		
-		_onRecv.Add((ushort)MsgId.SChangeStat, MakePacket<S_ChangeStat>);
-		_handler.Add((ushort)MsgId.SChangeStat, PacketHandler.S_ChangeStatHandler);		
-		_onRecv.Add((ushort)MsgId.SPing, MakePacket<S_Ping>);
-		_handler.Add((ushort)MsgId.SPing, PacketHandler.S_PingHandler);
-	}
+    {		
+        _onRecvSpan[(int)MsgId.S_EnterGame] = MakePacketSpan<S_EnterGame>;
+        _handler[(int)MsgId.S_EnterGame] = PacketHandler.S_EnterGameHandler;
+		
+        _onRecvSpan[(int)MsgId.S_LeaveGame] = MakePacketSpan<S_LeaveGame>;
+        _handler[(int)MsgId.S_LeaveGame] = PacketHandler.S_LeaveGameHandler;
+		
+        _onRecvSpan[(int)MsgId.S_Spawn] = MakePacketSpan<S_Spawn>;
+        _handler[(int)MsgId.S_Spawn] = PacketHandler.S_SpawnHandler;
+		
+        _onRecvSpan[(int)MsgId.S_Despawn] = MakePacketSpan<S_Despawn>;
+        _handler[(int)MsgId.S_Despawn] = PacketHandler.S_DespawnHandler;
+		
+        _onRecvSpan[(int)MsgId.S_Move] = MakePacketSpan<S_Move>;
+        _handler[(int)MsgId.S_Move] = PacketHandler.S_MoveHandler;
+		
+        _onRecvSpan[(int)MsgId.S_Skill] = MakePacketSpan<S_Skill>;
+        _handler[(int)MsgId.S_Skill] = PacketHandler.S_SkillHandler;
+		
+        _onRecvSpan[(int)MsgId.S_ChangeHp] = MakePacketSpan<S_ChangeHp>;
+        _handler[(int)MsgId.S_ChangeHp] = PacketHandler.S_ChangeHpHandler;
+		
+        _onRecvSpan[(int)MsgId.S_Die] = MakePacketSpan<S_Die>;
+        _handler[(int)MsgId.S_Die] = PacketHandler.S_DieHandler;
+		
+        _onRecvSpan[(int)MsgId.S_Connected] = MakePacketSpan<S_Connected>;
+        _handler[(int)MsgId.S_Connected] = PacketHandler.S_ConnectedHandler;
+		
+        _onRecvSpan[(int)MsgId.S_Login] = MakePacketSpan<S_Login>;
+        _handler[(int)MsgId.S_Login] = PacketHandler.S_LoginHandler;
+		
+        _onRecvSpan[(int)MsgId.S_CreatePlayer] = MakePacketSpan<S_CreatePlayer>;
+        _handler[(int)MsgId.S_CreatePlayer] = PacketHandler.S_CreatePlayerHandler;
+		
+        _onRecvSpan[(int)MsgId.S_ItemList] = MakePacketSpan<S_ItemList>;
+        _handler[(int)MsgId.S_ItemList] = PacketHandler.S_ItemListHandler;
+		
+        _onRecvSpan[(int)MsgId.S_AddItem] = MakePacketSpan<S_AddItem>;
+        _handler[(int)MsgId.S_AddItem] = PacketHandler.S_AddItemHandler;
+		
+        _onRecvSpan[(int)MsgId.S_EquipItem] = MakePacketSpan<S_EquipItem>;
+        _handler[(int)MsgId.S_EquipItem] = PacketHandler.S_EquipItemHandler;
+		
+        _onRecvSpan[(int)MsgId.S_ChangeStat] = MakePacketSpan<S_ChangeStat>;
+        _handler[(int)MsgId.S_ChangeStat] = PacketHandler.S_ChangeStatHandler;
+		
+        _onRecvSpan[(int)MsgId.S_Ping] = MakePacketSpan<S_Ping>;
+        _handler[(int)MsgId.S_Ping] = PacketHandler.S_PingHandler;
 
-	public void OnRecvPacket(PacketSession session, ArraySegment<byte> buffer)
-	{
-		ushort count = 0;
-
-		ushort size = BitConverter.ToUInt16(buffer.Array, buffer.Offset);
-		count += 2;
-		ushort id = BitConverter.ToUInt16(buffer.Array, buffer.Offset + count);
-		count += 2;
-
-		Action<PacketSession, ArraySegment<byte>, ushort> action = null;
-		if (_onRecv.TryGetValue(id, out action))
-			action.Invoke(session, buffer, id);
-	}
+    }
 
     public void OnRecvPacketSpan(PacketSession session, ReadOnlySpan<byte> buffer)
     {
+        // Server.ServerMetrics.IncrementPacketsReceived();
         ushort count = 0;
 
         ushort size = BinaryPrimitives.ReadUInt16LittleEndian(buffer.Slice(count));
         count += 2;
+
         ushort id = BinaryPrimitives.ReadUInt16LittleEndian(buffer.Slice(count));
         count += 2;
 
-        if (_onRecvSpan.TryGetValue(id, out PacketHandlerSpan action))
+        //  Dictionary의 TryGetValue 없이 인덱스로 한방에 꽂아버림 (O(1))
+        if (id >= 0 && id < 23)
         {
-            // Span�� �״�� �Ѱ��־� ���� ��� '0' ����
-			// Buffer�� Payload�� �Ѱ���
-            action.Invoke(session, buffer.Slice(count), id);
+            PacketHandlerSpan action = _onRecvSpan[id];
+            if (action != null)
+                action.Invoke(session, buffer, id);
         }
     }
 
+    //  ProtoBuf, ArrayPool, CodedInputStream, CopyTo 전부 삭제! 완벽한 Zero-Allocation
+    void MakePacketSpan<T>(PacketSession session, ReadOnlySpan<byte> buffer, ushort id) where T : IPacket, new()
+    {
+        try
+        {
+            T pkt = new T();
+            pkt.Read(buffer);
 
-    void MakePacket<T>(PacketSession session, ArraySegment<byte> buffer, ushort id) where T : IMessage, new()
-	{
-		T pkt = new T();
-		pkt.MergeFrom(buffer.Array, buffer.Offset + 4, buffer.Count - 4);
+            if (CustomHandler != null)
+            {
+                CustomHandler.Invoke(session, pkt, id);
+            }
+            else
+            {
+                Action<PacketSession, IPacket> action = _handler[id];
+                if (action != null)
+                    action.Invoke(session, pkt);
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"MakePacketSpan Error: {e}");
+        }
+    }
 
-		if (CustomHandler != null)
-		{
-			CustomHandler.Invoke(session, pkt, id);
-		}
-		else
-		{
-			Action<PacketSession, IMessage> action = null;
-			if (_handler.TryGetValue(id, out action))
-				action.Invoke(session, pkt);
-		}
-	}
+    public Action<PacketSession, IPacket> GetPacketHandler(ushort id)
+    {
+        if (id >= 0 && id < 23)
+            return _handler[id];
+        return null;
+    }
+}
 
-	public Action<PacketSession, IMessage> GetPacketHandler(ushort id)
-	{
-		Action<PacketSession, IMessage> action = null;
-		if (_handler.TryGetValue(id, out action))
-			return action;
-		return null;
-	}
 }

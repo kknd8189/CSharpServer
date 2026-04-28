@@ -5,14 +5,14 @@
             "name": "skill 1",
             "cooldown": "0.5",
             "damage": "10",
-            "skillType": "SkillAuto"
+            "skillType": "Auto"
         },
         {
             "id": "2",
             "name": "skill 2",
             "cooldown": "0.5",
             "damage": "5",
-            "skillType": "SkillProjectile",
+            "skillType": "Projectile",
             "projectile": {
                 "name": "projectile 1",
                 "speed": "20.0",

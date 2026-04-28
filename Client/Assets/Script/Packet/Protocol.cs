@@ -659,7 +659,8 @@ public class ItemInfo
 
         public class C_Login : IPacket
         {
-            public string UniqueId;
+            public int AccountID;
+    public string Token;
 
 
             public void Read(ReadOnlySpan<byte> span)
@@ -667,8 +668,9 @@ public class ItemInfo
                 ushort count = 0;
                 count += sizeof(ushort); // Size
                 count += sizeof(ushort); // Packet ID
-                ushort UniqueIdLen = BinaryPrimitives.ReadUInt16LittleEndian(span.Slice(count)); count += sizeof(ushort);
-        this.UniqueId = Encoding.UTF8.GetString(span.Slice(count, UniqueIdLen)); count += UniqueIdLen;
+                this.AccountID = BinaryPrimitives.ReadInt32LittleEndian(span.Slice(count)); count += sizeof(int);
+        ushort TokenLen = BinaryPrimitives.ReadUInt16LittleEndian(span.Slice(count)); count += sizeof(ushort);
+        this.Token = Encoding.UTF8.GetString(span.Slice(count, TokenLen)); count += TokenLen;
 
             }
 
@@ -677,11 +679,12 @@ public class ItemInfo
                 ushort count = 0;
                 count += sizeof(ushort); // Size 
                 count += sizeof(ushort); // Packet ID 
-                ushort UniqueIdLen = (ushort)(this.UniqueId != null ? Encoding.UTF8.GetByteCount(this.UniqueId) : 0);
-        BinaryPrimitives.WriteUInt16LittleEndian(span.Slice(count), UniqueIdLen); count += sizeof(ushort);
-        if (this.UniqueId != null)
+                BinaryPrimitives.WriteInt32LittleEndian(span.Slice(count), this.AccountID); count += sizeof(int);
+        ushort TokenLen = (ushort)(this.Token != null ? Encoding.UTF8.GetByteCount(this.Token) : 0);
+        BinaryPrimitives.WriteUInt16LittleEndian(span.Slice(count), TokenLen); count += sizeof(ushort);
+        if (this.Token != null)
         {
-            Encoding.UTF8.GetBytes(this.UniqueId, span.Slice(count)); count += UniqueIdLen;
+            Encoding.UTF8.GetBytes(this.Token, span.Slice(count)); count += TokenLen;
         }
 
                 size = count;

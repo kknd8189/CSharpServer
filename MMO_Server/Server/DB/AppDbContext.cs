@@ -13,7 +13,8 @@ namespace Server.DB
 		public DbSet<PlayerDb> Players { get; set; }
 		public DbSet<ItemDb> Items { get; set; }
 
-		static readonly ILoggerFactory _logger = LoggerFactory.Create(builder => { builder.AddConsole(); });
+		// EF Core SQL 로그 — 부하 테스트 시 콘솔이 꽉 차서 비활성화. 디버깅 시 주석 해제.
+		// static readonly ILoggerFactory _logger = LoggerFactory.Create(builder => { builder.AddConsole(); });
 
 		string _connectionString = @"Server=localhost;Port=3306;Database=GameDb;User=DY;Password=3306;";
 
@@ -25,7 +26,7 @@ namespace Server.DB
 			string connectionString = ConfigManager.Config == null ? _connectionString : ConfigManager.Config.connectionString;
 
             options
-				.UseLoggerFactory(_logger)
+				//.UseLoggerFactory(_logger)
                 .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
         }
 

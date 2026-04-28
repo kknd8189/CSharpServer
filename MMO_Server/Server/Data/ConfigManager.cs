@@ -10,6 +10,7 @@ namespace Server.Data
 	{
 		public string dataPath;
 		public string connectionString;
+		public string logConnectionString;
 		public string worldName;
 		public string redisConnectionString;
         public int port;

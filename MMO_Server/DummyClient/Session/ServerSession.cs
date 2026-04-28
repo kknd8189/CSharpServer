@@ -1,59 +1,40 @@
-﻿using Google.Protobuf;
-using Google.Protobuf.Protocol;
+using Protocol;
 using ServerCore;
 using System;
-using System.Buffers.Binary;
-using System.Collections;
-using System.Collections.Generic;
 using System.Net;
 
 public class ServerSession : PacketSession
 {
 	public int DummyId { get; set; }
+	public int AccountId { get; set; }
+	public string Token { get; set; }
 
-	public void Send(IMessage packet)
+	private const int MaxPacketSize = 10 * 1024;
+
+	public void Send(IPacket packet)
 	{
-		string msgName = packet.Descriptor.Name.Replace("_", string.Empty);
-		MsgId msgId = (MsgId)Enum.Parse(typeof(MsgId), msgName);
-		int size = packet.CalculateSize();
-		int totalSize = size + 4;
+		Span<byte> span = SendBufferSpanHelper.Open(MaxPacketSize);
+		if (span.IsEmpty) return;
 
-        //헤더 크기 4 byte
-        Span<byte> sendBuffer = SendBufferHelper.Open(totalSize);
-        BinaryPrimitives.WriteUInt16LittleEndian(sendBuffer.Slice(0), (ushort)totalSize);
-        BinaryPrimitives.WriteUInt16LittleEndian(sendBuffer.Slice(2), (ushort)msgId);
-
-        //byte[] sendBuffer = new byte[size + 4];
-        //Array.Copy(BitConverter.GetBytes((ushort)(size + 4)), 0, sendBuffer, 0, sizeof(ushort));
-        //Array.Copy(BitConverter.GetBytes((ushort)msgId), 0, sendBuffer, 2, sizeof(ushort));
-        //Array.Copy(packet.ToByteArray(), 0, sendBuffer, 4, size);
-
-        packet.WriteTo(sendBuffer.Slice(4));
-        Send(SendBufferSpanHelper.Close(totalSize));
+		packet.Write(span, out ushort size);
+		ArraySegment<byte> pendingBuffer = SendBufferSpanHelper.Close(size);
+		Send(pendingBuffer);
 	}
 
 	public override void OnConnected(EndPoint endPoint)
 	{
-		//Console.WriteLine($"OnConnected : {endPoint}");
 	}
 
 	public override void OnDisconnected(EndPoint endPoint)
 	{
-		//Console.WriteLine($"OnDisconnected : {endPoint}");
 	}
 
-	//public override void OnRecvPacket(ArraySegment<byte> buffer)
-	//{
-	//	PacketManager.Instance.OnRecvPacket(this, buffer);
-	//}
-
-    public override void OnRecvPacketSpan(ReadOnlySpan<byte> buffer)
-    {
-        PacketManager.Instance.OnRecvPacketSpan(this, buffer);
-    }
-
-    public override void OnSend(int numOfBytes)
+	public override void OnRecvPacketSpan(ReadOnlySpan<byte> buffer)
 	{
-		//Console.WriteLine($"Transferred bytes: {numOfBytes}");
+		PacketManager.Instance.OnRecvPacketSpan(this, buffer);
+	}
+
+	public override void OnSend(int numOfBytes)
+	{
 	}
 }
