@@ -6,6 +6,20 @@ class PacketHandler
 	public static void S_EnterGameHandler(PacketSession session, IPacket packet)
 	{
 		S_EnterGame enterGamePacket = packet as S_EnterGame;
+		ServerSession serverSession = (ServerSession)session;
+
+		if (enterGamePacket?.Player == null)
+			return;
+
+		serverSession.MyPlayerId = enterGamePacket.Player.ObjectId;
+		if (enterGamePacket.Player.PosInfo != null)
+		{
+			serverSession.PosX = enterGamePacket.Player.PosInfo.PosX;
+			serverSession.PosY = enterGamePacket.Player.PosInfo.PosY;
+			serverSession.PosZ = enterGamePacket.Player.PosInfo.PosZ;
+		}
+
+		serverSession.StartSimulation();
 	}
 
 	public static void S_LeaveGameHandler(PacketSession session, IPacket packet)

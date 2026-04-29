@@ -134,8 +134,12 @@ public class LobbyPlayerInfo
         this.PlayerDbId = BinaryPrimitives.ReadInt32LittleEndian(span.Slice(count)); count += sizeof(int);
         ushort NameLen = BinaryPrimitives.ReadUInt16LittleEndian(span.Slice(count)); count += sizeof(ushort);
         this.Name = Encoding.UTF8.GetString(span.Slice(count, NameLen)); count += NameLen;
-        this.StatInfo = new StatInfo();
-        this.StatInfo.Read(span, ref count);
+        byte StatInfoHasValue = span[count]; count += sizeof(byte);
+        if (StatInfoHasValue != 0)
+        {
+            this.StatInfo = new StatInfo();
+            this.StatInfo.Read(span, ref count);
+        }
 
     }
 
@@ -149,7 +153,14 @@ public class LobbyPlayerInfo
             Encoding.UTF8.GetBytes(this.Name, span.Slice(count)); count += NameLen;
         }
         if (this.StatInfo != null)
+        {
+            span[count] = 1; count += sizeof(byte);
             this.StatInfo.Write(span, ref count);
+        }
+        else
+        {
+            span[count] = 0; count += sizeof(byte);
+        }
 
     }
 }
@@ -167,10 +178,18 @@ public class ObjectInfo
         this.ObjectId = BinaryPrimitives.ReadInt32LittleEndian(span.Slice(count)); count += sizeof(int);
         ushort NameLen = BinaryPrimitives.ReadUInt16LittleEndian(span.Slice(count)); count += sizeof(ushort);
         this.Name = Encoding.UTF8.GetString(span.Slice(count, NameLen)); count += NameLen;
-        this.PosInfo = new PositionInfo();
-        this.PosInfo.Read(span, ref count);
-        this.StatInfo = new StatInfo();
-        this.StatInfo.Read(span, ref count);
+        byte PosInfoHasValue = span[count]; count += sizeof(byte);
+        if (PosInfoHasValue != 0)
+        {
+            this.PosInfo = new PositionInfo();
+            this.PosInfo.Read(span, ref count);
+        }
+        byte StatInfoHasValue = span[count]; count += sizeof(byte);
+        if (StatInfoHasValue != 0)
+        {
+            this.StatInfo = new StatInfo();
+            this.StatInfo.Read(span, ref count);
+        }
 
     }
 
@@ -184,9 +203,23 @@ public class ObjectInfo
             Encoding.UTF8.GetBytes(this.Name, span.Slice(count)); count += NameLen;
         }
         if (this.PosInfo != null)
+        {
+            span[count] = 1; count += sizeof(byte);
             this.PosInfo.Write(span, ref count);
+        }
+        else
+        {
+            span[count] = 0; count += sizeof(byte);
+        }
         if (this.StatInfo != null)
+        {
+            span[count] = 1; count += sizeof(byte);
             this.StatInfo.Write(span, ref count);
+        }
+        else
+        {
+            span[count] = 0; count += sizeof(byte);
+        }
 
     }
 }
@@ -313,8 +346,12 @@ public class ItemInfo
                 ushort count = 0;
                 count += sizeof(ushort); // Size
                 count += sizeof(ushort); // Packet ID
-                this.Player = new ObjectInfo();
-        this.Player.Read(span, ref count);
+                byte PlayerHasValue = span[count]; count += sizeof(byte);
+        if (PlayerHasValue != 0)
+        {
+            this.Player = new ObjectInfo();
+            this.Player.Read(span, ref count);
+        }
 
             }
 
@@ -324,7 +361,14 @@ public class ItemInfo
                 count += sizeof(ushort); // Size 
                 count += sizeof(ushort); // Packet ID 
                 if (this.Player != null)
+        {
+            span[count] = 1; count += sizeof(byte);
             this.Player.Write(span, ref count);
+        }
+        else
+        {
+            span[count] = 0; count += sizeof(byte);
+        }
 
                 size = count;
                 BinaryPrimitives.WriteUInt16LittleEndian(span.Slice(0), size);
@@ -372,8 +416,13 @@ public class ItemInfo
         this.Objects = new List<ObjectInfo>();
         for (int i = 0; i < ObjectsLen; i++)
         {
-            ObjectInfo item = new ObjectInfo();
-            item.Read(span, ref count);
+            byte itemHasValue = span[count]; count += sizeof(byte);
+            ObjectInfo item = null;
+            if (itemHasValue != 0)
+            {
+                item = new ObjectInfo();
+                item.Read(span, ref count);
+            }
             this.Objects.Add(item);
         }
 
@@ -391,7 +440,14 @@ public class ItemInfo
             foreach (var item in this.Objects)
             {
                 if (item != null)
+                {
+                    span[count] = 1; count += sizeof(byte);
                     item.Write(span, ref count);
+                }
+                else
+                {
+                    span[count] = 0; count += sizeof(byte);
+                }
             }
         }
 
@@ -454,8 +510,12 @@ public class ItemInfo
                 ushort count = 0;
                 count += sizeof(ushort); // Size
                 count += sizeof(ushort); // Packet ID
-                this.PosInfo = new PositionInfo();
-        this.PosInfo.Read(span, ref count);
+                byte PosInfoHasValue = span[count]; count += sizeof(byte);
+        if (PosInfoHasValue != 0)
+        {
+            this.PosInfo = new PositionInfo();
+            this.PosInfo.Read(span, ref count);
+        }
 
             }
 
@@ -465,7 +525,14 @@ public class ItemInfo
                 count += sizeof(ushort); // Size 
                 count += sizeof(ushort); // Packet ID 
                 if (this.PosInfo != null)
+        {
+            span[count] = 1; count += sizeof(byte);
             this.PosInfo.Write(span, ref count);
+        }
+        else
+        {
+            span[count] = 0; count += sizeof(byte);
+        }
 
                 size = count;
                 BinaryPrimitives.WriteUInt16LittleEndian(span.Slice(0), size);
@@ -486,8 +553,12 @@ public class ItemInfo
                 count += sizeof(ushort); // Size
                 count += sizeof(ushort); // Packet ID
                 this.ObjectId = BinaryPrimitives.ReadInt32LittleEndian(span.Slice(count)); count += sizeof(int);
-        this.PosInfo = new PositionInfo();
-        this.PosInfo.Read(span, ref count);
+        byte PosInfoHasValue = span[count]; count += sizeof(byte);
+        if (PosInfoHasValue != 0)
+        {
+            this.PosInfo = new PositionInfo();
+            this.PosInfo.Read(span, ref count);
+        }
 
             }
 
@@ -498,7 +569,14 @@ public class ItemInfo
                 count += sizeof(ushort); // Packet ID 
                 BinaryPrimitives.WriteInt32LittleEndian(span.Slice(count), this.ObjectId); count += sizeof(int);
         if (this.PosInfo != null)
+        {
+            span[count] = 1; count += sizeof(byte);
             this.PosInfo.Write(span, ref count);
+        }
+        else
+        {
+            span[count] = 0; count += sizeof(byte);
+        }
 
                 size = count;
                 BinaryPrimitives.WriteUInt16LittleEndian(span.Slice(0), size);
@@ -517,8 +595,12 @@ public class ItemInfo
                 ushort count = 0;
                 count += sizeof(ushort); // Size
                 count += sizeof(ushort); // Packet ID
-                this.Info = new SkillInfo();
-        this.Info.Read(span, ref count);
+                byte InfoHasValue = span[count]; count += sizeof(byte);
+        if (InfoHasValue != 0)
+        {
+            this.Info = new SkillInfo();
+            this.Info.Read(span, ref count);
+        }
 
             }
 
@@ -528,7 +610,14 @@ public class ItemInfo
                 count += sizeof(ushort); // Size 
                 count += sizeof(ushort); // Packet ID 
                 if (this.Info != null)
+        {
+            span[count] = 1; count += sizeof(byte);
             this.Info.Write(span, ref count);
+        }
+        else
+        {
+            span[count] = 0; count += sizeof(byte);
+        }
 
                 size = count;
                 BinaryPrimitives.WriteUInt16LittleEndian(span.Slice(0), size);
@@ -549,8 +638,12 @@ public class ItemInfo
                 count += sizeof(ushort); // Size
                 count += sizeof(ushort); // Packet ID
                 this.ObjectId = BinaryPrimitives.ReadInt32LittleEndian(span.Slice(count)); count += sizeof(int);
-        this.Info = new SkillInfo();
-        this.Info.Read(span, ref count);
+        byte InfoHasValue = span[count]; count += sizeof(byte);
+        if (InfoHasValue != 0)
+        {
+            this.Info = new SkillInfo();
+            this.Info.Read(span, ref count);
+        }
 
             }
 
@@ -561,7 +654,14 @@ public class ItemInfo
                 count += sizeof(ushort); // Packet ID 
                 BinaryPrimitives.WriteInt32LittleEndian(span.Slice(count), this.ObjectId); count += sizeof(int);
         if (this.Info != null)
+        {
+            span[count] = 1; count += sizeof(byte);
             this.Info.Write(span, ref count);
+        }
+        else
+        {
+            span[count] = 0; count += sizeof(byte);
+        }
 
                 size = count;
                 BinaryPrimitives.WriteUInt16LittleEndian(span.Slice(0), size);
@@ -710,8 +810,13 @@ public class ItemInfo
         this.Players = new List<LobbyPlayerInfo>();
         for (int i = 0; i < PlayersLen; i++)
         {
-            LobbyPlayerInfo item = new LobbyPlayerInfo();
-            item.Read(span, ref count);
+            byte itemHasValue = span[count]; count += sizeof(byte);
+            LobbyPlayerInfo item = null;
+            if (itemHasValue != 0)
+            {
+                item = new LobbyPlayerInfo();
+                item.Read(span, ref count);
+            }
             this.Players.Add(item);
         }
 
@@ -730,7 +835,14 @@ public class ItemInfo
             foreach (var item in this.Players)
             {
                 if (item != null)
+                {
+                    span[count] = 1; count += sizeof(byte);
                     item.Write(span, ref count);
+                }
+                else
+                {
+                    span[count] = 0; count += sizeof(byte);
+                }
             }
         }
 
@@ -819,8 +931,12 @@ public class ItemInfo
                 ushort count = 0;
                 count += sizeof(ushort); // Size
                 count += sizeof(ushort); // Packet ID
-                this.Player = new LobbyPlayerInfo();
-        this.Player.Read(span, ref count);
+                byte PlayerHasValue = span[count]; count += sizeof(byte);
+        if (PlayerHasValue != 0)
+        {
+            this.Player = new LobbyPlayerInfo();
+            this.Player.Read(span, ref count);
+        }
 
             }
 
@@ -830,7 +946,14 @@ public class ItemInfo
                 count += sizeof(ushort); // Size 
                 count += sizeof(ushort); // Packet ID 
                 if (this.Player != null)
+        {
+            span[count] = 1; count += sizeof(byte);
             this.Player.Write(span, ref count);
+        }
+        else
+        {
+            span[count] = 0; count += sizeof(byte);
+        }
 
                 size = count;
                 BinaryPrimitives.WriteUInt16LittleEndian(span.Slice(0), size);
@@ -853,8 +976,13 @@ public class ItemInfo
         this.Items = new List<ItemInfo>();
         for (int i = 0; i < ItemsLen; i++)
         {
-            ItemInfo item = new ItemInfo();
-            item.Read(span, ref count);
+            byte itemHasValue = span[count]; count += sizeof(byte);
+            ItemInfo item = null;
+            if (itemHasValue != 0)
+            {
+                item = new ItemInfo();
+                item.Read(span, ref count);
+            }
             this.Items.Add(item);
         }
 
@@ -872,7 +1000,14 @@ public class ItemInfo
             foreach (var item in this.Items)
             {
                 if (item != null)
+                {
+                    span[count] = 1; count += sizeof(byte);
                     item.Write(span, ref count);
+                }
+                else
+                {
+                    span[count] = 0; count += sizeof(byte);
+                }
             }
         }
 
@@ -897,8 +1032,13 @@ public class ItemInfo
         this.Items = new List<ItemInfo>();
         for (int i = 0; i < ItemsLen; i++)
         {
-            ItemInfo item = new ItemInfo();
-            item.Read(span, ref count);
+            byte itemHasValue = span[count]; count += sizeof(byte);
+            ItemInfo item = null;
+            if (itemHasValue != 0)
+            {
+                item = new ItemInfo();
+                item.Read(span, ref count);
+            }
             this.Items.Add(item);
         }
 
@@ -916,7 +1056,14 @@ public class ItemInfo
             foreach (var item in this.Items)
             {
                 if (item != null)
+                {
+                    span[count] = 1; count += sizeof(byte);
                     item.Write(span, ref count);
+                }
+                else
+                {
+                    span[count] = 0; count += sizeof(byte);
+                }
             }
         }
 
@@ -999,8 +1146,12 @@ public class ItemInfo
                 ushort count = 0;
                 count += sizeof(ushort); // Size
                 count += sizeof(ushort); // Packet ID
-                this.StatInfo = new StatInfo();
-        this.StatInfo.Read(span, ref count);
+                byte StatInfoHasValue = span[count]; count += sizeof(byte);
+        if (StatInfoHasValue != 0)
+        {
+            this.StatInfo = new StatInfo();
+            this.StatInfo.Read(span, ref count);
+        }
 
             }
 
@@ -1010,7 +1161,14 @@ public class ItemInfo
                 count += sizeof(ushort); // Size 
                 count += sizeof(ushort); // Packet ID 
                 if (this.StatInfo != null)
+        {
+            span[count] = 1; count += sizeof(byte);
             this.StatInfo.Write(span, ref count);
+        }
+        else
+        {
+            span[count] = 0; count += sizeof(byte);
+        }
 
                 size = count;
                 BinaryPrimitives.WriteUInt16LittleEndian(span.Slice(0), size);

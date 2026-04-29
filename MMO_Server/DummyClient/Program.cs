@@ -12,6 +12,8 @@ namespace DummyClient
 	class Program
 	{
 		static int DummyClientCount { get; } = 500;
+		static int RampUpChunkSize { get; } = 50;
+		static int RampUpDelayMs { get; } = 500;
 
 		static async Task Main(string[] args)
 		{
@@ -24,28 +26,35 @@ namespace DummyClient
 			IPEndPoint endPoint = new IPEndPoint(ipAddr, 7777);
 
 			// 각 더미 클라마다 (계정 생성 시도) → 로그인 → 게임서버 연결을 병렬 진행.
-			// TODO (B2): ramp-up 도입해 한 번에 N개씩 단계적으로 띄우기
-			var tasks = Enumerable.Range(1, DummyClientCount).Select(async id =>
+			// ramp-up: chunkSize 단위로 끊어서 띄움. 동시 SYN 폭주로 인한 ConnectionRefused 회피.
+			for (int start = 1; start <= DummyClientCount; start += RampUpChunkSize)
 			{
-				string accountName = $"DummyClient_{id:D4}";
-				string password = "1234";
-
-				await AccountServerClient.CreateAccountAsync(accountName, password);
-
-				var login = await AccountServerClient.LoginAsync(accountName, password);
-				if (login == null)
+				int end = Math.Min(start + RampUpChunkSize - 1, DummyClientCount);
+				var chunkTasks = Enumerable.Range(start, end - start + 1).Select(async id =>
 				{
-					Console.WriteLine($"[Login Failed] {accountName}");
-					return;
-				}
+					string accountName = $"DummyClient_{id:D4}";
+					string password = "1234";
 
-				var connector = new Connector();
-				connector.Connect(endPoint,
-					() => SessionManager.Instance.Generate(login.AccountId, login.Token),
-					count: 1);
-			});
+					await AccountServerClient.CreateAccountAsync(accountName, password);
 
-			await Task.WhenAll(tasks);
+					var login = await AccountServerClient.LoginAsync(accountName, password);
+					if (login == null)
+					{
+						Console.WriteLine($"[Login Failed] {accountName}");
+						return;
+					}
+
+					var connector = new Connector();
+					connector.Connect(endPoint,
+						() => SessionManager.Instance.Generate(login.AccountId, login.Token),
+						count: 1);
+				});
+
+				await Task.WhenAll(chunkTasks);
+
+				if (end < DummyClientCount)
+					await Task.Delay(RampUpDelayMs);
+			}
 
 			Console.WriteLine("[System] All dummy clients started.");
 

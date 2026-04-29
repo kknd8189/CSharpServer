@@ -197,9 +197,13 @@ namespace PacketGenerator
             if (!string.IsNullOrEmpty(method))
                 return $@"        this.{name} = BinaryPrimitives.{method}(span.Slice(count)); count += sizeof({type});";
 
-            // 그 외는 struct/class
-            return $@"        this.{name} = new {type}();
-        this.{name}.Read(span, ref count);";
+            // 그 외는 struct/class. nullable 보존을 위해 1바이트 presence flag 선행.
+            return $@"        byte {name}HasValue = span[count]; count += sizeof(byte);
+        if ({name}HasValue != 0)
+        {{
+            this.{name} = new {type}();
+            this.{name}.Read(span, ref count);
+        }}";
         }
 
         private string GenerateWriteLogic(FieldDef field)
@@ -245,9 +249,16 @@ namespace PacketGenerator
             if (!string.IsNullOrEmpty(method))
                 return $@"        BinaryPrimitives.{method}(span.Slice(count), this.{name}); count += sizeof({type});";
 
-            // 그 외는 struct/class
+            // 그 외는 struct/class. presence flag 1바이트 + 본체.
             return $@"        if (this.{name} != null)
-            this.{name}.Write(span, ref count);";
+        {{
+            span[count] = 1; count += sizeof(byte);
+            this.{name}.Write(span, ref count);
+        }}
+        else
+        {{
+            span[count] = 0; count += sizeof(byte);
+        }}";
         }
 
         // List<T> 루프 내부에서 한 원소를 읽는 코드.
@@ -271,9 +282,14 @@ namespace PacketGenerator
             if (!string.IsNullOrEmpty(method))
                 return $@"            {type} item = BinaryPrimitives.{method}(span.Slice(count)); count += sizeof({type});";
 
-            // 그 외는 struct/class
-            return $@"            {type} item = new {type}();
-            item.Read(span, ref count);";
+            // 그 외는 struct/class. List 원소 단위로도 presence flag로 null 보존.
+            return $@"            byte itemHasValue = span[count]; count += sizeof(byte);
+            {type} item = null;
+            if (itemHasValue != 0)
+            {{
+                item = new {type}();
+                item.Read(span, ref count);
+            }}";
         }
 
         // List<T> 루프 내부에서 한 원소를 쓰는 코드.
@@ -301,9 +317,16 @@ namespace PacketGenerator
             if (!string.IsNullOrEmpty(method))
                 return $@"                BinaryPrimitives.{method}(span.Slice(count), item); count += sizeof({type});";
 
-            // 그 외는 struct/class
+            // 그 외는 struct/class. presence flag 1바이트 + 본체.
             return $@"                if (item != null)
-                    item.Write(span, ref count);";
+                {{
+                    span[count] = 1; count += sizeof(byte);
+                    item.Write(span, ref count);
+                }}
+                else
+                {{
+                    span[count] = 0; count += sizeof(byte);
+                }}";
         }
 
         private string GetBinaryPrimitivesReadMethod(string type)

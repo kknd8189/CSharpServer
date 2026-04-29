@@ -15,7 +15,7 @@ namespace Server.Game
 
 		public void Update()
 		{
-			long start = System.Environment.TickCount64;
+			long start = System.Diagnostics.Stopwatch.GetTimestamp();
 
 			Flush();
 
@@ -24,7 +24,9 @@ namespace Server.Game
 				room.Update();
 			}
 
-			ServerMetrics.SetTickDuration(System.Environment.TickCount64 - start);
+			long elapsedTicks = System.Diagnostics.Stopwatch.GetTimestamp() - start;
+			long elapsedUs = elapsedTicks * 1_000_000L / System.Diagnostics.Stopwatch.Frequency;
+			ServerMetrics.RecordTick(elapsedUs);
 		}
 
 		// Graceful Shutdown 전용: GameLogic 자기 큐 + 모든 Room 큐까지 전부 Flush

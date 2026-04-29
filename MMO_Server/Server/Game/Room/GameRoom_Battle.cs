@@ -65,7 +65,7 @@ namespace Server.Game
 						GameObject target = Map.Find(skillPos);
 						if (target != null)
 						{
-							Console.WriteLine("Hit GameObject !");
+							// hit 처리 자리 (현재는 no-op). 부하 테스트 시 콘솔 도배 방지로 로그 제거.
 						}
 					}
 					break;

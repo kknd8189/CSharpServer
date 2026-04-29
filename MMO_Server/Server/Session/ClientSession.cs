@@ -138,6 +138,7 @@ namespace Server
 
         public override void OnRecvPacketSpan(ReadOnlySpan<byte> buffer)
         {
+            ServerMetrics.IncrementPacketsReceived();
             PacketManager.Instance.OnRecvPacketSpan(this, buffer);
         }
 

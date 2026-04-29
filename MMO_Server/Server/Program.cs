@@ -177,12 +177,12 @@ namespace Server
             {
                 long recv = ServerMetrics.ExchangePacketsReceived();
                 long sent = ServerMetrics.ExchangePacketsSent();
-                long tickMs = ServerMetrics.GetTickDuration();
+                var (tickAvgUs, tickMaxUs, tickCount) = ServerMetrics.ExchangeTickStats();
                 int players = SessionManager.Instance.GetPlayerCount();
 
                 Log.Information(
-                    "[Metrics] PacketsRecv/s={PacketsRecvPerSec:F1} PacketsSent/s={PacketsSentPerSec:F1} TickMs={TickMs} Players={Players}",
-                    recv / 5.0, sent / 5.0, tickMs, players);
+                    "[Metrics] PacketsRecv/s={PacketsRecvPerSec:F1} PacketsSent/s={PacketsSentPerSec:F1} TickAvg={TickAvgUs}us TickMax={TickMaxUs}us TickCount={TickCount} Players={Players}",
+                    recv / 5.0, sent / 5.0, tickAvgUs, tickMaxUs, tickCount, players);
             };
             _metricsLogTimer.Start();
         }
