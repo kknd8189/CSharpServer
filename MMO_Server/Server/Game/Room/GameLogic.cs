@@ -24,9 +24,7 @@ namespace Server.Game
 				room.Update();
 			}
 
-			long elapsedTicks = System.Diagnostics.Stopwatch.GetTimestamp() - start;
-			long elapsedUs = elapsedTicks * 1_000_000L / System.Diagnostics.Stopwatch.Frequency;
-			ServerMetrics.RecordTick(elapsedUs);
+			ServerMetrics.RecordTick(System.Diagnostics.Stopwatch.GetTimestamp() - start);
 		}
 
 		// Graceful Shutdown 전용: GameLogic 자기 큐 + 모든 Room 큐까지 전부 Flush

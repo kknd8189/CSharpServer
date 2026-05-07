@@ -71,14 +71,42 @@ class PacketHandler
 	{
 		C_EnterGame enterGamePacket = (C_EnterGame)packet;
 		ClientSession clientSession = (ClientSession)session;
-		clientSession.HandleEnterGame(enterGamePacket);
+
+		// IOCP 스레드 즉시 반환. 동기 DB I/O는 ThreadPool에서.
+		_ = ProcessEnterGameAsync(clientSession, enterGamePacket);
+	}
+
+	private static async Task ProcessEnterGameAsync(ClientSession clientSession, C_EnterGame enterGamePacket)
+	{
+		try
+		{
+			await clientSession.HandleEnterGameAsync(enterGamePacket);
+		}
+		catch (Exception ex)
+		{
+			Log.Error(ex, "ProcessEnterGameAsync error");
+		}
 	}
 
 	public static void C_CreatePlayerHandler(PacketSession session, IPacket packet)
 	{
 		C_CreatePlayer createPlayerPacket = (C_CreatePlayer)packet;
 		ClientSession clientSession = (ClientSession)session;
-		clientSession.HandleCreatePlayer(createPlayerPacket);
+
+		// IOCP 스레드 즉시 반환. 동기 DB I/O는 ThreadPool에서.
+		_ = ProcessCreatePlayerAsync(clientSession, createPlayerPacket);
+	}
+
+	private static async Task ProcessCreatePlayerAsync(ClientSession clientSession, C_CreatePlayer createPlayerPacket)
+	{
+		try
+		{
+			await clientSession.HandleCreatePlayerAsync(createPlayerPacket);
+		}
+		catch (Exception ex)
+		{
+			Log.Error(ex, "ProcessCreatePlayerAsync error");
+		}
 	}
 
 	public static void C_EquipItemHandler(PacketSession session, IPacket packet)

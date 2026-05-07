@@ -134,10 +134,9 @@ namespace Server.DB
 			if (player == null || rewardData == null || room == null)
 				return;
 
-			// TODO : 살짝 문제가 있긴 하다...
-			// 1) DB에다가 저장 요청
-			// 2) DB 저장 OK
-			// 3) 메모리에 적용
+			// 1) Step1 (Game thread): slot 후보 선정 + DB 저장 요청
+			// 2) Step2 (DB thread): 저장
+			// 3) Step3 (Game thread): 재검증 후 메모리 적용
 			int? slot = player.Inven.GetEmptySlot();
 			if (slot == null)
 				return;
@@ -162,6 +161,41 @@ namespace Server.DB
 						// Me
 						room.Push(() =>
 						{
+							// DB roundtrip 동안 player가 disconnect/leave 했을 수 있음 (stale state guard)
+							if (player.Room == null)
+								return;
+
+							// DB roundtrip 동안 다른 핸들러(EquipItem 등)가 slot을 점유했을 수 있음 → 재검증
+							int? slotNow = player.Inven.GetEmptySlot();
+							if (slotNow == null)
+							{
+								// 인벤이 가득 찼다 → DB에 저장된 ghost item 삭제
+								Instance.PushJob(() =>
+								{
+									using (AppDbContext db2 = new AppDbContext())
+									{
+										db2.Items.Remove(itemDb);
+										db2.SaveChangesEx();
+									}
+								});
+								return;
+							}
+
+							// slot이 바뀌었으면 DB Slot 컬럼 업데이트
+							if (slotNow.Value != itemDb.Slot)
+							{
+								itemDb.Slot = slotNow.Value;
+								Instance.PushJob(() =>
+								{
+									using (AppDbContext db2 = new AppDbContext())
+									{
+										db2.Entry(itemDb).State = EntityState.Unchanged;
+										db2.Entry(itemDb).Property(nameof(ItemDb.Slot)).IsModified = true;
+										db2.SaveChangesEx();
+									}
+								});
+							}
+
 							Item newItem = Item.MakeItem(itemDb);
 							player.Inven.Add(newItem);
 

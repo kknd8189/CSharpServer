@@ -3,6 +3,7 @@ using SharedDB;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Server
 {
@@ -26,6 +27,19 @@ namespace Server
 			try
 			{
 				db.SaveChanges();
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		public static async Task<bool> SaveChangesExAsync(this AppDbContext db)
+		{
+			try
+			{
+				await db.SaveChangesAsync();
 				return true;
 			}
 			catch

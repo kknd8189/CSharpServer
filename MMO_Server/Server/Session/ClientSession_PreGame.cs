@@ -81,7 +81,7 @@ namespace Server
 			}
 		}
 
-		public void HandleEnterGame(C_EnterGame enterGamePacket)
+		public async Task HandleEnterGameAsync(C_EnterGame enterGamePacket)
 		{
 			if (ServerState != PlayerServerState.ServerStateLobby)
 				return;
@@ -105,12 +105,12 @@ namespace Server
 
 				S_ItemList itemListPacket = new S_ItemList();
 
-				// 아이템 목록을 갖고 온다
+				// 아이템 목록을 갖고 온다 (async — IOCP 점유 회피)
 				using (AppDbContext db = new AppDbContext())
 				{
-					List<ItemDb> items = db.Items
+					List<ItemDb> items = await db.Items
 						.Where(i => i.OwnerDbId == playerInfo.PlayerDbId)
-						.ToList();
+						.ToListAsync();
 
 					foreach (ItemDb itemDb in items)
 					{
@@ -138,7 +138,7 @@ namespace Server
 			});
 		}
 
-		public void HandleCreatePlayer(C_CreatePlayer createPacket)
+		public async Task HandleCreatePlayerAsync(C_CreatePlayer createPacket)
 		{
 			// TODO : 이런 저런 보안 체크
 			if (ServerState != PlayerServerState.ServerStateLobby)
@@ -146,8 +146,8 @@ namespace Server
 
 			using (AppDbContext db = new AppDbContext())
 			{
-				PlayerDb findPlayer = db.Players
-					.Where(p => p.PlayerName == createPacket.Name).FirstOrDefault();
+				PlayerDb findPlayer = await db.Players
+					.Where(p => p.PlayerName == createPacket.Name).FirstOrDefaultAsync();
 
 				if (findPlayer != null)
 				{
@@ -174,7 +174,7 @@ namespace Server
 					};
 
 					db.Players.Add(newPlayerDb);
-					bool success = db.SaveChangesEx();
+					bool success = await db.SaveChangesExAsync();
 					if (success == false)
 						return;
 

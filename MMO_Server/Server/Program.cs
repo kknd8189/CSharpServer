@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Serilog;
 using Server.Data;
@@ -31,6 +32,15 @@ namespace Server
 
         private static System.Timers.Timer _busyCheckTimer = new System.Timers.Timer();
         private static System.Timers.Timer _metricsLogTimer = new System.Timers.Timer();
+
+        // Windows 의 기본 timer 정밀도(15.625ms) 를 1ms 로 끌어올림.
+        // Thread.Sleep / PeriodicTimer 등 모든 시간 대기가 ms 단위로 정확해짐 → 30Hz fixed timestep 정밀도 확보.
+        // 부작용: 시스템 전체 timer interrupt 빈도 ↑, 노트북 배터리 미세 소모 (서버용 무관).
+        [DllImport("winmm.dll", EntryPoint = "timeBeginPeriod")]
+        private static extern uint TimeBeginPeriod(uint period);
+
+        [DllImport("winmm.dll", EntryPoint = "timeEndPeriod")]
+        private static extern uint TimeEndPeriod(uint period);
 
         static void DoGracefulShutdown()
         {
@@ -92,12 +102,22 @@ namespace Server
         }
 
 
+        // 30Hz fixed timestep (~33ms 주기). frame 처리 후 남은 시간만 sleep,
+        // budget 초과 시 곧장 다음 frame (catch-up). tight loop 회피로 1 core 100% 점유 해소.
+        const int FrameMs = 33;
+
         static void GameLogicTask()
         {
             while (!_cts.Token.IsCancellationRequested)
             {
+                long frameStart = System.Diagnostics.Stopwatch.GetTimestamp();
                 GameLogic.Instance.Update();
-                Thread.Sleep(0);
+
+                long elapsedMs = (System.Diagnostics.Stopwatch.GetTimestamp() - frameStart)
+                                 * 1000L / System.Diagnostics.Stopwatch.Frequency;
+                int sleepMs = (int)(FrameMs - elapsedMs);
+                if (sleepMs > 0)
+                    Thread.Sleep(sleepMs);
             }
         }
 
@@ -177,12 +197,12 @@ namespace Server
             {
                 long recv = ServerMetrics.ExchangePacketsReceived();
                 long sent = ServerMetrics.ExchangePacketsSent();
-                var (tickAvgUs, tickMaxUs, tickCount) = ServerMetrics.ExchangeTickStats();
+                var (tickAvgUs, tickMaxUs, workTicks, idleTicks) = ServerMetrics.ExchangeTickStats();
                 int players = SessionManager.Instance.GetPlayerCount();
 
                 Log.Information(
-                    "[Metrics] PacketsRecv/s={PacketsRecvPerSec:F1} PacketsSent/s={PacketsSentPerSec:F1} TickAvg={TickAvgUs}us TickMax={TickMaxUs}us TickCount={TickCount} Players={Players}",
-                    recv / 5.0, sent / 5.0, tickAvgUs, tickMaxUs, tickCount, players);
+                    "[Metrics] PacketsRecv/s={PacketsRecvPerSec:F1} PacketsSent/s={PacketsSentPerSec:F1} TickAvg={TickAvgUs}us TickMax={TickMaxUs}us WorkTicks={WorkTicks} IdleTicks={IdleTicks} Players={Players}",
+                    recv / 5.0, sent / 5.0, tickAvgUs, tickMaxUs, workTicks, idleTicks, players);
             };
             _metricsLogTimer.Start();
         }
@@ -208,6 +228,10 @@ namespace Server
                 //Thread Loop 종료
                 _cts.Cancel();
             };
+
+            // Windows timer 정밀도 1ms 로 상향 (Linux/macOS 는 기본 1ms 라 호출 불필요)
+            if (OperatingSystem.IsWindows())
+                TimeBeginPeriod(1);
 
             //함수 순서 주의
             ConfigManager.LoadConfig();
@@ -253,6 +277,10 @@ namespace Server
 
             //Thread Loop 종료후 Graceful Shutdown
             DoGracefulShutdown();
+
+            // 시스템 timer 정밀도 원복
+            if (OperatingSystem.IsWindows())
+                TimeEndPeriod(1);
         }
     }
 }
