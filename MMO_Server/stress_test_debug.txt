@@ -1,0 +1,23 @@
+Debug Build Stress Test Results (2026-05-07 11:24~11:36)
+=========================================================
+Build: dotnet 10.0, Debug configuration
+Schedule: ramp-up 100→200→400→800 (3min hold per stage)
+Target: 800 concurrent dummies
+Result: capped at ~500 players (server could not accept more)
+
+Per-stage stable statistics (5s sampling, ~3min window per stage):
+
+Stage           |  N   | Recv/s | Sent/s | TickAvg(ms) | p95Avg | TickMax | p95Max | TPS
+----------------+------+--------+--------+-------------+--------+---------+--------+-----
+200 players     |   34 |    693 |   2608 |        4.39 |   5.45 |   37.07 |  30.75 | 29.3
+400 players     |   35 |   1392 |   5158 |        7.57 |   8.45 |   48.85 |  39.19 | 29.4
+500 players (cap)|  35 |   1743 |   6238 |       11.03 |  12.08 |   68.96 |  60.44 | 29.2
+
+Notes:
+- 100-stage skipped: initial 100 + immediate +100 spawned together → 200 from start
+- EnterGame onboarding took ~3.5min for first 200 players (DB write bottleneck under Debug)
+- Players capped at 500 despite DummyClient reporting 800 connected client-side
+- TickAvg scales near-linearly with player count
+- TickMax peaks (60+ms) indicate jitter — likely GC pauses or DB sync points
+- IdleTicks=0 throughout: every game tick did meaningful work
+- Effective TPS held at ~29 across all stages → game loop appears to be rate-limited
