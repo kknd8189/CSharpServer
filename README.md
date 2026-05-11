@@ -1,4 +1,7 @@
 # CSharpServer
+
+[![CI](https://github.com/kknd8189/CSharpServer/actions/workflows/ci.yml/badge.svg)](https://github.com/kknd8189/CSharpServer/actions/workflows/ci.yml)
+
 CSharpSeveer Programming for portfolio
 
 TODO LIST
