@@ -1,0 +1,21 @@
+**/bin/
+**/obj/
+**/.vs/
+**/TestResults/
+**/BenchmarkDotNet.Artifacts/
+**/*.user
+**/.git/
+**/.github/
+**/.vscode/
+**/.idea/
+
+# 도커 빌드와 무관한 산출물
+Client/
+DataBase/
+CICD/Docker*.exe
+
+# 로컬 로그/덤프
+**/logs/
+**/*.log
+**/stress_test_debug.txt
+**/nul

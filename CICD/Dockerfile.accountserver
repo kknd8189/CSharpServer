@@ -1,0 +1,40 @@
+# syntax=docker/dockerfile:1.7
+# Build context: repository root (CSharpServer/)
+#   docker build -f CICD/Dockerfile.accountserver -t mmo-accountserver .
+
+# ---------- build stage ----------
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+COPY MMO_Server/AccountServer/AccountServer.csproj MMO_Server/AccountServer/
+COPY MMO_Server/SharedDB/SharedDB.csproj           MMO_Server/SharedDB/
+COPY MMO_Server/ServerCore/ServerCore.csproj       MMO_Server/ServerCore/
+RUN dotnet restore MMO_Server/AccountServer/AccountServer.csproj
+
+COPY MMO_Server/AccountServer  MMO_Server/AccountServer
+COPY MMO_Server/SharedDB       MMO_Server/SharedDB
+COPY MMO_Server/ServerCore     MMO_Server/ServerCore
+RUN dotnet publish MMO_Server/AccountServer/AccountServer.csproj \
+    -c Release \
+    -o /app/publish \
+    --no-restore \
+    /p:UseAppHost=false
+
+# ---------- runtime stage ----------
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+WORKDIR /app
+USER app
+
+COPY --from=build --chown=app:app /app/publish .
+
+# appsettings.json 의 Kestrel 설정은 localhost 바인딩이라 컨테이너 외부에서 못 들어옴.
+# ASPNETCORE_URLS 로 0.0.0.0 바인딩 강제 (https 는 dev 인증서 의존이라 운영에선 리버스 프록시 권장).
+ENV ASPNETCORE_URLS=http://+:5000
+
+EXPOSE 5000
+
+# DB/Redis 접속 정보는 환경변수로 주입 (appsettings 의 ConnectionStrings 를 오버라이드).
+#   -e ConnectionStrings__DefaultConnection="Server=mariadb;Port=3306;Database=AccountDB;User=...;Password=..."
+#   -e ConnectionStrings__SharedConnection="Server=mariadb;Port=3306;Database=SharedDB;User=...;Password=..."
+#   -e ConnectionStrings__RedisConnection="redis:6379"
+ENTRYPOINT ["dotnet", "AccountServer.dll"]

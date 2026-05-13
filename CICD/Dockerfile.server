@@ -1,0 +1,45 @@
+# syntax=docker/dockerfile:1.7
+# Build context: repository root (CSharpServer/)
+#   docker build -f CICD/Dockerfile.server -t mmo-server .
+
+# ---------- build stage ----------
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+# csproj 만 먼저 복사해서 restore 결과를 캐시한다.
+# 소스 변경 시 NuGet 복원을 다시 안 타도록 분리.
+COPY MMO_Server/Server/Server.csproj           MMO_Server/Server/
+COPY MMO_Server/ServerCore/ServerCore.csproj   MMO_Server/ServerCore/
+COPY MMO_Server/SharedDB/SharedDB.csproj       MMO_Server/SharedDB/
+RUN dotnet restore MMO_Server/Server/Server.csproj
+
+# 본 소스 복사 후 publish (Release, 자체 의존성만 포함)
+COPY MMO_Server/Server         MMO_Server/Server
+COPY MMO_Server/ServerCore     MMO_Server/ServerCore
+COPY MMO_Server/SharedDB       MMO_Server/SharedDB
+RUN dotnet publish MMO_Server/Server/Server.csproj \
+    -c Release \
+    -o /app/publish \
+    --no-restore \
+    /p:UseAppHost=false
+
+# ---------- runtime stage ----------
+# 콘솔 앱이라 aspnet 이미지 불필요. ICU 포함된 Debian 기반 이미지.
+FROM mcr.microsoft.com/dotnet/runtime:10.0 AS runtime
+WORKDIR /app
+
+# 비루트 사용자 (Debian 베이스 이미지의 기본 user)
+USER app
+
+COPY --from=build --chown=app:app /app/publish .
+
+# 게임 서버 TCP 포트
+EXPOSE 7777
+
+# ConfigManager.cs:25 가 "../../../../../Common/config.json" 으로 읽음.
+# WORKDIR /app 에서 5단계 위는 / 이므로 /Common/config.json 으로 해석된다.
+# 실행 시 다음과 같이 마운트:
+#   -v <repo>\Common\Config.json:/Common/config.json:ro
+#   -v <repo>\Common\Data:/Common/Data:ro
+#   -v mmo-server-logs:/app/logs
+ENTRYPOINT ["dotnet", "Server.dll"]

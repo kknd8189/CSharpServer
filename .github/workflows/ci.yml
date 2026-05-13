@@ -36,3 +36,31 @@ jobs:
         with:
           name: test-results
           path: MMO_Server/TestResults/*.trx
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build server image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: CICD/Dockerfile.server
+          push: false
+          tags: mmo-server:ci
+          cache-from: type=gha,scope=server
+          cache-to: type=gha,scope=server,mode=max
+
+      - name: Build accountserver image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: CICD/Dockerfile.accountserver
+          push: false
+          tags: mmo-accountserver:ci
+          cache-from: type=gha,scope=accountserver
+          cache-to: type=gha,scope=accountserver,mode=max

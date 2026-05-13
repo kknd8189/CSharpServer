@@ -1,0 +1,87 @@
+# 리포 루트에서 실행 권장:
+#   docker compose -f CICD/docker-compose.yml up -d --build
+#   docker compose -f CICD/docker-compose.yml logs -f server
+#   docker compose -f CICD/docker-compose.yml down            # 컨테이너만 제거 (데이터 유지)
+#   docker compose -f CICD/docker-compose.yml down -v         # 볼륨까지 삭제 (DB 초기화)
+
+name: mmo-stack
+
+services:
+  mariadb:
+    image: mariadb:10.6
+    container_name: mmo-mariadb
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpass
+      MARIADB_DATABASE: GameDb
+      MARIADB_USER: DY
+      MARIADB_PASSWORD: "3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      - ./db-init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "3306:3306"      # 호스트에서 직접 접속하려면 유지, 아니면 삭제 가능
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    container_name: mmo-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  accountserver:
+    build:
+      context: ..                       # 리포 루트
+      dockerfile: CICD/Dockerfile.accountserver
+    image: mmo-accountserver:local
+    container_name: mmo-accountserver
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_URLS: http://+:5000
+      ConnectionStrings__DefaultConnection: "Server=mariadb;Port=3306;Database=AccountDB;User=DY;Password=3306;SslMode=none;"
+      ConnectionStrings__SharedConnection:  "Server=mariadb;Port=3306;Database=SharedDB;User=DY;Password=3306;SslMode=none;"
+      ConnectionStrings__RedisConnection:   "redis:6379"
+    ports:
+      - "5000:5000"
+
+  server:
+    build:
+      context: ..
+      dockerfile: CICD/Dockerfile.server
+    image: mmo-server:local
+    container_name: mmo-server
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      # 마운트 트릭: Config.docker.json 을 컨테이너 내부 /Common/config.json 으로 매핑
+      - ./Config.docker.json:/Common/config.json:ro
+      - ../Common/Data:/Common/Data:ro
+      - server-logs:/app/logs
+    ports:
+      - "7777:7777"
+
+volumes:
+  mariadb-data:
+  redis-data:
+  server-logs:
