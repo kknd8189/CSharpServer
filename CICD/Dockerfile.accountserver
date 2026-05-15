@@ -17,7 +17,6 @@ COPY MMO_Server/ServerCore     MMO_Server/ServerCore
 RUN dotnet publish MMO_Server/AccountServer/AccountServer.csproj \
     -c Release \
     -o /app/publish \
-    --no-restore \
     /p:UseAppHost=false
 
 # ---------- runtime stage ----------

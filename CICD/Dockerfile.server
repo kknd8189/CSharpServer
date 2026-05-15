@@ -20,7 +20,6 @@ COPY MMO_Server/SharedDB       MMO_Server/SharedDB
 RUN dotnet publish MMO_Server/Server/Server.csproj \
     -c Release \
     -o /app/publish \
-    --no-restore \
     /p:UseAppHost=false
 
 # ---------- runtime stage ----------
