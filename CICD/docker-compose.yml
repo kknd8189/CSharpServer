@@ -55,6 +55,10 @@ services:
         condition: service_healthy
     environment:
       ASPNETCORE_URLS: http://+:5000
+      # appsettings.json 의 Kestrel:Endpoints 가 https://localhost:5001 을 명시해서
+      # ASPNETCORE_URLS 가 무시됨. 컨테이너엔 dev 인증서가 없으므로 http 로 오버라이드.
+      Kestrel__Endpoints__Http__Url:  "http://+:5000"
+      Kestrel__Endpoints__Https__Url: "http://+:5001"
       ConnectionStrings__DefaultConnection: "Server=mariadb;Port=3306;Database=AccountDB;User=DY;Password=3306;SslMode=none;"
       ConnectionStrings__SharedConnection:  "Server=mariadb;Port=3306;Database=SharedDB;User=DY;Password=3306;SslMode=none;"
       ConnectionStrings__RedisConnection:   "redis:6379"
@@ -77,6 +81,7 @@ services:
       # 마운트 트릭: Config.docker.json 을 컨테이너 내부 /Common/config.json 으로 매핑
       - ./Config.docker.json:/Common/config.json:ro
       - ../Common/Data:/Common/Data:ro
+      - ../Common/MapData:/Common/MapData:ro
       - server-logs:/app/logs
     ports:
       - "7777:7777"

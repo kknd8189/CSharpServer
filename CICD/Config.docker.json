@@ -2,7 +2,9 @@
   "DataPath": "/Common/Data",
   "connectionString": "Server=mariadb;Port=3306;Database=GameDb;User=DY;Password=3306;SslMode=none;",
   "logConnectionString": "Server=mariadb;Port=3306;Database=LogDb;User=DY;Password=3306;SslMode=none;",
+  "sharedConnectionString": "Server=mariadb;Port=3306;Database=SharedDB;User=DY;Password=3306;SslMode=none;",
   "redisConnectionString": "redis:6379",
   "worldName": "World1",
-  "port": 7777
+  "port": 7777,
+  "publicIp": "127.0.0.1"
 }

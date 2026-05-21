@@ -25,10 +25,8 @@ namespace DummyClient
 		{
 			Thread.Sleep(3000);
 
-			string host = Dns.GetHostName();
-			IPHostEntry ipHost = Dns.GetHostEntry(host);
-			IPAddress ipAddr = ipHost.AddressList[1];
-			_endPoint = new IPEndPoint(ipAddr, 7777);
+			// 컨테이너 게임서버는 호스트에 7777 포트가 퍼블리시됨 → 루프백으로 접속.
+			_endPoint = new IPEndPoint(IPAddress.Loopback, 7777);
 
 			// 초기 N (선택). `dotnet run -- 50` 처럼 인자로 주면 시작 시 즉시 spawn.
 			int initialCount = 0;

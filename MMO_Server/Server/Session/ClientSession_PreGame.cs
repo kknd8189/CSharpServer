@@ -40,10 +40,25 @@ namespace Server
 
 				if (findAccount == null)
 				{
-					// 토큰 검증을 통과했는데 DB에 계정이 없는 경우 = 데이터 정합성 문제
-					Send(new S_Login() { LoginOk = 0 });
-					Disconnect();
-					return false;
+					// 토큰 검증은 통과했으나 GameDb 에 Account 행이 없는 경우.
+					// 계정 인증은 AccountServer(AccountDB), 게임 데이터는 GameDb 가 담당하므로
+					// 최초 로그인 시 게임서버가 자신의 Account 행을 직접 만든다(lazy provisioning).
+					// AccountDbId 는 EF 가 자동 증가시키지 않도록 raw SQL 로 AccountServer 가
+					// 부여한 값을 그대로 넣어 Player FK / 두 DB 간 정합을 맞춘다.
+					// INSERT IGNORE: 동일 계정 동시 로그인 시 중복 PK 경합을 안전하게 흡수.
+					await db.Database.ExecuteSqlInterpolatedAsync(
+						$"INSERT IGNORE INTO Account (AccountDbId) VALUES ({loginPacket.AccountID})");
+
+					findAccount = db.Accounts
+							.Include(a => a.Players)
+						.Where(a => a.AccountDbId == loginPacket.AccountID).FirstOrDefault();
+
+					if (findAccount == null)
+					{
+						Send(new S_Login() { LoginOk = 0 });
+						Disconnect();
+						return false;
+					}
 				}
 
 				// AccountDbId 메모리에 기억

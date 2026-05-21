@@ -14,7 +14,8 @@ namespace DummyClient.Auth
 	public static class AccountServerClient
 	{
 		// TODO (B2): BaseAddress / Timeout을 CLI args로 빼기
-		private const string BaseAddress = "https://localhost:5001/";
+		// 컨테이너 스택 대상: http 5000 포트만 호스트에 퍼블리시됨.
+		private const string BaseAddress = "http://localhost:5000/";
 
 		private static readonly HttpClient _http = CreateClient();
 

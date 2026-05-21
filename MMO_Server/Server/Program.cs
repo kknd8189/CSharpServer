@@ -179,14 +179,13 @@ namespace Server
 
         static IPEndPoint SetDNSInfoTask()
         {
-            // DNS
-            string host = Dns.GetHostName();
-            IPHostEntry ipHost = Dns.GetHostEntry(host);
-            IPAddress ipAddr = ipHost.AddressList[1];
-            IPEndPoint endPoint = new IPEndPoint(ipAddr, Port);
-            IpAddress = ipAddr.ToString();
+            // 외부에 광고할 주소(ServerInfo 등록값): 컨테이너/운영마다 다르므로 config 로 명시.
+            // 과거엔 Dns.GetHostEntry(...).AddressList[1] 로 자동탐지했으나, 컨테이너에서
+            // ::1(루프백)을 잡아 잘못 등록되는 문제가 있었다.
+            IpAddress = ConfigManager.Config.publicIp;
 
-            return endPoint;
+            // 바인딩은 모든 인터페이스(0.0.0.0)에 — 컨테이너 포트매핑/외부 NIC 모두 수신.
+            return new IPEndPoint(IPAddress.Any, Port);
         }
 
         static void StartMetricsLoggingTask()
@@ -235,6 +234,9 @@ namespace Server
 
             //함수 순서 주의
             ConfigManager.LoadConfig();
+            // SharedDbContext(파라미터 없는 생성자)는 ConfigManager 가 아닌 자체 static
+            // 필드를 쓰므로, config 로드 직후 여기서 명시적으로 주입한다.
+            SharedDbContext.ConnectionString = ConfigManager.Config.sharedConnectionString;
             DataManager.LoadData();
 
             GameLogic.Instance.Push(() => { GameLogic.Instance.Add(1); });
