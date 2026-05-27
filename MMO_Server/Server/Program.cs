@@ -232,6 +232,10 @@ namespace Server
             if (OperatingSystem.IsWindows())
                 TimeBeginPeriod(1);
 
+            // 부하 테스트 ramp-up 시 IOCP/Worker 스레드가 천천히 증가하면서 (~500ms 페널티)
+            // 패킷 처리 콜백이 지연되는 현상 방지. 기본값(코어수)은 200/300 CCU 부근에서 starvation.
+            ThreadPool.SetMinThreads(workerThreads: 200, completionPortThreads: 200);
+
             //함수 순서 주의
             ConfigManager.LoadConfig();
             // SharedDbContext(파라미터 없는 생성자)는 ConfigManager 가 아닌 자체 static

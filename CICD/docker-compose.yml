@@ -11,6 +11,11 @@ services:
     image: mariadb:10.6
     container_name: mmo-mariadb
     restart: unless-stopped
+    # 부하 테스트 시 동시 접속자 수가 기본 max_connections=151 을 넘어 ER_CON_COUNT_ERROR 발생.
+    # 1000 으로 상향. 메모리 영향은 무시할 수준 (per-thread buffer ~256KB → 추가 ~200MB 한계).
+    command:
+      - --max-connections=1000
+      - --max-allowed-packet=16M
     environment:
       MARIADB_ROOT_PASSWORD: rootpass
       MARIADB_DATABASE: GameDb

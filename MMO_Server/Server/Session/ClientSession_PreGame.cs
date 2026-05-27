@@ -34,9 +34,9 @@ namespace Server
 
 			using (AppDbContext db = new AppDbContext())
 			{
-				AccountDb findAccount = db.Accounts
+				AccountDb findAccount = await db.Accounts
 						.Include(a => a.Players)
-					.Where(a => a.AccountDbId == loginPacket.AccountID).FirstOrDefault();
+					.Where(a => a.AccountDbId == loginPacket.AccountID).FirstOrDefaultAsync();
 
 				if (findAccount == null)
 				{
@@ -49,9 +49,9 @@ namespace Server
 					await db.Database.ExecuteSqlInterpolatedAsync(
 						$"INSERT IGNORE INTO Account (AccountDbId) VALUES ({loginPacket.AccountID})");
 
-					findAccount = db.Accounts
+					findAccount = await db.Accounts
 							.Include(a => a.Players)
-						.Where(a => a.AccountDbId == loginPacket.AccountID).FirstOrDefault();
+						.Where(a => a.AccountDbId == loginPacket.AccountID).FirstOrDefaultAsync();
 
 					if (findAccount == null)
 					{
