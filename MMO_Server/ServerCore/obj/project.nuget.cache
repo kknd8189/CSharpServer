@@ -1,6 +1,10 @@
 {
   "version": 2,
+<<<<<<< HEAD
   "dgSpecHash": "jdXbI2JATNA=",
+=======
+  "dgSpecHash": "MFGGu5xoMGo=",
+>>>>>>> parent of 6c5ab852 (AccountServer Appsetting / .net framwork 10.0 upgrade /)
   "success": true,
   "projectFilePath": "C:\\Users\\user\\Desktop\\CSharpServer\\MMO_Server\\ServerCore\\ServerCore.csproj",
   "expectedPackageFiles": [],
