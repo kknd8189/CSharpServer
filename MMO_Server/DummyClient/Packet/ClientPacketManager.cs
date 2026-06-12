@@ -103,7 +103,8 @@ public class PacketManager
         }
     }
 
-    //  ProtoBuf, ArrayPool, CodedInputStream, CopyTo 전부 삭제! 완벽한 Zero-Allocation
+    //  ProtoBuf, ArrayPool, CodedInputStream, CopyTo 전부 삭제! 수신 버퍼를 Span으로 직접 읽는 zero-copy 파싱.
+    //  (단, 패킷 객체 new T()는 할당됨 — zero-copy지 zero-alloc 아님)
     void MakePacketSpan<T>(PacketSession session, ReadOnlySpan<byte> buffer, ushort id) where T : IPacket, new()
     {
         try

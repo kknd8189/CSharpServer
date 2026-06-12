@@ -83,7 +83,7 @@ namespace PacketGenerator
                 Console.WriteLine($"[OK] {Path.GetFullPath(managerPath)} (filter: {t.PrefixFilter}*)");
             }
 
-            Console.WriteLine("[System] 성공적으로 C# 파일이 생성되었습니다! (Zero-Allocation 완벽 적용)");
+            Console.WriteLine("[System] 성공적으로 C# 파일이 생성되었습니다! (zero-copy 파싱 적용)");
         }
     }
 }

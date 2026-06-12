@@ -255,6 +255,12 @@ namespace Server.Game
 
 		public void Broadcast(Vector3Int pos, IPacket packet)
 		{
+			// 브로드캐스트는 항상 GameLogic 스레드에서 실행 → ThreadLocal SendBuffer 안전.
+			// 패킷을 1회만 직렬화하고 그 세그먼트를 모든 수신자에게 공유한다.
+			ArraySegment<byte> segment = ClientSession.SerializeToSendBuffer(packet);
+			if (segment.Array == null)
+				return;
+
 			List<Zone> zones = GetAdjacentZones(pos);
 
 			foreach (Player p in zones.SelectMany(z => z.Players))
@@ -266,7 +272,7 @@ namespace Server.Game
 				if (Math.Abs(dy) > GameRoom.VisionCells)
 					continue;
 
-				p.Session.Send(packet);
+				p.Session.SendShared(segment);
 			}
 		}
 

@@ -51,25 +51,43 @@ namespace Server
         // Write 전에 사이즈를 못 구하므로 한도만큼 예약 후 Close로 실제 사용분만 커밋.
         private const int MaxPacketSize = 10 * 1024;
 
+        // IPacket을 SendBuffer에 "1회" 직렬화해 공유 가능한 세그먼트로 반환.
+        // 반환 세그먼트는 여러 세션 큐에 그대로 넣어도 안전(쓰기 없음, 읽기 전용 공유).
+        public static ArraySegment<byte> SerializeToSendBuffer(IPacket packet)
+        {
+            // 제너레이터가 구운 Write는 (size + msgId) 헤더를 span 선두에 직접 박고
+            // 실제 기록된 바이트 수를 out size로 돌려준다.
+            Span<byte> span = SendBufferSpanHelper.Open(MaxPacketSize);
+            if (span.IsEmpty)
+                return default;
+
+            packet.Write(span, out ushort size);
+            return SendBufferSpanHelper.Close(size);
+        }
+
+        // 이미 직렬화된 세그먼트를 이 세션으로 송신(Broadcast용).
+        // Connected 체크 / 메트릭은 수신자별로 유지 → Sent/s 의미 동일.
+        public void SendShared(ArraySegment<byte> segment)
+        {
+            if (Connected == false) return;
+
+            ServerMetrics.IncrementPacketsSent();
+            Send(segment);
+        }
+
         // 예약만 하고 보내지는 않는다
         public void Send(IPacket packet)
         {
             if (Connected == false) return;
 
-            ServerMetrics.IncrementPacketsSent();
-
-            // 제너레이터가 구운 Write는 (size + msgId) 헤더를 span 선두에 직접 박고
-            // 실제 기록된 바이트 수를 out size로 돌려준다.
-            Span<byte> span = SendBufferSpanHelper.Open(MaxPacketSize);
-            if (span.IsEmpty)
+            ArraySegment<byte> pendingBuffer = SerializeToSendBuffer(packet);
+            if (pendingBuffer.Array == null)
             {
                 Console.WriteLine($"[Error] SendBuffer Open Failed. Reserved: {MaxPacketSize}");
                 return;
             }
 
-            packet.Write(span, out ushort size);
-
-            ArraySegment<byte> pendingBuffer = SendBufferSpanHelper.Close(size);
+            ServerMetrics.IncrementPacketsSent();
 
             Send(pendingBuffer);
             //lock (_lock)
