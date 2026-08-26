@@ -1,6 +1,7 @@
 ﻿using ServerCore;
 using Protocol;
 using Server.Data;
+using Server.DB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -79,6 +80,42 @@ namespace Server.Game
 				monster.Init(1);
 				EnterGame(monster, randomPos: true);
 			}
+
+			PushAfter(SaveIntervalMs, SaveTick);
+		}
+
+		// 주기 저장 간격 = 크래시 시 감수하는 최대 유실 시간
+		public const int SaveIntervalMs = 60_000;
+
+		// dirty 플레이어만 스냅샷 떠서 배치 하나로 DB 큐에 넘긴다.
+		// 스냅샷은 게임 스레드에서 복사 후 불변 → DB 스레드에서 락 없이 안전
+		void SaveTick()
+		{
+			PushAfter(SaveIntervalMs, SaveTick);
+
+			List<PlayerDb> snapshots = null;
+			foreach (Player player in _players.Values)
+			{
+				if (player.IsDirty == false)
+					continue;
+				player.IsDirty = false;
+
+				snapshots ??= new List<PlayerDb>();
+				snapshots.Add(new PlayerDb()
+				{
+					PlayerDbId = player.PlayerDbId,
+					Level = player.Stat.Level,
+					Hp = player.Stat.Hp,
+					MaxHp = player.Stat.MaxHp,
+					Attack = player.Stat.Attack,
+					Speed = player.Stat.Speed,
+					TotalExp = player.Stat.TotalExp
+					// TODO: 위치 저장 — PlayerDb에 Pos 컬럼 마이그레이션 후 여기에 추가
+				});
+			}
+
+			if (snapshots != null)
+				DbTransaction.SavePlayersBatch(snapshots);
 		}
 
 		// 누군가 주기적으로 호출해줘야 한다

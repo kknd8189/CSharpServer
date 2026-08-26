@@ -10,6 +10,9 @@ namespace Server.Game
 		public ClientSession Session { get; set; }
 		public VisionCube Vision { get; private set; }
 
+		// 주기 저장(GameRoom.SaveTick) 대상 여부. 게임 스레드에서만 접근하므로 동기화 불필요
+		public bool IsDirty { get; set; }
+
 		public Inventory Inven { get; private set; } = new Inventory();
 
 		public int WeaponDamage { get; private set; }
@@ -27,6 +30,7 @@ namespace Server.Game
 		public override void OnDamaged(GameObject attacker, int damage)
 		{
 			base.OnDamaged(attacker, damage);
+			IsDirty = true;
 		}
 
 		public override void OnDead(GameObject attacker)

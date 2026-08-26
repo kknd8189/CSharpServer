@@ -3,6 +3,7 @@ using Server.Data;
 using Server.Game;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using Protocol;
 
@@ -90,6 +91,34 @@ namespace Server.DB
 					{
 						// Me
 					}
+				}
+			});
+		}
+
+		// 주기 저장(GameRoom.SaveTick): dirty 플레이어 스냅샷들을 트랜잭션 하나로 저장.
+		// SaveChanges 한 번 = 커밋/fsync 한 번 → 왕복 비용을 N명이 나눠 가진다.
+		// 스냅샷은 큐잉 시점에 확정된 값이므로, 단일 DB 스레드의 FIFO가 최신성 보장.
+		public static void SavePlayersBatch(List<PlayerDb> snapshots)
+		{
+			if (snapshots == null || snapshots.Count == 0)
+				return;
+
+			Instance.PushJob(() =>
+			{
+				using (AppDbContext db = new AppDbContext())
+				{
+					foreach (PlayerDb playerDb in snapshots)
+					{
+						db.Entry(playerDb).State = EntityState.Unchanged;
+						db.Entry(playerDb).Property(nameof(PlayerDb.Level)).IsModified = true;
+						db.Entry(playerDb).Property(nameof(PlayerDb.Hp)).IsModified = true;
+						db.Entry(playerDb).Property(nameof(PlayerDb.MaxHp)).IsModified = true;
+						db.Entry(playerDb).Property(nameof(PlayerDb.Attack)).IsModified = true;
+						db.Entry(playerDb).Property(nameof(PlayerDb.Speed)).IsModified = true;
+						db.Entry(playerDb).Property(nameof(PlayerDb.TotalExp)).IsModified = true;
+					}
+
+					db.SaveChangesEx();
 				}
 			});
 		}
