@@ -1,19 +1,37 @@
-Client/Library/PackageManager/ProjectCache
-Client/Library/PackageManager/projectResolution.json
-MMO_Server/PacketGenerator/obj/Debug/PacketGenerator.AssemblyInfo.cs
-MMO_Server/PacketGenerator/obj/Debug/PacketGenerator.AssemblyInfoInputs.cache
-MMO_Server/PacketGenerator/obj/Debug/PacketGenerator.assets.cache
-MMO_Server/PacketGenerator/obj/Debug/PacketGenerator.GeneratedMSBuildEditorConfig.editorconfig
-Client/Library/ArtifactDB
-Client/Library/ArtifactDB
-MMO_Server/CLAUDE.md
-MMO_Server/새 텍스트 문서.txt
-MMO_Server/.claude/settings.local.json
-Client/Library/ArtifactDB
-Client/Library/ArtifactDB
+# ===== Claude =====
+.claude/
+CLAUDE.md
+
+# ===== Unity (Client) =====
+Client/Library/
+Client/Temp/
+Client/Logs/
+Client/UserSettings/
+Client/Builds/
+Client/[Mm]emoryCaptures/
+Client/[Rr]ecordings/
+Client/.vsconfig
+# Unity가 매번 재생성하는 프로젝트 파일
+Client/*.csproj
+Client/*.sln
+Client/*.unityproj
+Client/*.pidb
+Client/sysinfo.txt
+Client/*.apk
+Client/*.aab
+Client/*.unitypackage
+crashlytics-build.properties
+
+# ===== Visual Studio / .NET =====
+.vs/
+[Oo]bj/
+[Bb]in/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# ===== 기타 (기존 유지) =====
 Common/universal-rex-412207-da191721c2af.json
-Client/Library/ArtifactDB
+MMO_Server/새 텍스트 문서.txt
 MMO_Server/nul
-Client/Library/ArtifactDB
-Client/Library/ArtifactDB
-Client/Library/ArtifactDB
