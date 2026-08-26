@@ -1,4 +1,4 @@
-﻿using Google.Protobuf;
+﻿using ServerCore;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using UnityEngine;
 public class PacketMessage
 {
 	public ushort Id { get; set; }
-	public IMessage Message { get; set; }
+	public IPacket Message { get; set; }
 }
 
 public class PacketQueue
@@ -17,7 +17,7 @@ public class PacketQueue
 	Queue<PacketMessage> _packetQueue = new Queue<PacketMessage>();
 	object _lock = new object();
 
-	public void Push(ushort id, IMessage packet)
+	public void Push(ushort id, IPacket packet)
 	{
 		lock (_lock)
 		{

@@ -25,11 +25,15 @@ namespace ServerCore
 
                 // 패킷이 완전체로 도착했는지 확인
                 ushort dataSize = BitConverter.ToUInt16(buffer.Array, buffer.Offset);
+
+                // 최소/최대 크기 검증 (서버 PacketSession과 동일). 비정상 크기는 -1 리턴 → Disconnect 유도
+                if (dataSize < HeaderSize || dataSize > 1024 * 10)
+                    return -1;
                 if (buffer.Count < dataSize)
                     break;
 
                 // 여기까지 왔으면 패킷 조립 가능
-                OnRecvPacket(new ArraySegment<byte>(buffer.Array, buffer.Offset, dataSize));
+                OnRecvPacketSpan(new ReadOnlySpan<byte>(buffer.Array, buffer.Offset, dataSize));
 
                 processLen += dataSize;
                 buffer = new ArraySegment<byte>(buffer.Array, buffer.Offset + dataSize, buffer.Count - dataSize);
@@ -38,7 +42,7 @@ namespace ServerCore
             return processLen;
         }
 
-        public abstract void OnRecvPacket(ArraySegment<byte> buffer);
+        public abstract void OnRecvPacketSpan(ReadOnlySpan<byte> buffer);
     }
 
     public abstract class Session

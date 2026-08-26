@@ -4,16 +4,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
-using Google.Protobuf;
+using Protocol;
 
 public class NetworkManager
 {
 	public int AccountId { get; set; }
-	public int Token { get; set; }
+	public string Token { get; set; }
 
 	ServerSession _session = new ServerSession();
 
-	public void Send(IMessage packet)
+	public void Send(IPacket packet)
 	{
 		_session.Send(packet);
 	}
@@ -35,7 +35,7 @@ public class NetworkManager
 		List<PacketMessage> list = PacketQueue.Instance.PopAll();
 		foreach (PacketMessage packet in list)
 		{
-			Action<PacketSession, IMessage> handler = PacketManager.Instance.GetPacketHandler(packet.Id);
+			Action<PacketSession, IPacket> handler = PacketManager.Instance.GetPacketHandler(packet.Id);
 			if (handler != null)
 				handler.Invoke(_session, packet.Message);
 		}	

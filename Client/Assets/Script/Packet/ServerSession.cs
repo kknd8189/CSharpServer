@@ -1,30 +1,33 @@
-﻿using Google.Protobuf;
-using Google.Protobuf.Protocol;
+﻿using Protocol;
 using ServerCore;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
 
 public class ServerSession : PacketSession
 {
-	public void Send(IMessage packet)
+	// 서버 PacketSession의 10KB 상한과 동일
+	const int MaxPacketSize = 10 * 1024;
+
+	// PacketGenerator가 생성한 IPacket.Write로 직접 직렬화.
+	// SendBufferSpanHelper가 60KB 청크에서 자리를 빌려주고, Close가 실제 사용분만 세그먼트로 잘라준다.
+	public void Send(IPacket packet)
 	{
-		string msgName = packet.Descriptor.Name.Replace("_", string.Empty);
-		MsgId msgId = (MsgId)Enum.Parse(typeof(MsgId), msgName);
-		ushort size = (ushort)packet.CalculateSize();
-		byte[] sendBuffer = new byte[size + 4];
-		Array.Copy(BitConverter.GetBytes((ushort)(size + 4)), 0, sendBuffer, 0, sizeof(ushort));
-		Array.Copy(BitConverter.GetBytes((ushort)msgId), 0, sendBuffer, 2, sizeof(ushort));
-		Array.Copy(packet.ToByteArray(), 0, sendBuffer, 4, size);
-		Send(new ArraySegment<byte>(sendBuffer));
+		Span<byte> span = SendBufferSpanHelper.Open(MaxPacketSize);
+		if (span.IsEmpty)
+			return;
+
+		packet.Write(span, out ushort size);
+		ArraySegment<byte> sendBuffer = SendBufferSpanHelper.Close(size);
+		Send(sendBuffer);
 	}
 
 	public override void OnConnected(EndPoint endPoint)
 	{
 		Debug.Log($"OnConnected : {endPoint}");
 
+		// 수신 스레드에서 바로 핸들러를 부르지 않고 큐에 쌓는다.
+		// 실제 처리는 Unity 메인 스레드(NetworkManager.Update)에서 — GameObject 조작은 메인 스레드 전용
 		PacketManager.Instance.CustomHandler = (s, m, i) =>
 		{
 			PacketQueue.Instance.Push(i, m);
@@ -36,13 +39,12 @@ public class ServerSession : PacketSession
 		Debug.Log($"OnDisconnected : {endPoint}");
 	}
 
-	public override void OnRecvPacket(ArraySegment<byte> buffer)
+	public override void OnRecvPacketSpan(ReadOnlySpan<byte> buffer)
 	{
-		PacketManager.Instance.OnRecvPacket(this, buffer);
+		PacketManager.Instance.OnRecvPacketSpan(this, buffer);
 	}
 
 	public override void OnSend(int numOfBytes)
 	{
-		//Console.WriteLine($"Transferred bytes: {numOfBytes}");
 	}
 }

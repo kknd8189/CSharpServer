@@ -1,5 +1,4 @@
-﻿using Google.Protobuf;
-using Google.Protobuf.Protocol;
+﻿using Protocol;
 using ServerCore;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,19 +6,19 @@ using UnityEngine;
 
 class PacketHandler
 {
-	public static void S_EnterGameHandler(PacketSession session, IMessage packet)
+	public static void S_EnterGameHandler(PacketSession session, IPacket packet)
 	{
 		S_EnterGame enterGamePacket = packet as S_EnterGame;
 		Managers.Object.Add(enterGamePacket.Player, myPlayer: true);
 	}
 
-	public static void S_LeaveGameHandler(PacketSession session, IMessage packet)
+	public static void S_LeaveGameHandler(PacketSession session, IPacket packet)
 	{
 		S_LeaveGame leaveGameHandler = packet as S_LeaveGame;
 		Managers.Object.Clear();
 	}
 
-	public static void S_SpawnHandler(PacketSession session, IMessage packet)
+	public static void S_SpawnHandler(PacketSession session, IPacket packet)
 	{
 		S_Spawn spawnPacket = packet as S_Spawn;
 		foreach (ObjectInfo obj in spawnPacket.Objects)
@@ -28,7 +27,7 @@ class PacketHandler
 		}
 	}
 
-	public static void S_DespawnHandler(PacketSession session, IMessage packet)
+	public static void S_DespawnHandler(PacketSession session, IPacket packet)
 	{
 		S_Despawn despawnPacket = packet as S_Despawn;
 		foreach (int id in despawnPacket.ObjectIds)
@@ -37,7 +36,7 @@ class PacketHandler
 		}
 	}
 
-	public static void S_MoveHandler(PacketSession session, IMessage packet)
+	public static void S_MoveHandler(PacketSession session, IPacket packet)
 	{
 		S_Move movePacket = packet as S_Move;
 
@@ -55,7 +54,7 @@ class PacketHandler
 		bc.PosInfo = movePacket.PosInfo;
 	}
 
-	public static void S_SkillHandler(PacketSession session, IMessage packet)
+	public static void S_SkillHandler(PacketSession session, IPacket packet)
 	{
 		S_Skill skillPacket = packet as S_Skill;
 
@@ -70,7 +69,7 @@ class PacketHandler
 		}
 	}
 
-	public static void S_ChangeHpHandler(PacketSession session, IMessage packet)
+	public static void S_ChangeHpHandler(PacketSession session, IPacket packet)
 	{
 		S_ChangeHp changePacket = packet as S_ChangeHp;
 
@@ -85,7 +84,7 @@ class PacketHandler
 		}
 	}
 
-	public static void S_DieHandler(PacketSession session, IMessage packet)
+	public static void S_DieHandler(PacketSession session, IPacket packet)
 	{
 		S_Die diePacket = packet as S_Die;
 
@@ -101,18 +100,22 @@ class PacketHandler
 		}
 	}
 
-	public static void S_ConnectedHandler(PacketSession session, IMessage packet)
+	// 게임서버 접속 직후 서버가 S_Connected를 보내면, AccountServer에서 받아둔
+	// AccountId + 1회용 Token으로 로그인한다. (서버는 Redis에서 토큰 검증 후 삭제)
+	public static void S_ConnectedHandler(PacketSession session, IPacket packet)
 	{
 		Debug.Log("S_ConnectedHandler");
-		C_Login loginPacket = new C_Login();
 
-		string path = Application.dataPath;
-		loginPacket.UniqueId = path.GetHashCode().ToString();
+		C_Login loginPacket = new C_Login()
+		{
+			AccountID = Managers.Network.AccountId,
+			Token = Managers.Network.Token,
+		};
 		Managers.Network.Send(loginPacket);
 	}
 
 	// 로그인 OK + 캐릭터 목록
-	public static void S_LoginHandler(PacketSession session, IMessage packet)
+	public static void S_LoginHandler(PacketSession session, IPacket packet)
 	{
 		S_Login loginPacket = (S_Login)packet;
 		Debug.Log($"LoginOk({loginPacket.LoginOk})");
@@ -134,7 +137,7 @@ class PacketHandler
 		}
 	}
 
-	public static void S_CreatePlayerHandler(PacketSession session, IMessage packet)
+	public static void S_CreatePlayerHandler(PacketSession session, IPacket packet)
 	{
 		S_CreatePlayer createOkPacket = (S_CreatePlayer)packet;
 
@@ -152,7 +155,7 @@ class PacketHandler
 		}
 	}
 
-	public static void S_ItemListHandler(PacketSession session, IMessage packet)
+	public static void S_ItemListHandler(PacketSession session, IPacket packet)
 	{
 		S_ItemList itemList = (S_ItemList)packet;
 
@@ -169,7 +172,7 @@ class PacketHandler
 			Managers.Object.MyPlayer.RefreshAdditionalStat();
 	}
 
-	public static void S_AddItemHandler(PacketSession session, IMessage packet)
+	public static void S_AddItemHandler(PacketSession session, IPacket packet)
 	{
 		S_AddItem itemList = (S_AddItem)packet;
 
@@ -190,7 +193,7 @@ class PacketHandler
 			Managers.Object.MyPlayer.RefreshAdditionalStat();
 	}
 
-	public static void S_EquipItemHandler(PacketSession session, IMessage packet)
+	public static void S_EquipItemHandler(PacketSession session, IPacket packet)
 	{
 		S_EquipItem equipItemOk = (S_EquipItem)packet;
 
@@ -210,14 +213,14 @@ class PacketHandler
 			Managers.Object.MyPlayer.RefreshAdditionalStat();
 	}
 
-	public static void S_ChangeStatHandler(PacketSession session, IMessage packet)
+	public static void S_ChangeStatHandler(PacketSession session, IPacket packet)
 	{
 		S_ChangeStat itemList = (S_ChangeStat)packet;
 
 		// TODO
 	}
 
-	public static void S_PingHandler(PacketSession session, IMessage packet)
+	public static void S_PingHandler(PacketSession session, IPacket packet)
 	{
 		C_Pong pongPacket = new C_Pong();
 		Debug.Log("[Server] PingCheck");
