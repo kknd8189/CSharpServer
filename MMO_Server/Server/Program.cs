@@ -4,6 +4,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Serilog;
+using Serilog.Formatting.Compact;
 using Server.Data;
 using Server.DB;
 using Server.DB.LogDB;
@@ -199,7 +200,10 @@ namespace Server
                 var (tickAvgUs, tickMaxUs, workTicks, idleTicks) = ServerMetrics.ExchangeTickStats();
                 int players = SessionManager.Instance.GetPlayerCount();
 
-                Log.Information(
+                // EventType=Metrics 태그 → Kibana에서 일반 로그와 분리해 차트로 그린다.
+                // 메시지 템플릿의 프로퍼티들은 JSON 싱크에서 각각 독립 필드가 되므로
+                // TickMaxUs 같은 값이 문자열이 아닌 숫자로 색인된다.
+                Log.ForContext("EventType", "Metrics").Information(
                     "[Metrics] PacketsRecv/s={PacketsRecvPerSec:F1} PacketsSent/s={PacketsSentPerSec:F1} TickAvg={TickAvgUs}us TickMax={TickMaxUs}us WorkTicks={WorkTicks} IdleTicks={IdleTicks} Players={Players}",
                     recv / 5.0, sent / 5.0, tickAvgUs, tickMaxUs, workTicks, idleTicks, players);
             };
@@ -208,13 +212,24 @@ namespace Server
 
         static void Main(string[] args)
         {
+            // 로그 싱크 3개:
+            //  - Console  : 개발 중 눈으로 보는 용도
+            //  - .txt     : 사람이 읽는 보존용 (14일)
+            //  - .jsonl   : Filebeat → Elasticsearch 수집용 (구조화 JSON, 7일)
+            // 서버가 ES로 직접 쏘지 않는 이유: ES 장애/지연이 게임 스레드에 전파되면 안 됨.
+            // 파일에만 쓰고 Filebeat가 tail 하면, ES가 죽어도 서버는 무영향이고
+            // 복구 후 Filebeat가 저장된 오프셋부터 이어서 전송한다.
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Information()
+                .Enrich.WithProperty("service.name", "gameserver")   // ECS 규격: service 는 객체라 점 표기로 넣어야 매핑 충돌이 없다
                 .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
                 .WriteTo.File("logs/server-.txt",
                     rollingInterval: RollingInterval.Day,
                     retainedFileCountLimit: 14,
                     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+                .WriteTo.File(new CompactJsonFormatter(), "logs/server-.jsonl",
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: 7)
                 .CreateLogger();
 
             Console.CancelKeyPress += (sender, e) =>
@@ -247,6 +262,11 @@ namespace Server
 
             Name = ConfigManager.Config.worldName;
             Port = ConfigManager.Config.port;
+
+            // config 로드 후에야 월드 이름을 알 수 있으므로 여기서 필드를 덧붙인다.
+            // 게임서버를 여러 개 띄웠을 때 Kibana에서 labels.world 로 구분/필터링하기 위함.
+            // ECS 에서 커스텀 필드는 labels.* 아래에 두는 것이 표준.
+            Log.Logger = Log.Logger.ForContext("labels.world", Name);
 
             _listener.Init(SetDNSInfoTask(), () => { return SessionManager.Instance.Generate(); },
                 register: 50, backlog: 1024);

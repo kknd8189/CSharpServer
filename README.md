@@ -45,7 +45,7 @@
 - **GameServer**: Redis 토큰 검증 → 게임 룸 입장 → Zone 기반 시야 동기화
 - **MariaDB**: AccountDB / SharedDB / GameDB / LogDB 4종
 - **Redis**: 인증 토큰 + 로그 배치 버퍼
-- **Docker Compose**: 4개 컨테이너 원샷 기동 (`scripts/up.bat`)
+- **Docker Compose**: 7개 컨테이너 원샷 기동 (`scripts/up.bat`)
 
 ---
 
@@ -73,8 +73,8 @@ cd CSharpServer
 ```
 
 1. **도커 스택 기동** — `CICD\scripts\up.bat` 더블클릭
-   → MariaDB, Redis, AccountServer, GameServer 4개 컨테이너가 백그라운드로 뜹니다.
-2. **상태 확인** — `CICD\scripts\status.bat`로 4개 컨테이너 `healthy` 확인.
+   → MariaDB, Redis, AccountServer, GameServer, Elasticsearch, Kibana, Filebeat 7개 컨테이너가 백그라운드로 뜹니다.
+2. **상태 확인** — `CICD\scripts\status.bat`로 7개 컨테이너 `healthy` 확인.
 3. **부하 클라이언트 실행**
    ```bash
    cd MMO_Server
@@ -97,7 +97,8 @@ cd CSharpServer
 | 4 | **DB 3-step 트랜잭션** | GameRoom thread ↔ DB thread 안전 동기화 + Dapper 로그 배치 | [docs/persistence.md](docs/persistence.md) |
 | 5 | **GracefulShutdown + DLQ** | 정상 종료 시 잔여 잡 flush, 실패 잡은 DLQ로 집계 | [docs/graceful-shutdown.md](docs/graceful-shutdown.md) |
 | 6 | **부하 테스트 1000 CCU** | DummyClient 점진적 부하 + Serilog 메트릭 자동 수집 + 병목 분석 | [docs/load-test.md](docs/load-test.md) |
-| 7 | **Docker / CI** | 4개 컨테이너 Compose 원샷 기동, GitHub Actions로 build+test 자동화 | [docs/deployment.md](docs/deployment.md) |
+| 7 | **Docker / CI** | 7개 컨테이너 Compose 원샷 기동, GitHub Actions로 build+test 자동화 | [docs/deployment.md](docs/deployment.md) |
+| 8 | **ES 모니터링 파이프라인** | Serilog CLEF → Filebeat → Elasticsearch → Kibana. 서버는 파일에만 기록해 ES 장애와 분리 | [docs/monitoring.md](docs/monitoring.md) |
 
 ---
 
@@ -172,3 +173,4 @@ GitHub Actions CI에서 매 push마다 `dotnet build + test`가 ubuntu-latest �
 - [docs/graceful-shutdown.md](docs/graceful-shutdown.md) — 정상 종료 시퀀스
 - [docs/load-test.md](docs/load-test.md) — 부하 테스트 결과
 - [docs/deployment.md](docs/deployment.md) — Docker / CI / 운영 스크립트
+- [docs/monitoring.md](docs/monitoring.md) — Serilog / Filebeat / Elasticsearch / Kibana

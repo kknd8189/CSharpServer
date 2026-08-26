@@ -91,7 +91,60 @@ services:
     ports:
       - "7777:7777"
 
+
+  # ---------- 모니터링 스택 ----------
+  # 게임서버는 ES를 전혀 모른다. 파일에만 쓰고 Filebeat가 실어 나른다.
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
+    container_name: mmo-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false        # 로컬 전용. 외부 노출 시 반드시 켤 것
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"    # 개발 머신에서 힙 512MB로 제한
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -qE '\"status\":\"(green|yellow)\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.15.0
+    container_name: mmo-kibana
+    restart: unless-stopped
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.15.0
+    container_name: mmo-filebeat
+    restart: unless-stopped
+    user: root                              # 볼륨 안의 로그 파일 읽기 권한
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    # 이미지 기본 CMD(-environment container)를 덮어쓰면 로그가 stdout 으로 안 나오므로 함께 지정.
+    # strict.perms 는 마운트된 설정 파일의 소유자 검사를 끄는 용도.
+    command: ["-environment", "container", "-strict.perms=false"]
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - server-logs:/logs:ro                 # 서버와 같은 볼륨 (읽기 전용)
+      - filebeat-data:/usr/share/filebeat/data   # 읽은 오프셋 보존 → 재시작 시 중복 전송 방지
+
 volumes:
   mariadb-data:
   redis-data:
   server-logs:
+  es-data:
+  filebeat-data:

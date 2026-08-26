@@ -27,6 +27,13 @@ RUN dotnet publish MMO_Server/Server/Server.csproj \
 FROM mcr.microsoft.com/dotnet/runtime:10.0 AS runtime
 WORKDIR /app
 
+# 로그 볼륨 마운트 지점을 app 소유로 미리 만들어 둔다.
+# 빈 named volume 을 마운트하면 Docker 가 이미지 쪽 디렉토리의 소유/권한을 볼륨에 복사한다.
+# 여기서 chown 하지 않으면 볼륨이 root 소유가 되고, 비루트(app)로 도는 서버가
+# 로그 파일을 만들지 못한다. Serilog 파일 싱크는 실패해도 예외를 던지지 않아
+# 콘솔 로그만 나오고 파일은 조용히 비어 있게 된다.
+RUN mkdir -p /app/logs && chown app:app /app/logs
+
 # 비루트 사용자 (Debian 베이스 이미지의 기본 user)
 USER app
 
