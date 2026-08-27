@@ -198,14 +198,17 @@ docker compose -f CICD/docker-compose.yml up -d --build
 | Elasticsearch | 9200 | `curl localhost:9200/_cat/indices/*mmo-server*?v` |
 | Filebeat | — | `docker logs mmo-filebeat` |
 
-Grafana는 데이터소스·대시보드가 프로비저닝되므로 **수동 설정이 없다**.
-Kibana 데이터 뷰만 최초 1회 만들면 된다:
+Grafana는 데이터소스·대시보드가 프로비저닝 파일로 자동 등록되므로 **수동 설정이 없다**.
+Kibana는 API 호출이 필요해 스크립트로 묶어 뒀다 (최초 1회, 재실행 안전):
 
 ```bash
-curl -X POST "http://localhost:5601/api/data_views/data_view" \
-  -H 'kbn-xsrf: true' -H 'Content-Type: application/json' \
-  -d '{"data_view":{"title":"mmo-server","name":"MMO Server Logs","timeFieldName":"@timestamp"}}'
+node CICD/kibana/setup.js
 ```
+
+> `saved_objects/_import` 를 쓰지 않는 이유: 마이그레이션 버전이 없는 Lens 객체를
+> Kibana 가 구버전으로 간주해 변환하다 500 이 난다. create API 는 현재 버전으로
+> 바로 저장하므로 그 문제가 없다.
+
 ### 컨테이너 로그 디렉토리 권한
 
 서버는 비루트(`app`, uid 1654)로 돈다. `Dockerfile.server`에서 마운트 지점을
@@ -236,11 +239,21 @@ RUN mkdir -p /app/logs && chown app:app /app/logs
 | 검증 거부 | `rate(game_validation_rejected_total)` by kind | **급증 = 핵 유행 또는 오탐** |
 | 세션 종료 사유 | `rate(game_sessions_closed_total)` by reason | Kicked / SlowClient 비중 |
 
-**Kibana** (사건) — `mmo-server` 데이터 뷰
+**Kibana** (사건) — `MMO Server — 로그 (어뷰징 / 세션)` 대시보드, 패널 6개
+
+| 패널 | 내용 |
+|---|---|
+| 검증 위반 추이 | `ViolationKind` 별 누적 막대 — 언제 무엇이 터졌나 |
+| 상위 어뷰저 TOP 10 | PlayerDbId / 위반 건수 / 최고 누적점수 / 마지막 IP |
+| 위반 종류 비율 | 도넛 — 어떤 종류가 지배적인가 |
+| 세션 종료 사유 추이 | `CloseReason` 별 누적 막대 |
+| 종료 사유별 유지 시간 | 중앙값·p95 — 진입 직후 이탈인지 장시간 플레이인지 |
+| 이벤트 종류별 로그량 | 파이프라인이 살아있는지 한눈에 |
+
+임시 조회는 Discover 에서:
 
 | 질문 | 쿼리 |
 |---|---|
-| 어떤 어뷰저가 있나 | `EventType: Abuse` → `PlayerDbId` 로 terms 집계 |
 | 이 유저 왜 튕겼나 | `EventType: Session AND AccountDbId: 1234` |
 | 조작 패킷이 들어왔나 | `EventType: Abuse AND PacketSize > 10240` |
 | 서버에 오류가 있었나 | `@l: Warning` 이상 |
@@ -259,3 +272,25 @@ RUN mkdir -p /app/logs && chown app:app /app/logs
 - **알럿** — Alertmanager 미구성. 예산 초과 비율이나 검증 거부율이 임계를 넘으면
   알림이 가야 한다
 - **Grafana 익명 접근** — `GF_AUTH_ANONYMOUS_ENABLED=true` 는 로컬 전용
+
+---
+
+## 부록 — 오탐이 실제로 어떻게 생기나
+
+검증을 켠 뒤 실측에서 나온 오탐 사례들. 전부 임계값이 아니라 **설계 누락**이 원인이었다.
+
+| 사례 | 증상 | 원인 | 대응 |
+|---|---|---|---|
+| DummyClient 축 불일치 | 정상 더미 292세션 킥 | Up/Down 이 PosY 를 움직였는데 맵은 단일 Y 평면 (MaxY=MinY) 이라 서버가 100% 거부 → 좌표 격차 누적 | 더미를 x/z 축으로 교정 |
+| 보정 미반영 | 위 격차가 계속 벌어짐 | `S_MoveHandler` 가 빈 껍데기라 서버 권위 좌표를 무시 | 자기 오브젝트의 S_Move 를 반영 |
+| 사망 리스폰 | 800 CCU 에서 텔레포트 위반 360건 | `OnDead` → `EnterGame(randomPos:true)` 로 서버가 맵 임의 위치로 옮김. 그 순간 in-flight 이동은 옛 좌표 기준 | `PositionEpochTick`/`PrePosition` 으로 유예 |
+| 유예가 너무 헐거움 | 텔레포트 핵이 통과 | 유예를 **시간만으로** 판정 → 리스폰 직후 1초 동안 어디로든 점프 가능 | 옛 좌표 기준으로도 정상 거리일 때만 유예 |
+
+교훈이 두 가지다.
+
+**1. 거부율 모니터링이 임계값 튜닝보다 먼저다.** 위 네 건 중 임계값 문제는 하나도 없었다.
+`game_validation_rejected_total` 이 튀는 걸 보고 파고들어야 발견된다.
+
+**2. "거부"와 "어뷰징"은 다른 개념이다.** 서버가 스스로 상태를 바꾼 직후의 불일치는
+거부하되 처벌하면 안 된다. 그래서 `game_validation_forgiven_total` 을 따로 센다 —
+이 값이 비정상적으로 크면 유예 창이 넓거나, 위치를 바꾸는 경로가 epoch 을 안 찍고 있다는 신호다.
