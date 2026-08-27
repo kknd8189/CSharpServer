@@ -56,7 +56,12 @@ namespace Server.Game
 
 		Player _target;
 		int _searchCellDist = 10;
-		int _chaseCellDist = 20;
+		// FindPath 의 maxDist 와 반드시 같아야 한다.
+		// 예전엔 20 이었지만 FindPath 가 기본값 10 으로 탐색해 11~20 칸 타겟은 경로를 못 찾았고,
+		// 결과적으로 추적 범위는 늘 10 칸이었다. 실제 동작에 맞춰 10 으로 통일한다.
+		// 이 값을 올리면 추적은 멀리 가지만 A* 탐색 범위가 제곱으로 커진다 —
+		// 특히 경로가 막혀 탐색이 실패할 때 전체 범위를 다 훑으므로 비용이 크다.
+		int _chaseCellDist = 10;
 
 		long _nextSearchTick = 0;
 		protected virtual void UpdateIdle()
@@ -101,7 +106,10 @@ namespace Server.Game
 				return;
 			}
 
-			List<Vector3Int> path = Room.Map.FindPath(CellPos, _target.CellPos, checkObjects: true);
+			// maxDist 를 명시한다. 예전엔 기본값 10 으로 탐색하면서 결과는 _chaseCellDist(20)
+			// 로 비교해, 11~20 칸 거리의 타겟은 경로를 절대 못 찾고 추적을 포기했다.
+			// 즉 의도한 20 칸 추적이 실제로는 10 칸이었다. 두 값을 하나로 묶는다.
+			List<Vector3Int> path = Room.Map.FindPath(CellPos, _target.CellPos, checkObjects: true, maxDist: _chaseCellDist);
 			if (path.Count < 2 || path.Count > _chaseCellDist)
 			{
 				_target = null;
@@ -110,8 +118,10 @@ namespace Server.Game
 				return;
 			}
 
-			// 스킬로 넘어갈지 체크
-			if (dist <= _skillRange && (dir.x == 0 || dir.y == 0))
+			// 스킬로 넘어갈지 체크.
+			// 축 정렬 검사는 x/z 로 본다. 예전엔 dir.y 를 봤는데 이 맵은 단일 Y 평면이라
+			// dir.y 가 항상 0 → 조건이 무조건 참이 되어 정렬 검사가 무력화돼 있었다.
+			if (dist <= _skillRange && (dir.x == 0 || dir.z == 0))
 			{
 				_coolTick = 0;
 				State = CreatureState.Skill;
@@ -150,7 +160,7 @@ namespace Server.Game
 				// 스킬이 아직 사용 가능한지
 				Vector3Int dir = (_target.CellPos - CellPos);
 				int dist = dir.cellDistFromZero;
-				bool canUseSkill = (dist <= _skillRange && (dir.x == 0 || dir.y == 0));
+				bool canUseSkill = (dist <= _skillRange && (dir.x == 0 || dir.z == 0));
 				if (canUseSkill == false)
 				{
 					State = CreatureState.Moving;

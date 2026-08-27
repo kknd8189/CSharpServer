@@ -295,10 +295,17 @@ namespace Server.Game
         #region A* PathFinding
 
         // 6방향 이동 (앞/뒤/좌/우/위/아래)
+        // 순서 주의: 앞 4개가 x/z 평면 이동, 뒤 2개가 y 이동이다.
+        // 이 맵은 단일 Y 평면이라(로더가 MaxY = MinY) y 이웃은 매번 CanGo 의 경계 검사에서
+        // 걸러지기만 했다. 즉 노드마다 확장의 1/3 이 확정적으로 헛일이었다.
+        // FindPath 는 추적 중인 몬스터가 200ms 마다 호출하는 핫패스라 그대로 낭비가 된다.
         int[] _deltaX = { 1, -1, 0, 0, 0, 0 };
-        int[] _deltaY = { 0, 0, 1, -1, 0, 0 };
-        int[] _deltaZ = { 0, 0, 0, 0, 1, -1 };
+        int[] _deltaY = { 0, 0, 0, 0, 1, -1 };
+        int[] _deltaZ = { 0, 0, 1, -1, 0, 0 };
         int[] _cost = { 10, 10, 10, 10, 10, 10 };
+
+        // 맵이 평면이면 4방향만, 층이 있으면 6방향을 확장한다.
+        int DirectionCount { get { return SizeY > 1 ? 6 : 4; } }
 
         private int Heuristic(Pos a, Pos b)
         {
@@ -354,7 +361,8 @@ namespace Server.Game
 					break;
 
 				// 상하좌우 등 이동할 수 있는 좌표인지 확인해서 예약(open)한다
-				for (int i = 0; i < _deltaX.Length; i++)
+				int dirCount = DirectionCount;
+				for (int i = 0; i < dirCount; i++)
 				{
 					Pos next = new Pos(node.X + _deltaX[i], node.Y + _deltaY[i] , node.Z + _deltaZ[i]);
 
