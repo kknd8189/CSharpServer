@@ -304,6 +304,19 @@ namespace Server.Game
 			return null;
 		}
 
+		// 시야 판정. 이 맵은 x/z 평면이다 (Map 로더가 MaxY = MinY 로 잡는다).
+		//
+		// 예전에는 x/y 로 컬링했는데 두 가지가 잘못돼 있었다.
+		//  1) y 차이는 항상 0 이라 그 검사는 아무것도 걸러내지 못했고
+		//  2) z 는 아예 검사하지 않아 시야 밖 플레이어에게도 패킷이 그대로 나갔다.
+		// 존은 ZoneCells(10) 단위라 인접 존을 훑으면 z 로 최대 20 셀까지 포함된다.
+		// 즉 의도한 시야(11×11=121셀) 대신 약 11×20=220셀에 뿌리고 있었다.
+		public static bool IsInVision(Vector3Int center, Vector3Int target)
+		{
+			return Math.Abs(target.x - center.x) <= VisionCells
+				&& Math.Abs(target.z - center.z) <= VisionCells;
+		}
+
 		public void Broadcast(Vector3Int pos, IPacket packet)
 		{
 			// 브로드캐스트는 항상 GameLogic 스레드에서 실행 → ThreadLocal SendBuffer 안전.
@@ -312,18 +325,64 @@ namespace Server.Game
 			if (segment.Array == null)
 				return;
 
-			List<Zone> zones = GetAdjacentZones(pos);
+			// 존 인덱스를 직접 순회한다. ForEachAdjacentZone 을 쓰지 않고 여기서 펼친 이유는
+			// 람다가 segment/pos 를 캡처하면서 클로저와 델리게이트를 매 호출마다 할당하기 때문.
+			// 브로드캐스트는 이동 1건마다 도는 최핫패스라 할당을 0으로 만든다.
+			// (예전에는 GetAdjacentZones 의 HashSet + List, SelectMany 의 이터레이터까지 있었다.)
+			int minIndexX = (pos.x - VisionCells - Map.MinX) / ZoneCells;
+			int maxIndexX = (pos.x + VisionCells - Map.MinX) / ZoneCells;
+			int minIndexY = (pos.y - VisionCells - Map.MinY) / ZoneCells;
+			int maxIndexY = (pos.y + VisionCells - Map.MinY) / ZoneCells;
+			int minIndexZ = (pos.z - VisionCells - Map.MinZ) / ZoneCells;
+			int maxIndexZ = (pos.z + VisionCells - Map.MinZ) / ZoneCells;
 
-			foreach (Player p in zones.SelectMany(z => z.Players))
+			for (int x = minIndexX; x <= maxIndexX; x++)
 			{
-				int dx = p.CellPos.x - pos.x;
-				int dy = p.CellPos.y - pos.y;
-				if (Math.Abs(dx) > GameRoom.VisionCells)
-					continue;
-				if (Math.Abs(dy) > GameRoom.VisionCells)
-					continue;
+				for (int y = minIndexY; y <= maxIndexY; y++)
+				{
+					for (int z = minIndexZ; z <= maxIndexZ; z++)
+					{
+						Zone zone = GetZone(x, y, z);
+						if (zone == null)
+							continue;
 
-				p.Session.SendShared(segment);
+						foreach (Player p in zone.Players)
+						{
+							if (IsInVision(pos, p.CellPos) == false)
+								continue;
+
+							p.Session.SendShared(segment);
+						}
+					}
+				}
+			}
+		}
+
+		// 인접 존을 컬렉션으로 만들지 않고 그대로 순회한다.
+		// 게임 스레드 전용이라 재진입 걱정이 없다.
+		public void ForEachAdjacentZone(Vector3Int cellPos, int range, Action<Zone> action)
+		{
+			int minIndexX = (cellPos.x - range - Map.MinX) / ZoneCells;
+			int maxIndexX = (cellPos.x + range - Map.MinX) / ZoneCells;
+			int minIndexY = (cellPos.y - range - Map.MinY) / ZoneCells;
+			int maxIndexY = (cellPos.y + range - Map.MinY) / ZoneCells;
+			int minIndexZ = (cellPos.z - range - Map.MinZ) / ZoneCells;
+			int maxIndexZ = (cellPos.z + range - Map.MinZ) / ZoneCells;
+
+			for (int x = minIndexX; x <= maxIndexX; x++)
+			{
+				for (int y = minIndexY; y <= maxIndexY; y++)
+				{
+					for (int z = minIndexZ; z <= maxIndexZ; z++)
+					{
+						// 인덱스가 모두 다르므로 같은 존이 두 번 나오지 않는다 (중복 제거 불필요).
+						Zone zone = GetZone(x, y, z);
+						if (zone == null)
+							continue;
+
+						action(zone);
+					}
+				}
 			}
 		}
 
