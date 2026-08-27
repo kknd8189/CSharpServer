@@ -130,6 +130,10 @@ namespace Server.Game
 			if (gameObject == null)
 				return;
 
+			// 서버가 좌표를 바꾸기 직전의 위치. 사망 리스폰 시 클라의 in-flight 이동은
+			// 반드시 이 근처에서 출발하므로, 검증에서 조작과 구분하는 기준이 된다.
+			Vector3Int posBeforeRelocate = gameObject.CellPos;
+
 			if (randomPos)
 			{
 				Vector3Int respawnPos;
@@ -160,6 +164,8 @@ namespace Server.Game
 				// 검증 상태 초기화. 예산을 가득 채운 상태로 시작해야
 				// 접속 직후 첫 이동들이 오탐으로 걸리지 않는다.
 				player.LastMoveTick = System.Environment.TickCount64;
+				player.PositionEpochTick = player.LastMoveTick;
+				player.PrePosition = posBeforeRelocate;
 				player.MoveBudget = player.Speed * 1.0f;
 				player.NextSkillTick = 0;
 				player.AbuseScore = 0;

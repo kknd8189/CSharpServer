@@ -32,6 +32,17 @@ namespace Server.Game
 		// 누적 어뷰징 점수. 시간이 지나면 감쇠하며, 임계를 넘으면 조치 대상.
 		public float AbuseScore;
 		public long LastAbuseTick;
+
+		// 서버가 스스로 플레이어를 옮긴 시각 (사망 리스폰, 워프 등).
+		// 그 직후에는 클라가 아직 새 좌표를 모르므로, 이미 날아오고 있던 이동 패킷이
+		// 옛 좌표 기준으로 도착한다. 이걸 텔레포트 어뷰징으로 세면 정상 유저가 처벌받는다.
+		// 이 시각으로부터 유예 시간 안의 위치 불일치는 보정만 하고 점수를 매기지 않는다.
+		public long PositionEpochTick;
+
+		// 서버가 옮기기 "직전"의 좌표.
+		// in-flight 이동은 반드시 이 좌표 근처에서 출발한다. 유예 창 안이라도
+		// 여기서 멀리 떨어진 목적지는 클라가 몰라서 생긴 불일치가 아니라 조작이다.
+		public Vector3Int PrePosition;
 		#endregion
 
 		public Inventory Inven { get; private set; } = new Inventory();

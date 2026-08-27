@@ -82,9 +82,22 @@ namespace Server
 			SessionDuration.WithLabels(label).Observe(durationSeconds);
 		}
 
+		// 거부는 했지만 어뷰징으로 세지 않은 건수.
+		// 서버가 스스로 플레이어를 옮긴 직후(사망 리스폰 등) 클라의 in-flight 이동이 여기 잡힌다.
+		// 이 값이 비정상적으로 크면 유예 창이 너무 넓거나, 서버가 위치를 바꾸는
+		// 다른 경로가 있는데 epoch 을 안 찍고 있다는 신호다.
+		private static readonly Counter ValidationForgiven = Metrics.CreateCounter(
+			"game_validation_forgiven_total", "거부했으나 어뷰징으로 세지 않은 요청 수(서버 기인 위치 변경 직후).",
+			new CounterConfiguration { LabelNames = new[] { "kind" } });
+
 		public static void IncrementValidationRejected(Game.GameRoom.ViolationKind kind)
 		{
 			ValidationRejected.WithLabels(kind.ToString()).Inc();
+		}
+
+		public static void IncrementValidationForgiven(Game.GameRoom.ViolationKind kind)
+		{
+			ValidationForgiven.WithLabels(kind.ToString()).Inc();
 		}
 
 		// GameLogic.Update 한 바퀴에 대해 호출된다.
