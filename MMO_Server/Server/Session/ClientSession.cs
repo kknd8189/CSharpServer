@@ -1,4 +1,5 @@
-﻿using Server.Game;
+﻿using Serilog;
+using Server.Game;
 using ServerCore;
 using System;
 using System.Buffers.Binary;
@@ -32,7 +33,7 @@ namespace Server
                     CoreLogger.Warn("Session",
                         "Ping timeout. Delta={DeltaMs}ms Limit={LimitMs}ms AccountId={AccountId} Remote={Remote}",
                         delta, 30 * 1000, AccountDbId, RemoteAddress);
-                    Disconnect();
+                    Disconnect(CloseReason.PingTimeout);
                     return;
                 }
             }
@@ -163,6 +164,16 @@ namespace Server
 
         public override void OnDisconnected(EndPoint endPoint)
         {
+            // 세션 종료를 사유와 함께 남긴다. ServerCore 가 아니라 여기서 찍는 이유는
+            // AccountDbId / PlayerDbId 같은 게임 컨텍스트가 이 계층에만 있기 때문.
+            // 접속 유지 시간은 이탈 분석(진입 직후 이탈 vs 장시간 플레이)에 쓴다.
+            Log.ForContext("EventType", "Session")
+               .ForContext("CloseReason", CloseReason.ToString())
+               .ForContext("AccountDbId", AccountDbId)
+               .ForContext("PlayerDbId", MyPlayer?.PlayerDbId ?? 0)
+               .ForContext("Remote", RemoteAddress)
+               .Information("Session closed. Reason={CloseReason} DurationSec={DurationSec:F1} AccountId={AccountDbId}",
+                   CloseReason, ConnectedSeconds, AccountDbId);
 
             SessionManager.Instance.Remove(this);
 

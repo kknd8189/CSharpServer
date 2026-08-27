@@ -26,7 +26,7 @@ namespace Server
 			if (await RedisAuth.VerifyTokenAsync(loginPacket.AccountID, loginPacket.Token) == false)
 			{
 				Send(new S_Login() { LoginOk = 0 });
-				Disconnect();
+				Disconnect(CloseReason.AuthFailed);
 				return false;
 			}
 
@@ -56,7 +56,7 @@ namespace Server
 					if (findAccount == null)
 					{
 						Send(new S_Login() { LoginOk = 0 });
-						Disconnect();
+						Disconnect(CloseReason.AuthFailed);
 						return false;
 					}
 				}

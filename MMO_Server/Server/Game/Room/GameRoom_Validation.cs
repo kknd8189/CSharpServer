@@ -120,7 +120,7 @@ namespace Server.Game
 			{
 				log.Warning(template + " -> KICK (score {AbuseScore} >= {Threshold})",
 					AppendArgs(args, player.AbuseScore, AbuseScoreKickThreshold));
-				player.Session?.Disconnect();
+				player.Session?.Disconnect(ServerCore.CloseReason.Kicked);
 			}
 			else
 			{

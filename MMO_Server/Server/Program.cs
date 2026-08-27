@@ -59,7 +59,7 @@ namespace Server
             foreach (var session in SessionManager.Instance.GetSessions())
             {
                 //session.Send(new S_ServerClose()); // "서버가 종료됩니다" 패킷
-                session.Disconnect();
+                session.Disconnect(CloseReason.ServerShutdown);
             }
             Log.Information("접속 중인 유저 안전 종료.");
             //마지막으로 GameLogic에 잡 전부 Flush 시켜서 남은 데이터들 DB에 저장하게 하기

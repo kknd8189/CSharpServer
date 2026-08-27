@@ -158,12 +158,25 @@ namespace ServerCore
         // 접속 시점에 한 번 문자열로 떠 둔다.
         public string RemoteAddress { get; private set; }
 
+        int _closeReason = (int)CloseReason.Unknown;
+        public CloseReason CloseReason { get { return (CloseReason)Volatile.Read(ref _closeReason); } }
+
+        long _connectedTick;
+        // 접속 유지 시간(초). 세션 종료 로그에 남겨 이탈 분석에 쓴다.
+        public double ConnectedSeconds
+        {
+            get { return _connectedTick == 0 ? 0 : (Environment.TickCount64 - _connectedTick) / 1000.0; }
+        }
+
         public void Start(Socket socket)
         {
             _socket = socket;
 
             try { RemoteAddress = socket.RemoteEndPoint?.ToString(); }
             catch { RemoteAddress = null; }
+
+            _closeReason = (int)CloseReason.Unknown;
+            _connectedTick = Environment.TickCount64;
 
             // 상태 초기화 (세션 재사용 시 이전 상태가 남아있지 않도록)
             _disconnected = 0;
@@ -229,7 +242,7 @@ namespace ServerCore
                 CoreLogger.Warn("Session",
                     "Slow client kicked. QueueSize={QueueSize} Limit={Limit} Remote={Remote}",
                     Volatile.Read(ref _sendQueueCount), MAX_SEND_QUEUE_SIZE, RemoteAddress);
-                Disconnect();
+                Disconnect(CloseReason.SlowClient);
                 return;
             }
 
@@ -248,7 +261,7 @@ namespace ServerCore
                 CoreLogger.Warn("Session",
                     "Slow client kicked. QueueSize={QueueSize} Limit={Limit} Remote={Remote}",
                     Volatile.Read(ref _sendQueueCount), MAX_SEND_QUEUE_SIZE, RemoteAddress);
-                Disconnect();
+                Disconnect(CloseReason.SlowClient);
                 return;
             }
 
@@ -258,8 +271,13 @@ namespace ServerCore
             }
         }
 
-        public void Disconnect()
+        public void Disconnect(CloseReason reason = CloseReason.Normal)
         {
+            // 최초 호출의 사유만 남긴다.
+            // 끊는 도중 송신 실패 등으로 Disconnect 가 연쇄 호출되는데,
+            // 그때 NetworkError 가 진짜 원인(예: Kicked)을 덮어쓰면 안 된다.
+            Interlocked.CompareExchange(ref _closeReason, (int)reason, (int)CloseReason.Unknown);
+
             // 1. "종료 모드"로 전환 (Flag On)
             if (Interlocked.Exchange(ref _disconnected, 1) == 1)
                 return;
@@ -418,7 +436,7 @@ namespace ServerCore
             catch (Exception e)
             {
                 CoreLogger.Error("Net", e, "OnSendCompleted failed. Remote={Remote}", RemoteAddress);
-                Disconnect();
+                Disconnect(CloseReason.NetworkError);
             }
             finally
             {
@@ -438,14 +456,14 @@ namespace ServerCore
                     var recvBuffer = _recvBufferSpan;
                     if (recvBuffer == null)
                     {
-                        Disconnect();
+                        Disconnect(CloseReason.ProtocolError);
                         return false;
                     }
 
                     // 1. Write 커서 이동
                     if (recvBuffer.OnWrite(args.BytesTransferred) == false)
                     {
-                        Disconnect();
+                        Disconnect(CloseReason.ProtocolError);
                         return false;
                     }
 
@@ -454,14 +472,14 @@ namespace ServerCore
 
                     if (processLen < 0 || recvBuffer.DataSize < processLen)
                     {
-                        Disconnect();
+                        Disconnect(CloseReason.ProtocolError);
                         return false;
                     }
 
                     // 3. Read 커서 이동 (처리한 만큼 버퍼 비우기)
                     if (recvBuffer.OnRead(processLen) == false)
                     {
-                        Disconnect();
+                        Disconnect(CloseReason.ProtocolError);
                         return false;
                     }
 
@@ -473,8 +491,9 @@ namespace ServerCore
                 }
             }
 
-            // 에러 상황 or 0바이트 수신(연결 끊김)
-            Disconnect();
+            // 에러 상황 or 0바이트 수신(연결 끊김).
+            // 위쪽 예외 경로에서 이미 사유를 정했다면 CompareExchange 가 덮어쓰지 않는다.
+            Disconnect(CloseReason.ClientClosed);
             return false;
         }
 
@@ -532,7 +551,7 @@ namespace ServerCore
                     // ReceiveAsync 자체 예외: 증가시킨 카운트 원복
                     Interlocked.Decrement(ref _ioCount);
                     CoreLogger.Error("Net", e, "RegisterRecv failed. Remote={Remote}", RemoteAddress);
-                    Disconnect();
+                    Disconnect(CloseReason.NetworkError);
                     return;
                 }
             }
@@ -590,7 +609,7 @@ namespace ServerCore
             catch (Exception e)
             {
                 CoreLogger.Error("Net", e, "OnRecvCompletedSpan failed. Remote={Remote}", RemoteAddress);
-                Disconnect();
+                Disconnect(CloseReason.NetworkError);
             }
             finally
             {
