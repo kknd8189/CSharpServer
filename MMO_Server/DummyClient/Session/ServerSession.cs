@@ -15,7 +15,6 @@ public class ServerSession : PacketSession
 	public int PosY;
 	public int PosZ;
 
-	private const int MaxPacketSize = 10 * 1024;
 
 	private readonly Random _random = new Random();
 	private readonly object _randomLock = new object();
@@ -80,16 +79,21 @@ public class ServerSession : PacketSession
 
 	private void OnMoveTick(object sender, ElapsedEventArgs e)
 	{
-		// 4방향(Up/Down/Left/Right). Forward/Backward 는 Z축이라 제외.
+		// 이 맵은 단일 Y 평면이다 (Map 로더가 MaxY = MinY 로 잡는다).
+		// 예전엔 Up/Down 으로 PosY 를 움직였는데, 서버 Map.CanGo 가 y 경계 밖이라
+		// 100% 거부했다. 방향 4개 중 2개가 y 였으니 이동 패킷의 절반이 버려진 셈.
+		// 서버가 실제로 쓰는 축은 x(Left/Right) 와 z(Forward/Backward) 다.
 		MoveDir dir;
-		lock (_randomLock) dir = (MoveDir)_random.Next(0, 4);
+		lock (_randomLock) dir = _random.Next(0, 2) == 0
+			? (_random.Next(0, 2) == 0 ? MoveDir.Left : MoveDir.Right)
+			: (_random.Next(0, 2) == 0 ? MoveDir.Forward : MoveDir.Backward);
 
 		switch (dir)
 		{
-			case MoveDir.Up: PosY += 1; break;
-			case MoveDir.Down: PosY -= 1; break;
 			case MoveDir.Left: PosX -= 1; break;
 			case MoveDir.Right: PosX += 1; break;
+			case MoveDir.Forward: PosZ += 1; break;
+			case MoveDir.Backward: PosZ -= 1; break;
 		}
 
 		C_Move movePacket = new C_Move

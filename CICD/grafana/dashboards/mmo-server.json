@@ -1,0 +1,137 @@
+{
+  "uid": "mmo-server",
+  "title": "MMO Server",
+  "tags": ["mmo", "gameserver"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "틱 처리 시간 — 30Hz 예산 33.3ms",
+      "description": "히스토그램에서 계산한 분위수. 최댓값 하나에 좌우되지 않아 실제 수용 한계 판단에 쓸 수 있다.",
+      "gridPos": { "h": 9, "w": 16, "x": 0, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": { "lineWidth": 2, "fillOpacity": 5 },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 0.0333 }
+            ]
+          }
+        }
+      },
+      "options": { "legend": { "displayMode": "table", "calcs": ["mean", "max"], "placement": "right" } },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(game_tick_duration_seconds_bucket[1m])) by (le))",
+          "legendFormat": "p50", "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(game_tick_duration_seconds_bucket[1m])) by (le))",
+          "legendFormat": "p95", "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(game_tick_duration_seconds_bucket[1m])) by (le))",
+          "legendFormat": "p99", "refId": "C"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "동시 접속자",
+      "gridPos": { "h": 9, "w": 8, "x": 16, "y": 0 },
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "thresholds" },
+        "thresholds": { "mode": "absolute", "steps": [
+          { "color": "green", "value": null },
+          { "color": "yellow", "value": 400 },
+          { "color": "red", "value": 700 } ] } } },
+      "options": { "graphMode": "area", "colorMode": "value" },
+      "targets": [ { "expr": "sum(game_players_connected)", "legendFormat": "CCU", "refId": "A" } ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "예산 초과 틱 비율 — 33ms를 넘긴 틱의 %",
+      "description": "이 값이 0보다 유의미하게 커지는 CCU가 실질적인 수용 한계다. 최댓값 기준보다 훨씬 안정적인 지표.",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
+      "fieldConfig": { "defaults": { "unit": "percentunit", "custom": { "lineWidth": 2, "fillOpacity": 10 },
+        "min": 0 } },
+      "targets": [
+        {
+          "expr": "1 - (sum(rate(game_tick_duration_seconds_bucket{le=\"0.0333\"}[1m])) / sum(rate(game_tick_duration_seconds_count[1m])))",
+          "legendFormat": "예산 초과 비율", "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "실측 틱 주파수 (Hz)",
+      "description": "목표 30Hz. 여기가 떨어지면 게임이 실제로 느려진 것.",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 9 },
+      "fieldConfig": { "defaults": { "unit": "hertz", "custom": { "lineWidth": 2, "fillOpacity": 5 },
+        "thresholds": { "mode": "absolute", "steps": [
+          { "color": "red", "value": null },
+          { "color": "green", "value": 29 } ] } } },
+      "targets": [
+        { "expr": "sum(rate(game_ticks_total[1m]))", "legendFormat": "전체", "refId": "A" },
+        { "expr": "sum(rate(game_ticks_total{kind=\"work\"}[1m]))", "legendFormat": "work", "refId": "B" }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "패킷 처리량 (/s)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 17 },
+      "fieldConfig": { "defaults": { "unit": "pps", "custom": { "lineWidth": 2, "fillOpacity": 5 } } },
+      "targets": [
+        { "expr": "sum(rate(game_packets_total{direction=\"recv\"}[1m]))", "legendFormat": "수신", "refId": "A" },
+        { "expr": "sum(rate(game_packets_total{direction=\"send\"}[1m]))", "legendFormat": "송신", "refId": "B" }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "검증 거부 (/s) — 급증 시 핵 유행 또는 오탐",
+      "description": "거부율이 갑자기 튀면 임계값이 잘못돼 정상 유저를 끊고 있을 가능성부터 의심한다.",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 17 },
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 2, "fillOpacity": 20,
+        "stacking": { "mode": "normal" } } } },
+      "targets": [
+        { "expr": "sum(rate(game_validation_rejected_total[1m])) by (kind)", "legendFormat": "{{kind}}", "refId": "A" }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "세션 종료 사유 (/s)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 25 },
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 2, "fillOpacity": 20,
+        "stacking": { "mode": "normal" } } } },
+      "targets": [
+        { "expr": "sum(rate(game_sessions_closed_total[1m])) by (reason)", "legendFormat": "{{reason}}", "refId": "A" }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "세션 유지 시간 분위수",
+      "description": "진입 직후 이탈이 많으면 p50이 바닥에 붙는다.",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 25 },
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "lineWidth": 2, "fillOpacity": 5 } } },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum(rate(game_session_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p50", "refId": "A" },
+        { "expr": "histogram_quantile(0.95, sum(rate(game_session_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95", "refId": "B" }
+      ]
+    }
+  ]
+}

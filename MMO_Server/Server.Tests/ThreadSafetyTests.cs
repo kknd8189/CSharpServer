@@ -104,9 +104,10 @@ namespace Server.Tests
 		[Fact]
 		public void ServerMetrics_ConcurrentIncrements()
 		{
-			// 카운터 리셋
-			ServerMetrics.ExchangePacketsReceived();
-			ServerMetrics.ExchangePacketsSent();
+			// 프로메테우스 카운터는 단조 증가라 리셋할 수 없다(초당 처리량은 rate()가
+			// 쿼리 시점에 계산한다). 그래서 시작값을 찍어두고 증가분을 검증한다.
+			double startRecv = ServerMetrics.PacketsReceivedValue;
+			double startSent = ServerMetrics.PacketsSentValue;
 
 			int threadCount = 10;
 			int incrementsPerThread = 10000;
@@ -124,11 +125,11 @@ namespace Server.Tests
 
 			Task.WaitAll(tasks);
 
-			long totalRecv = ServerMetrics.ExchangePacketsReceived();
-			long totalSent = ServerMetrics.ExchangePacketsSent();
+			double deltaRecv = ServerMetrics.PacketsReceivedValue - startRecv;
+			double deltaSent = ServerMetrics.PacketsSentValue - startSent;
 
-			Assert.Equal(threadCount * incrementsPerThread, totalRecv);
-			Assert.Equal(threadCount * incrementsPerThread, totalSent);
+			Assert.Equal(threadCount * incrementsPerThread, deltaRecv);
+			Assert.Equal(threadCount * incrementsPerThread, deltaSent);
 		}
 
 		[Fact]

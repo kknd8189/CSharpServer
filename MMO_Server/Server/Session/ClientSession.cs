@@ -25,6 +25,12 @@ namespace Server
         long _pingpongTick = 0;
         public void Ping()
         {
+            // 세션이 이미 끊겼으면 여기서 체인을 끊는다.
+            // 이 검사가 없으면 PushAfter 로 예약된 핑 잡이 종료된 세션에도 계속 돌아
+            // 30초 뒤 "Ping timeout" 경고를 남긴다(이미 끊긴 뒤라 실제 조치는 없고 로그만 노이즈).
+            if (Connected == false)
+                return;
+
             if (_pingpongTick > 0)
             {
                 long delta = (System.Environment.TickCount64 - _pingpongTick);
@@ -132,7 +138,7 @@ namespace Server
 
         public override void OnConnected(EndPoint endPoint)
         {
-            //Console.WriteLine($"OnConnected : {endPoint}");
+            ServerMetrics.IncrementSessionOpened();
 
             if(endPoint is IPEndPoint ipEndPoint)
             {
@@ -167,6 +173,8 @@ namespace Server
             // 세션 종료를 사유와 함께 남긴다. ServerCore 가 아니라 여기서 찍는 이유는
             // AccountDbId / PlayerDbId 같은 게임 컨텍스트가 이 계층에만 있기 때문.
             // 접속 유지 시간은 이탈 분석(진입 직후 이탈 vs 장시간 플레이)에 쓴다.
+            ServerMetrics.RecordSessionClosed(CloseReason, ConnectedSeconds);
+
             Log.ForContext("EventType", "Session")
                .ForContext("CloseReason", CloseReason.ToString())
                .ForContext("AccountDbId", AccountDbId)

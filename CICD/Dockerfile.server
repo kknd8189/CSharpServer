@@ -42,6 +42,9 @@ COPY --from=build --chown=app:app /app/publish .
 # 게임 서버 TCP 포트
 EXPOSE 7777
 
+# 프로메테우스 스크레이프용 메트릭 엔드포인트 (/metrics)
+EXPOSE 9091
+
 # ConfigManager.cs:25 가 "../../../../../Common/config.json" 으로 읽음.
 # WORKDIR /app 에서 5단계 위는 / 이므로 /Common/config.json 으로 해석된다.
 # 실행 시 다음과 같이 마운트:

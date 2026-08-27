@@ -40,6 +40,21 @@ class PacketHandler
 	public static void S_MoveHandler(PacketSession session, IPacket packet)
 	{
 		S_Move movePacket = packet as S_Move;
+		ServerSession serverSession = (ServerSession)session;
+
+		// 내 캐릭터에 대한 S_Move 는 서버의 권위 좌표다.
+		// 이걸 무시하면 서버가 이동을 거부했을 때(벽/점유/검증 실패) 클라만 계속
+		// 자기 좌표를 밀고 나가 서버와 갈라지고, 벌어진 격차가 그대로 다음 이동의
+		// 거리로 잡혀 결국 텔레포트 위반으로 오인된다.
+		// 실제 클라이언트가 반드시 해야 하는 처리이고, 더미도 같아야 부하 테스트가 유효하다.
+		if (movePacket?.PosInfo == null)
+			return;
+		if (movePacket.ObjectId != serverSession.MyPlayerId)
+			return;
+
+		serverSession.PosX = movePacket.PosInfo.PosX;
+		serverSession.PosY = movePacket.PosInfo.PosY;
+		serverSession.PosZ = movePacket.PosInfo.PosZ;
 	}
 
 	public static void S_SkillHandler(PacketSession session, IPacket packet)

@@ -1,0 +1,10 @@
+# 데이터소스를 코드로 프로비저닝한다. 컨테이너를 새로 만들어도 수동 설정이 필요 없다.
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false

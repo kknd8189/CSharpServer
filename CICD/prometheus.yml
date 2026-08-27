@@ -1,0 +1,16 @@
+# 게임서버의 /metrics 를 주기적으로 긁어간다(pull).
+# 서버가 직접 밀어내지 않으므로 프로메테우스가 죽어도 게임 로직은 영향받지 않는다.
+global:
+  scrape_interval: 5s          # 30Hz 틱을 보려면 촘촘해야 한다
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: gameserver
+    static_configs:
+      - targets: ["server:9091"]
+        labels:
+          world: World1
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

@@ -90,6 +90,7 @@ services:
       - server-logs:/app/logs
     ports:
       - "7777:7777"
+      - "9091:9091"      # 프로메테우스 스크레이프용 /metrics
 
 
   # ---------- 모니터링 스택 ----------
@@ -142,9 +143,47 @@ services:
       - server-logs:/logs:ro                 # 서버와 같은 볼륨 (읽기 전용)
       - filebeat-data:/usr/share/filebeat/data   # 읽은 오프셋 보존 → 재시작 시 중복 전송 방지
 
+
+  # ---------- 메트릭 스택 ----------
+  # 성능 지표는 프로메테우스가 /metrics 를 긁어가고(pull), 로그는 위의 ES 로 간다.
+  # "몇 %인가"는 프로메테우스, "누가 언제 무엇을"은 Elasticsearch 로 역할을 나눴다.
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: mmo-prometheus
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=7d
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: mmo-grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"        # 로컬 전용. 외부 노출 시 반드시 끌 것
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_USERS_DEFAULT_THEME: dark
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+
 volumes:
   mariadb-data:
   redis-data:
   server-logs:
   es-data:
+  prometheus-data:
+  grafana-data:
   filebeat-data:

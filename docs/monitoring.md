@@ -1,11 +1,70 @@
-# 모니터링 — Serilog / Filebeat / Elasticsearch / Kibana
+# 관측 — 메트릭은 프로메테우스, 로그는 Elasticsearch
 
-> 게임서버가 남긴 구조화 로그를 Elasticsearch로 모아 Kibana에서 보는 파이프라인.
-> 부하 테스트 결과를 눈으로 확인하는 용도가 1순위다. 부하 생성은 [load-test.md](load-test.md) 참고.
+> 성능 지표(집계값)와 이벤트 로그(개별 사건)를 서로 다른 파이프라인으로 나눈 이유와 구성.
+> 부하 생성은 [load-test.md](load-test.md) 참고.
+
+```
+                    ┌─ 메트릭 (집계값 / "몇 %인가") ────────────────────────┐
+GameServer ──:9091/metrics──◀── scrape ── Prometheus ──▶ Grafana :3000
+  │                                                      틱 p99 / CCU / 처리량
+  │
+  └─ 로그 (개별 사건 / "누가 언제 무엇을") ─────────────────────────────────┐
+       *.jsonl ──▶ Filebeat ──▶ Elasticsearch ──▶ Kibana :5601
+                                 Abuse / Session / Ops
+```
+
+**왜 나눴나.** 한동안 메트릭도 5초마다 로그 한 줄로 ES에 넣었다. 규모가 작아서 동작은
+했지만 결정적인 한계가 있었다 — 서버가 avg/max 를 미리 계산해 내보내므로
+**개별 틱의 분포가 서버 안에서 사라졌고, p99 를 구할 수 없었다.**
+실제로 부하 테스트에서 "틱 최대 기준 400 CCU vs 지속 프레임레이트 기준 600 CCU" 로
+판정이 갈렸는데, 어느 쪽이 맞는지 답할 방법이 없었다. 프로메테우스 히스토그램은
+버킷별 카운터를 그대로 노출하므로 분위수를 쿼리 시점에 계산할 수 있다.
+
+부수적인 차이도 있다. 예전엔 `recv / 5.0` 처럼 **수집 주기가 코드에 박혀 있어서**
+주기를 바꾸면 대시보드 의미가 깨졌다. 프로메테우스는 카운터만 노출하고
+`rate()` 를 쿼리 시점에 계산하므로 그런 결합이 없다.
 
 ---
 
-## 1. 왜 이 구조인가
+## 1. 메트릭 — 프로메테우스
+
+서버는 `MetricServer` 로 `:9091/metrics` 를 열어두기만 하고, 프로메테우스가 5초마다
+긁어간다(pull). 서버가 직접 밀어내지 않으므로 **수집기가 죽어도 게임 로직은 무영향**이다.
+
+| 메트릭 | 타입 | 용도 |
+|---|---|---|
+| `game_tick_duration_seconds` | Histogram | 틱 처리 시간 분포. 30Hz 예산 0.0333초 버킷 포함 |
+| `game_ticks_total{kind}` | Counter | work / idle 틱 수 → `rate()` 로 실측 Hz |
+| `game_players_connected` | Gauge | 동시 접속자 |
+| `game_packets_total{direction}` | Counter | recv / send |
+| `game_validation_rejected_total{kind}` | Counter | 검증 거부 (오탐 감시용) |
+| `game_sessions_closed_total{reason}` | Counter | 종료 사유별 |
+| `game_session_duration_seconds{reason}` | Histogram | 접속 유지 시간 |
+
+**틱 히스토그램 버킷**은 30Hz 예산(33.3ms) 부근을 촘촘히 나눴다. 그래야 이 쿼리가 의미를 갖는다:
+
+```promql
+# 예산을 넘긴 틱의 비율 — 이 값이 유의미하게 커지는 CCU 가 실질적 수용 한계
+1 - (
+  sum(rate(game_tick_duration_seconds_bucket{le="0.0333"}[1m]))
+  / sum(rate(game_tick_duration_seconds_count[1m]))
+)
+
+# 분위수 — 최댓값 하나에 좌우되지 않는다
+histogram_quantile(0.99, sum(rate(game_tick_duration_seconds_bucket[1m])) by (le))
+```
+
+**idle 틱을 분리해 세는 이유**: 처리할 잡이 없어 즉시 끝난 틱을 히스토그램에 넣으면
+분포가 0 쪽으로 쏠려 실제 부하가 가려진다. `game_ticks_total{kind="idle"}` 로 따로 센다.
+
+Grafana 대시보드와 데이터소스는 `CICD/grafana/provisioning/` 에서 **코드로 프로비저닝**된다.
+컨테이너를 새로 만들어도 수동 설정이 필요 없다.
+
+---
+
+## 2. 로그 — Elasticsearch
+
+### 왜 파일을 경유하나
 
 ```
 GameServer ──write──▶ /app/logs/*.jsonl ──tail──▶ Filebeat ──bulk──▶ Elasticsearch ──▶ Kibana
@@ -26,7 +85,7 @@ GameServer ──write──▶ /app/logs/*.jsonl ──tail──▶ Filebeat �
 
 ---
 
-## 2. 서버 쪽 — Serilog 싱크 3개
+### Serilog 싱크 3개
 
 `Server/Program.cs` `Main` 진입부.
 
@@ -60,19 +119,30 @@ Log.Logger = Log.Logger.ForContext("labels.world", Name);  // 커스텀 필드�
 > but found a concrete value` 로 **모든 이벤트가 드롭**됐다.
 > Filebeat 쪽 `expand_keys: true`가 점 표기(`service.name`)를 객체로 펼쳐준다.
 
-### 메트릭 이벤트 분리
+### 이벤트 종류 (EventType)
 
-5초 주기 메트릭은 일반 로그와 섞이면 대시보드를 만들기 어렵다. 태그로 구분한다.
+로그는 종류별로 태깅해 Kibana에서 분리해 본다. 메트릭은 여기 없다 — 프로메테우스로 갔다.
+
+| EventType | 내용 | 남기는 곳 |
+|---|---|---|
+| `Abuse` | 검증 위반 개별 건 (쿨다운/속도/텔레포트, 비정상 패킷 크기) | `GameRoom_Validation`, `PacketSession` |
+| `Session` | 세션 종료 사유 + 유지 시간 | `ClientSession.OnDisconnected` |
+| `Net` | 소켓 I/O 오류, accept 실패 | `ServerCore` (CoreLogger) |
+| `Ops` | 기동/종료, DLQ, Redis 끊김 | `Program.cs` |
 
 ```csharp
-Log.ForContext("EventType", "Metrics").Information("[Metrics] ...", ...);
+Log.ForContext("EventType", "Abuse")
+   .ForContext("ViolationKind", kind.ToString())
+   .ForContext("PlayerDbId", player.PlayerDbId)
+   .Warning("Teleport attempt. From={From} To={To} Distance={Distance}", ...);
 ```
 
-Kibana에서 `EventType: Metrics` 로 필터링해 차트를 그린다.
+`ServerCore` 는 외부 의존성 0 을 유지해야 하므로 Serilog 를 직접 참조하지 않는다.
+`CoreLogger.Sink` 델리게이트만 노출하고 `Program.cs` 가 Serilog 를 꽂으며,
+이때 category 가 `EventType` 으로 승격된다.
 
 ---
-
-## 3. Filebeat 설정 (`CICD/filebeat.yml`)
+### Filebeat 설정 (`CICD/filebeat.yml`)
 
 ```yaml
 filebeat.inputs:
@@ -101,20 +171,6 @@ setup.template.pattern: "mmo-server*"    # "mmo-server-*" 로 두면 매칭 실�
 > 매칭되지 않아 `no matching index template found for data stream [mmo-server]` 400,
 > 이벤트가 전부 드롭됐다.
 
-### 메트릭 필드 타입 명시
-
-```yaml
-setup.template.append_fields:
-  - { name: PacketsRecvPerSec, type: double }
-  - { name: TickMaxUs,         type: long }
-  ...
-```
-
-> **겪은 문제**: 동적 매핑에 맡기면 **첫 문서의 값**으로 타입이 굳는다.
-> `PacketsRecvPerSec`는 `recv / 5.0`이라 소수인데, 서버가 유휴일 때 첫 값이 `0`이면
-> `long`으로 잡히고 이후 `1234.6`이 들어와도 소수점이 잘린다. 부하 테스트 그래프가
-> 왜곡되므로 타입을 명시한다.
-
 ### 타임스탬프
 
 ```yaml
@@ -127,7 +183,7 @@ processors:
 
 ---
 
-## 4. 실행
+## 3. 실행
 
 ```bash
 docker compose -f CICD/docker-compose.yml up -d --build
@@ -135,18 +191,21 @@ docker compose -f CICD/docker-compose.yml up -d --build
 
 | 서비스 | 포트 | 확인 |
 |---|---|---|
-| Elasticsearch | 9200 | `curl localhost:9200/_cat/indices/*mmo-server*?v` |
+| **Grafana** | 3000 | 대시보드 `MMO Server` 자동 등록 (익명 열람 허용) |
+| **Prometheus** | 9090 | `curl localhost:9090/api/v1/targets` → gameserver `health:"up"` |
+| GameServer `/metrics` | 9091 | `curl localhost:9091/metrics \| grep game_` |
 | Kibana | 5601 | 브라우저에서 열기 |
+| Elasticsearch | 9200 | `curl localhost:9200/_cat/indices/*mmo-server*?v` |
 | Filebeat | — | `docker logs mmo-filebeat` |
 
-Kibana 데이터 뷰(최초 1회):
+Grafana는 데이터소스·대시보드가 프로비저닝되므로 **수동 설정이 없다**.
+Kibana 데이터 뷰만 최초 1회 만들면 된다:
 
 ```bash
 curl -X POST "http://localhost:5601/api/data_views/data_view" \
   -H 'kbn-xsrf: true' -H 'Content-Type: application/json' \
   -d '{"data_view":{"title":"mmo-server","name":"MMO Server Logs","timeFieldName":"@timestamp"}}'
 ```
-
 ### 컨테이너 로그 디렉토리 권한
 
 서버는 비루트(`app`, uid 1654)로 돈다. `Dockerfile.server`에서 마운트 지점을
@@ -163,23 +222,33 @@ RUN mkdir -p /app/logs && chown app:app /app/logs
 
 ---
 
-## 5. 대시보드에서 볼 것
+## 4. 대시보드에서 볼 것
 
-| 패널 | 필드 | 의미 |
+**Grafana** (성능) — `MMO Server` 대시보드
+
+| 패널 | 쿼리 | 의미 |
 |---|---|---|
-| CCU | `Players` | 동시 접속자 추이 |
-| **틱 최대 시간** | `TickMaxUs` | 30Hz = 33,000us 예산. 초과하면 프레임이 밀린 것 |
-| 틱 평균 | `TickAvgUs` | 여유율. 평균이 낮아도 Max가 튀면 스파이크 존재 |
-| 패킷 처리량 | `PacketsRecvPerSec` / `PacketsSentPerSec` | 부하 대비 처리량 |
-| Idle/Work 비율 | `IdleTicks` vs `WorkTicks` | 서버가 놀고 있는지 |
-| 경고 이상 | `@l: Warning` | DLQ 덤프, DB 스레드 종료 실패 등 |
+| **틱 p50/p95/p99** | `histogram_quantile(...)` | 최댓값 하나에 좌우되지 않는 실제 분포 |
+| **예산 초과 비율** | `1 - rate(bucket{le="0.0333"}) / rate(count)` | **이 값이 유의미해지는 CCU 가 수용 한계** |
+| 실측 틱 Hz | `rate(game_ticks_total)` | 목표 30Hz. 떨어지면 게임이 실제로 느려진 것 |
+| 동시 접속자 | `game_players_connected` | CCU |
+| 패킷 처리량 | `rate(game_packets_total)` by direction | 송신이 수신보다 가파르면 브로드캐스트 팬아웃 |
+| 검증 거부 | `rate(game_validation_rejected_total)` by kind | **급증 = 핵 유행 또는 오탐** |
+| 세션 종료 사유 | `rate(game_sessions_closed_total)` by reason | Kicked / SlowClient 비중 |
 
-부하 테스트 시 **`TickMaxUs`가 33,000을 넘는 시점의 `Players` 값**이 사실상
-이 서버의 수용 한계다. 이 그래프가 CCU 주장의 근거가 된다.
+**Kibana** (사건) — `mmo-server` 데이터 뷰
 
----
+| 질문 | 쿼리 |
+|---|---|
+| 어떤 어뷰저가 있나 | `EventType: Abuse` → `PlayerDbId` 로 terms 집계 |
+| 이 유저 왜 튕겼나 | `EventType: Session AND AccountDbId: 1234` |
+| 조작 패킷이 들어왔나 | `EventType: Abuse AND PacketSize > 10240` |
+| 서버에 오류가 있었나 | `@l: Warning` 이상 |
 
-## 6. 남은 것
+역할 구분이 핵심이다 — **"몇 %인가"는 Grafana, "누가 언제 무엇을"은 Kibana.**
+검증 위반은 양쪽 다 간다: 비율은 메트릭, 개별 건은 로그.
+
+## 5. 남은 것
 
 - **ILM** — 로컬은 `setup.ilm.enabled: false`로 껐다. 장기 운영하려면 hot 7d → delete 30d 정책 필요
 - **보안** — `xpack.security.enabled=false`는 로컬 전용. 외부 노출 시 반드시 켤 것
@@ -187,3 +256,6 @@ RUN mkdir -p /app/logs && chown app:app /app/logs
   ES로 복제하면 분석은 편해지지만 정합성 기준은 DB가 유지해야 한다
 - **AccountServer** — 현재 파이프라인은 GameServer만 수집한다. ASP.NET Core 쪽도
   같은 방식(Serilog CLEF → 같은 볼륨)으로 붙일 수 있다
+- **알럿** — Alertmanager 미구성. 예산 초과 비율이나 검증 거부율이 임계를 넘으면
+  알림이 가야 한다
+- **Grafana 익명 접근** — `GF_AUTH_ANONYMOUS_ENABLED=true` 는 로컬 전용

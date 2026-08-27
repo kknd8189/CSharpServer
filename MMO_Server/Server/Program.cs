@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Prometheus;
 using Serilog;
 using Serilog.Formatting.Compact;
 using Server.Data;
@@ -32,7 +33,7 @@ namespace Server
         private static Thread _logDbThread;
 
         private static System.Timers.Timer _busyCheckTimer = new System.Timers.Timer();
-        private static System.Timers.Timer _metricsLogTimer = new System.Timers.Timer();
+        private static System.Timers.Timer _gaugeRefreshTimer = new System.Timers.Timer();
 
         // Windows 의 기본 timer 정밀도(15.625ms) 를 1ms 로 끌어올림.
         // Thread.Sleep / PeriodicTimer 등 모든 시간 대기가 ms 단위로 정확해짐 → 30Hz fixed timestep 정밀도 확보.
@@ -51,7 +52,7 @@ namespace Server
 
             //타이머 종료
             _busyCheckTimer.Stop();
-            _metricsLogTimer.Stop();
+            _gaugeRefreshTimer.Stop();
 
 
             //2. 유저 안내 및 쫓아내기
@@ -189,27 +190,29 @@ namespace Server
             return new IPEndPoint(IPAddress.Any, Port);
         }
 
-        static void StartMetricsLoggingTask()
-        {
-            _metricsLogTimer.AutoReset = true;
-            _metricsLogTimer.Interval = 5000;
-            _metricsLogTimer.Elapsed += (s, e) =>
-            {
-                long recv = ServerMetrics.ExchangePacketsReceived();
-                long sent = ServerMetrics.ExchangePacketsSent();
-                var (tickAvgUs, tickMaxUs, workTicks, idleTicks) = ServerMetrics.ExchangeTickStats();
-                int players = SessionManager.Instance.GetPlayerCount();
-                var rejected = ServerMetrics.ExchangeValidationRejected();
+        private static MetricServer _metricServer;
 
-                // EventType=Metrics 태그 → Kibana에서 일반 로그와 분리해 차트로 그린다.
-                // 메시지 템플릿의 프로퍼티들은 JSON 싱크에서 각각 독립 필드가 되므로
-                // TickMaxUs 같은 값이 문자열이 아닌 숫자로 색인된다.
-                Log.ForContext("EventType", "Metrics").Information(
-                    "[Metrics] PacketsRecv/s={PacketsRecvPerSec:F1} PacketsSent/s={PacketsSentPerSec:F1} TickAvg={TickAvgUs}us TickMax={TickMaxUs}us WorkTicks={WorkTicks} IdleTicks={IdleTicks} Players={Players} RejSkill={RejectedSkillCooldown} RejSpeed={RejectedMoveSpeed} RejTeleport={RejectedTeleport}",
-                    recv / 5.0, sent / 5.0, tickAvgUs, tickMaxUs, workTicks, idleTicks, players,
-                    rejected.SkillCooldown, rejected.MoveSpeed, rejected.Teleport);
+        // 메트릭은 프로메테우스가 주기적으로 긁어간다(pull).
+        // 서버가 직접 밀어내지 않으므로 수집기가 죽어도 게임 로직에 영향이 없고,
+        // rate() 계산이 쿼리 시점에 이뤄져 수집 주기를 바꿔도 대시보드가 깨지지 않는다.
+        static void StartMetricServer(int port)
+        {
+            _metricServer = new MetricServer(hostname: "+", port: port);
+            _metricServer.Start();
+            Log.Information("Metric server started. Port={MetricPort} Path=/metrics", port);
+        }
+
+        // 게이지는 "현재 값"이라 누군가 갱신해줘야 한다.
+        // 카운터/히스토그램은 발생 시점에 직접 올리므로 여기서 다루지 않는다.
+        static void StartGaugeRefreshTask()
+        {
+            _gaugeRefreshTimer.AutoReset = true;
+            _gaugeRefreshTimer.Interval = 5000;
+            _gaugeRefreshTimer.Elapsed += (s, e) =>
+            {
+                ServerMetrics.SetPlayersConnected(SessionManager.Instance.GetPlayerCount());
             };
-            _metricsLogTimer.Start();
+            _gaugeRefreshTimer.Start();
         }
 
         static void Main(string[] args)
@@ -292,7 +295,8 @@ namespace Server
             Log.Information("Server started. World={WorldName} Port={Port} IP={IpAddress}", Name, Port, IpAddress);
 
             StartServerInfoTask();
-            StartMetricsLoggingTask();
+            StartGaugeRefreshTask();
+            StartMetricServer(9091);
 
             // DbTask
             {
