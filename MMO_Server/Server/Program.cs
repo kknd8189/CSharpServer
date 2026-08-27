@@ -199,13 +199,15 @@ namespace Server
                 long sent = ServerMetrics.ExchangePacketsSent();
                 var (tickAvgUs, tickMaxUs, workTicks, idleTicks) = ServerMetrics.ExchangeTickStats();
                 int players = SessionManager.Instance.GetPlayerCount();
+                var rejected = ServerMetrics.ExchangeValidationRejected();
 
                 // EventType=Metrics 태그 → Kibana에서 일반 로그와 분리해 차트로 그린다.
                 // 메시지 템플릿의 프로퍼티들은 JSON 싱크에서 각각 독립 필드가 되므로
                 // TickMaxUs 같은 값이 문자열이 아닌 숫자로 색인된다.
                 Log.ForContext("EventType", "Metrics").Information(
-                    "[Metrics] PacketsRecv/s={PacketsRecvPerSec:F1} PacketsSent/s={PacketsSentPerSec:F1} TickAvg={TickAvgUs}us TickMax={TickMaxUs}us WorkTicks={WorkTicks} IdleTicks={IdleTicks} Players={Players}",
-                    recv / 5.0, sent / 5.0, tickAvgUs, tickMaxUs, workTicks, idleTicks, players);
+                    "[Metrics] PacketsRecv/s={PacketsRecvPerSec:F1} PacketsSent/s={PacketsSentPerSec:F1} TickAvg={TickAvgUs}us TickMax={TickMaxUs}us WorkTicks={WorkTicks} IdleTicks={IdleTicks} Players={Players} RejSkill={RejectedSkillCooldown} RejSpeed={RejectedMoveSpeed} RejTeleport={RejectedTeleport}",
+                    recv / 5.0, sent / 5.0, tickAvgUs, tickMaxUs, workTicks, idleTicks, players,
+                    rejected.SkillCooldown, rejected.MoveSpeed, rejected.Teleport);
             };
             _metricsLogTimer.Start();
         }

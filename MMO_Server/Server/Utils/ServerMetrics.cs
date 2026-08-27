@@ -18,6 +18,37 @@ namespace Server
 		public static void IncrementPacketsReceived() => Interlocked.Increment(ref _packetsReceived);
 		public static void IncrementPacketsSent() => Interlocked.Increment(ref _packetsSent);
 
+		// 검증 거부 카운터. 개별 위반의 "누가/언제"는 로그가 담당하고,
+		// 여기서는 "비율"만 본다. 거부율이 갑자기 튀면 둘 중 하나다 —
+		// 핵이 유행했거나, 우리 임계값이 잘못돼 정상 유저를 끊고 있거나.
+		// 후자가 훨씬 흔하고 더 치명적이라 배포 직후 반드시 확인해야 한다.
+		private static long _rejectedSkillCooldown;
+		private static long _rejectedMoveSpeed;
+		private static long _rejectedTeleport;
+
+		public static void IncrementValidationRejected(Game.GameRoom.ViolationKind kind)
+		{
+			switch (kind)
+			{
+				case Game.GameRoom.ViolationKind.SkillCooldown:
+					Interlocked.Increment(ref _rejectedSkillCooldown);
+					break;
+				case Game.GameRoom.ViolationKind.MoveSpeed:
+					Interlocked.Increment(ref _rejectedMoveSpeed);
+					break;
+				case Game.GameRoom.ViolationKind.Teleport:
+					Interlocked.Increment(ref _rejectedTeleport);
+					break;
+			}
+		}
+
+		public static (long SkillCooldown, long MoveSpeed, long Teleport) ExchangeValidationRejected()
+		{
+			return (Interlocked.Exchange(ref _rejectedSkillCooldown, 0),
+					Interlocked.Exchange(ref _rejectedMoveSpeed, 0),
+					Interlocked.Exchange(ref _rejectedTeleport, 0));
+		}
+
 		public static void RecordTick(long elapsedSwTicks)
 		{
 			if (elapsedSwTicks <= 0)

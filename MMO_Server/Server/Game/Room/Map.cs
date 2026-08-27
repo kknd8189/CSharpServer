@@ -96,6 +96,10 @@ namespace Server.Game
 		public float magnitude { get { return (float)Math.Sqrt(sqrMagnitude); } }
 		public int sqrMagnitude { get { return (x * x + y * y + z * z); } }
 		public int cellDistFromZero { get { return Math.Abs(x) + Math.Abs(y) + Math.Abs(z); } }
+
+		// 기본 ToString 은 타입명("Server.Game.Vector3Int")만 찍혀서
+		// 위반 로그에 좌표가 안 남는다. 로그로 추적하려면 값이 보여야 한다.
+		public override string ToString() { return $"({x},{y},{z})"; }
 	}
 
 	public class Map

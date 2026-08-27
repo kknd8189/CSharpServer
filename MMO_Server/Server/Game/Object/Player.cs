@@ -13,6 +13,27 @@ namespace Server.Game
 		// 주기 저장(GameRoom.SaveTick) 대상 여부. 게임 스레드에서만 접근하므로 동기화 불필요
 		public bool IsDirty { get; set; }
 
+		#region 서버 검증 상태
+		// 아래 값들은 GameRoom 잡 큐를 통해 게임 스레드에서만 접근하므로 동기화가 필요 없다.
+
+		// 스킬 쿨다운이 풀리는 시각. Monster._coolTick 과 같은 방식.
+		public long NextSkillTick;
+
+		// 이동 예산(토큰 버킷)을 마지막으로 적립한 시각.
+		public long LastMoveTick;
+
+		// 남은 이동 가능 셀 수. 경과 시간 × Speed 만큼 적립되고 이동할 때마다 차감된다.
+		// 매 이동을 독립적으로 "경과시간 × 속도" 와 비교하지 않는 이유:
+		// 서버 틱이 밀리면(부하 테스트에서 700 CCU 기준 최대 257ms 관측) 클라가 그 사이
+		// 정상적으로 보낸 이동 패킷들이 한꺼번에 처리되면서 "0.001초에 3칸"처럼 보인다.
+		// 예산 방식은 밀린 시간만큼 미리 적립돼 있으므로 이 버스트를 흡수한다.
+		public float MoveBudget;
+
+		// 누적 어뷰징 점수. 시간이 지나면 감쇠하며, 임계를 넘으면 조치 대상.
+		public float AbuseScore;
+		public long LastAbuseTick;
+		#endregion
+
 		public Inventory Inven { get; private set; } = new Inventory();
 
 		public int WeaponDamage { get; private set; }

@@ -157,6 +157,14 @@ namespace Server.Game
 
 				player.RefreshAdditionalStat();
 
+				// 검증 상태 초기화. 예산을 가득 채운 상태로 시작해야
+				// 접속 직후 첫 이동들이 오탐으로 걸리지 않는다.
+				player.LastMoveTick = System.Environment.TickCount64;
+				player.MoveBudget = player.Speed * 1.0f;
+				player.NextSkillTick = 0;
+				player.AbuseScore = 0;
+				player.LastAbuseTick = 0;
+
 				Map.ApplyMove(player, new Vector3Int(player.CellPos.x, player.CellPos.y, player.CellPos.z));
 				GetZone(player.CellPos).Players.Add(player);
 
