@@ -98,7 +98,8 @@ cd CSharpServer
 | 5 | **GracefulShutdown + DLQ** | 정상 종료 시 잔여 잡 flush, 실패 잡은 DLQ로 집계 | [docs/graceful-shutdown.md](docs/graceful-shutdown.md) |
 | 6 | **부하 테스트 1000 CCU** | DummyClient 점진적 부하 + Serilog 메트릭 자동 수집 + 병목 분석 | [docs/load-test.md](docs/load-test.md) |
 | 7 | **Docker / CI** | 7개 컨테이너 Compose 원샷 기동, GitHub Actions로 build+test 자동화 | [docs/deployment.md](docs/deployment.md) |
-| 8 | **ES 모니터링 파이프라인** | Serilog CLEF → Filebeat → Elasticsearch → Kibana. 서버는 파일에만 기록해 ES 장애와 분리 | [docs/monitoring.md](docs/monitoring.md) |
+| 8 | **관측 계층 분리** | 메트릭은 프로메테우스(틱 히스토그램 p99), 로그는 ES. 서버는 파일에만 기록해 수집기 장애와 분리 | [docs/monitoring.md](docs/monitoring.md) |
+| 9 | **서버 검증 + 확률 검증** | 쿨다운/속도/텔레포트 검증에 오탐 방지(누적 점수·서버 기인 이동 구분), 드랍 확률 통계 검증 | [docs/monitoring.md](docs/monitoring.md) |
 
 ---
 
@@ -173,4 +174,5 @@ GitHub Actions CI에서 매 push마다 `dotnet build + test`가 ubuntu-latest �
 - [docs/graceful-shutdown.md](docs/graceful-shutdown.md) — 정상 종료 시퀀스
 - [docs/load-test.md](docs/load-test.md) — 부하 테스트 결과
 - [docs/deployment.md](docs/deployment.md) — Docker / CI / 운영 스크립트
-- [docs/monitoring.md](docs/monitoring.md) — Serilog / Filebeat / Elasticsearch / Kibana
+- [docs/monitoring.md](docs/monitoring.md) — 메트릭(프로메테우스/그라파나) · 로그(ES/Kibana) · 확률 검증
+- [docs/ai-workflow.md](docs/ai-workflow.md) — Claude Code 로 관측 계층을 만든 방식과 그 과정에서 찾은 버그들

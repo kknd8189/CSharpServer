@@ -125,6 +125,7 @@ Log.Logger = Log.Logger.ForContext("labels.world", Name);  // 커스텀 필드�
 
 | EventType | 내용 | 남기는 곳 |
 |---|---|---|
+| `Play` | 로그인, 아이템 지급, 확률 추첨 결과 | `LogHelper` |
 | `Abuse` | 검증 위반 개별 건 (쿨다운/속도/텔레포트, 비정상 패킷 크기) | `GameRoom_Validation`, `PacketSession` |
 | `Session` | 세션 종료 사유 + 유지 시간 | `ClientSession.OnDisconnected` |
 | `Net` | 소켓 I/O 오류, accept 실패 | `ServerCore` (CoreLogger) |
@@ -261,17 +262,85 @@ RUN mkdir -p /app/logs && chown app:app /app/logs
 역할 구분이 핵심이다 — **"몇 %인가"는 Grafana, "누가 언제 무엇을"은 Kibana.**
 검증 위반은 양쪽 다 간다: 비율은 메트릭, 개별 건은 로그.
 
-## 5. 남은 것
+## 5. 플레이 로그 — 왜 DB와 ES 양쪽에 쓰나
+
+로그인·아이템 지급 같은 게임 플레이 로그는 **두 곳으로 나간다**.
+
+| | MariaDB `LogDb` | Elasticsearch |
+|---|---|---|
+| 역할 | 감사·정산 **원본** | 분석·조회 **복제본** |
+| 강점 | "이 유저에게 무엇을 줬는가"를 정확히 보관. DLQ까지 붙어 유실 최소화 | "지난 한 시간 동안 아이템 3번이 몇 번 나왔나" 같은 집계/탐색 |
+| 유실 시 | 치명적 | 원본이 DB에 남아 복구 가능 |
+
+정산 근거를 ES에 두면 안 되고, 분석할 때마다 운영 DB를 긁어도 안 된다.
+쓰기 순서는 **DB가 먼저**다. 로그 싱크가 느리거나 막혀도 감사 원본이 밀리지 않게.
+
+### 확률 추첨 로그 — 당첨만 남기면 검증이 불가능하다
+
+`LogHelper.LogItemRoll` 은 **당첨과 미당첨을 모두** 기록한다.
+
+당첨만 남기면 분모(시행 횟수)를 알 수 없어 "실제 확률이 설정값과 맞는가"에 답할 수 없다.
+가챠·드랍 확률 논란은 이 로그로만 해소된다.
+
+```csharp
+// 당첨
+LogHelper.LogItemRoll(playerDbId, TemplateId, roll, rewardData.itemId, probability, "MonsterDrop");
+// 미당첨 — 이것도 반드시 남긴다
+LogHelper.LogItemRoll(playerDbId, TemplateId, roll, null, sum, "MonsterDrop");
+```
+
+DB에는 넣지 않는다. 시행 횟수가 당첨보다 훨씬 많고, 정산 근거는 추첨 시행이 아니라
+실제 지급 기록(`log_reward`)이기 때문이다.
+
+### 검증 쿼리
+
+```bash
+# 항목별 실측 당첨 횟수
+curl -s "localhost:9200/mmo-server/_search" -H 'Content-Type: application/json' -d '{
+  "size": 0,
+  "query": { "term": { "PlayKind": "ItemRoll" } },
+  "aggs": {
+    "hit":    { "terms": { "field": "Hit" } },
+    "byitem": { "terms": { "field": "RolledItemId" } }
+  }
+}'
+```
+
+실측 결과 (300 CCU, 180초, 시행 1,646회 / 설정 10%×5종 = 합 50%):
+
+| itemId | 설정 | 실측 | 실측 확률 | 편차 |
+|---|---|---|---|---|
+| 1 | 10% | 173 | 10.51% | +0.69σ |
+| 2 | 10% | 181 | 11.00% | +1.35σ |
+| 100 | 10% | 163 | 9.90% | −0.13σ |
+| 101 | 10% | 148 | 8.99% | −1.36σ |
+| 200 | 10% | 164 | 9.96% | −0.05σ |
+
+전체 당첨률 50.36% (설정 50%, 편차 0.30σ). 전 항목 2σ 이내.
+
+> **이 로그로 잡은 버그**: 원래 `Next(0, 101)` 로 0~100 을 뽑고 `rand <= sum` 으로
+> 비교했다. 경우의 수가 101 개인데 확률은 100 분율이라 어긋난다.
+> `probability=1`(1% 의도)이면 당첨은 `rand ∈ {0,1}` → **2/101 ≈ 1.98%로 약 2배**.
+> 저확률 아이템일수록 오차가 커지는, 가챠 게임에선 치명적인 형태였다.
+> `Next(1, 101)` 로 교정.
+
+---
+
+## 6. 남은 것
 
 - **ILM** — 로컬은 `setup.ilm.enabled: false`로 껐다. 장기 운영하려면 hot 7d → delete 30d 정책 필요
 - **보안** — `xpack.security.enabled=false`는 로컬 전용. 외부 노출 시 반드시 켤 것
-- **게임 로그(LogDb)** — 로그인/보상 로그는 감사 목적이라 MariaDB에 그대로 둔다.
-  ES로 복제하면 분석은 편해지지만 정합성 기준은 DB가 유지해야 한다
+- **가챠 시스템** — 지금 확률 추첨은 몬스터 드랍뿐이다. 실제 가챠(천장, 픽업,
+  10연차)를 붙이려면 패킷 스키마 추가가 필요하고, 그건 Google Sheets 에서 정의를
+  수정한 뒤 PacketGenerator 로 재생성해야 한다
 - **AccountServer** — 현재 파이프라인은 GameServer만 수집한다. ASP.NET Core 쪽도
   같은 방식(Serilog CLEF → 같은 볼륨)으로 붙일 수 있다
 - **알럿** — Alertmanager 미구성. 예산 초과 비율이나 검증 거부율이 임계를 넘으면
   알림이 가야 한다
 - **Grafana 익명 접근** — `GF_AUTH_ANONYMOUS_ENABLED=true` 는 로컬 전용
+
+---
+
 
 ---
 
