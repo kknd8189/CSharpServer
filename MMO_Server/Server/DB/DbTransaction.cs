@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Server.Data;
+using Server.DB.LogDB;
 using Server.Game;
 using System;
 using System.Collections.Concurrent;
@@ -158,7 +159,9 @@ namespace Server.DB
 
 		}
 
-		public static void RewardPlayer(Player player, RewardData rewardData, GameRoom room)
+		// reason: 이 아이템이 어디서 나왔는지(MonsterDrop / Quest / Gacha ...).
+		// 정산·문의 대응에서 "왜 받았는가"를 답하려면 지급 기록에 출처가 있어야 한다.
+		public static void RewardPlayer(Player player, RewardData rewardData, GameRoom room, string reason)
 		{
 			if (player == null || rewardData == null || room == null)
 				return;
@@ -227,6 +230,13 @@ namespace Server.DB
 
 							Item newItem = Item.MakeItem(itemDb);
 							player.Inven.Add(newItem);
+
+							// 지급이 "확정된" 시점에만 기록한다.
+							// Step1(요청)이나 Step2(DB 저장) 시점에 남기면, 인벤이 가득 차
+							// ghost item 을 되돌리는 경로에서 실제로는 안 준 아이템이
+							// 지급 로그에 남아 정산이 어긋난다.
+							LogHelper.LogReward(player.PlayerDbId, itemDb.TemplateId,
+								itemDb.Count, reason);
 
 							// Client Noti
 							{

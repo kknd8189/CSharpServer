@@ -94,7 +94,11 @@ namespace Server.Game
 						GameObject target = Map.Find(skillPos);
 						if (target != null)
 						{
-							// hit 처리 자리 (현재는 no-op). 부하 테스트 시 콘솔 도배 방지로 로그 제거.
+							// 여기가 오래 비어 있었다(// hit 처리 자리). 몬스터는 Monster.UpdateSkill 에서
+							// _target.OnDamaged 를 부르는데 플레이어 쪽만 no-op 이라, 플레이어가
+							// Auto 스킬로 몬스터를 죽일 수 없었다 → 드랍/보상 경로 자체가 죽어 있었다.
+							// 데미지 값은 서버가 DataManager 에서 읽어 계산하므로 클라가 조작할 수 없다.
+							target.OnDamaged(player, skillData.damage + player.TotalAttack);
 						}
 					}
 					break;

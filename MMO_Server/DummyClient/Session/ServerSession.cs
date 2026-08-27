@@ -122,6 +122,23 @@ public class ServerSession : PacketSession
 
 	private void OnSkillTick(object sender, ElapsedEventArgs e)
 	{
+		// 서버 HandleSkill 은 State == Idle 일 때만 시전을 허용한다.
+		// 그런데 OnMoveTick 이 매번 State=Moving 을 보내므로, 이걸 안 하면
+		// 더미의 스킬이 100% 상태 게이트에서 거부된다 —
+		// 실제로 그 상태에서는 몬스터가 한 마리도 죽지 않아 드랍 경로가 통째로 잠들어 있었다.
+		// 진짜 클라이언트도 공격하려면 멈춘다. 같은 순서로 보낸다.
+		Send(new C_Move
+		{
+			PosInfo = new PositionInfo
+			{
+				State = CreatureState.Idle,
+				MoveDir = MoveDir.Right,
+				PosX = PosX,
+				PosY = PosY,
+				PosZ = PosZ,
+			}
+		});
+
 		C_Skill skillPacket = new C_Skill
 		{
 			Info = new SkillInfo { SkillId = 1 }

@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using MySqlConnector;
+using Serilog;
 using Server.Data;
 using System;
 using System.Collections.Concurrent;
@@ -173,16 +174,33 @@ namespace Server.DB.LogDB
 
         public void StopAcceptingJobs() => _logQueue.CompleteAdding();
     }
+    // 게임 플레이 로그는 두 곳으로 나간다.
+    //
+    //  - MariaDB LogDb  : 감사/정산 원본. 정합성 기준은 항상 여기다.
+    //                     DLQ 까지 붙여 유실을 최소화한다.
+    //  - Serilog(jsonl) → Filebeat → ES : 분석/조회용 복제본.
+    //                     유실돼도 원본이 DB 에 남으므로 치명적이지 않다.
+    //
+    // 왜 굳이 둘 다 쓰나: DB 는 "이 유저에게 무엇을 줬는가"를 정확히 보관하는 데 강하고,
+    // ES 는 "지난 한 시간 동안 아이템 3번이 몇 번 나왔나" 같은 집계/탐색에 강하다.
+    // 정산 근거를 ES 에 두면 안 되고, 분석할 때마다 운영 DB 를 긁어도 안 된다.
+    //
+    // 순서는 DB 먼저다. 로그 싱크가 느리거나 막혀도 감사 원본이 밀리지 않게 한다.
     public static class LogHelper
     {
-        public static void LogLogin(int playerDbId, bool isLogin, string ipAddress)
+        const string EventTypePlay = "Play";
+
+        // 로그인 시점에는 아직 캐릭터를 고르기 전이라 계정 단위로만 남길 수 있다.
+        // (DB 컬럼명이 PlayerDbId 인데 실제로 들어가는 값은 AccountDbId 다.
+        //  스키마를 바꾸려면 마이그레이션이 필요해 일단 두고, ES 쪽은 올바른 이름으로 남긴다.)
+        public static void LogLogin(int accountDbId, bool isLogin, string ipAddress)
         {
             var log = new Log_LoginDb
             {
-                PlayerDbId = playerDbId,
+                PlayerDbId = accountDbId,
                 IsLogin = isLogin,
                 IpAddress = ipAddress,
-                Timestamp = DateTime.Now 
+                Timestamp = DateTime.Now
             };
 
             string sql = @"
@@ -191,6 +209,11 @@ namespace Server.DB.LogDB
 
             // 3. 람다 없이 아주 깔끔하게 큐에 밀어 넣기! (비동기 처리)
             LogTransaction.Instance.Push(sql, log);
+
+            Log.ForContext("EventType", EventTypePlay)
+               .ForContext("PlayKind", "Login")
+               .Information("Login. AccountDbId={AccountDbId} Success={Success} Ip={Ip}",
+                   accountDbId, isLogin, ipAddress);
         }
 
         public static void LogReward(int playerDbId, int itemId, int count, string reason)
@@ -208,6 +231,28 @@ namespace Server.DB.LogDB
                 " VALUES (@PlayerDbId, @ItemId, @Count, @Reason, @Timestamp)";
 
             LogTransaction.Instance.Push(sql, log);
+
+            Log.ForContext("EventType", EventTypePlay)
+               .ForContext("PlayKind", "ItemGain")
+               .Information("Item gained. PlayerDbId={PlayerDbId} ItemId={ItemId} Count={Count} Reason={Reason}",
+                   playerDbId, itemId, count, reason);
+        }
+
+        // 확률 추첨 결과. 당첨/미당첨을 모두 남기는 게 핵심이다.
+        // 당첨만 남기면 "실제 확률이 설정값과 맞는가"를 검증할 수 없다 —
+        // 분모(시행 횟수)를 모르기 때문. 가챠/드랍 확률 논란은 이 로그로만 답할 수 있다.
+        //
+        // DB 에는 넣지 않는다. 시행 횟수가 당첨보다 훨씬 많고, 정산 근거는
+        // 실제 지급 기록(log_reward)이지 추첨 시행 자체가 아니기 때문.
+        public static void LogItemRoll(int playerDbId, int sourceId, int roll,
+                                       int? itemId, int probability, string reason)
+        {
+            Log.ForContext("EventType", EventTypePlay)
+               .ForContext("PlayKind", "ItemRoll")
+               .ForContext("Hit", itemId.HasValue)
+               .Information(
+                   "Item roll. PlayerDbId={PlayerDbId} SourceId={SourceId} Roll={Roll} ItemId={RolledItemId} Probability={Probability} Reason={Reason}",
+                   playerDbId, sourceId, roll, itemId ?? 0, probability, reason);
         }
     }
 
