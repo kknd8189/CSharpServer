@@ -29,7 +29,9 @@ namespace Server
                 long delta = (System.Environment.TickCount64 - _pingpongTick);
                 if (delta > 30 * 1000)
                 {
-                    Console.WriteLine("Disconnected by PingCheck");
+                    CoreLogger.Warn("Session",
+                        "Ping timeout. Delta={DeltaMs}ms Limit={LimitMs}ms AccountId={AccountId} Remote={Remote}",
+                        delta, 30 * 1000, AccountDbId, RemoteAddress);
                     Disconnect();
                     return;
                 }
@@ -49,7 +51,6 @@ namespace Server
         #region Network
         // 커스텀 제너레이터의 패킷 최대 크기. CLAUDE.md 기준 10KB 한도.
         // Write 전에 사이즈를 못 구하므로 한도만큼 예약 후 Close로 실제 사용분만 커밋.
-        private const int MaxPacketSize = 10 * 1024;
 
         // IPacket을 SendBuffer에 "1회" 직렬화해 공유 가능한 세그먼트로 반환.
         // 반환 세그먼트는 여러 세션 큐에 그대로 넣어도 안전(쓰기 없음, 읽기 전용 공유).
@@ -83,7 +84,7 @@ namespace Server
             ArraySegment<byte> pendingBuffer = SerializeToSendBuffer(packet);
             if (pendingBuffer.Array == null)
             {
-                Console.WriteLine($"[Error] SendBuffer Open Failed. Reserved: {MaxPacketSize}");
+                CoreLogger.Warn("Net", "SendBuffer open failed. Reserved={Reserved} Remote={Remote}", MaxPacketSize, RemoteAddress);
                 return;
             }
 

@@ -59,7 +59,7 @@ namespace ServerCore
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                CoreLogger.Error("Net", e, "Accept failed.");
                 // 예외가 발생해도 accept 슬롯을 재등록하여 영구 손실 방지
                 RegisterAccept(args);
             }
@@ -77,16 +77,24 @@ namespace ServerCore
             {
                 if (args.SocketError == SocketError.Success)
                 {
+                    // RemoteEndPoint 를 Start 전에 읽어 둔다.
+                    // Start 안의 RegisterRecv 가 동기 완료되면 그 자리에서 패킷이 처리되고,
+                    // 조작된 패킷이면 Disconnect → 소켓 Dispose 까지 끝난 뒤 여기로 돌아온다.
+                    // 그 상태에서 RemoteEndPoint 를 읽으면 ObjectDisposedException.
+                    EndPoint remote = null;
+                    try { remote = args.AcceptSocket.RemoteEndPoint; }
+                    catch { }
+
                     Session session = _sessionFactory.Invoke();
                     session.Start(args.AcceptSocket);
-                    session.OnConnected(args.AcceptSocket.RemoteEndPoint);
+                    session.OnConnected(remote);
                 }
                 else
-                    Console.WriteLine(args.SocketError.ToString());
+                    CoreLogger.Warn("Net", "Accept socket error. Error={SocketError}", args.SocketError);
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                CoreLogger.Error("Net", e, "Accept failed.");
             }
 
             RegisterAccept(args);

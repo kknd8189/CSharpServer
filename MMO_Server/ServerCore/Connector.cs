@@ -52,7 +52,7 @@ namespace ServerCore
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e);
+				CoreLogger.Error("Net", e, "Connect failed.");
 			}
 		}
 
@@ -69,12 +69,12 @@ namespace ServerCore
 				}
 				else
 				{
-					Console.WriteLine($"OnConnectCompleted Fail: {args.SocketError}");
+					CoreLogger.Warn("Net", "Connect socket error. Error={SocketError}", args.SocketError);
 				}
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e);
+				CoreLogger.Error("Net", e, "Connect failed.");
 			}
 			finally
 			{

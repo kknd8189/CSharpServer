@@ -14,6 +14,9 @@ namespace ServerCore
     {
         public static readonly int HeaderSize = 2;
 
+        // 우리 게임 패킷은 절대 이 크기를 넘지 않는다. 초과 시 버퍼 오버플로/먹통 방지로 끊는다.
+        public const int MaxPacketSize = 1024 * 10;
+
         //legacy code
         //public sealed override int OnRecv(ArraySegment<byte> buffer)
         //{
@@ -62,16 +65,21 @@ namespace ServerCore
                 // 헤더 크기(2바이트)보다 데이터가 작을 순 없음. (혹은 약속된 최소 크기)
                 if (dataSize < HeaderSize)
                 {
-                    // 로그 찍고 연결 끊어야 함 (해킹 의심)
-                    Console.WriteLine($"[Error] Packet size too small: {dataSize}");
+                    // 정상 클라이언트는 절대 만들 수 없는 패킷 → 조작 의심.
+                    // Abuse 로 태깅해 ES 에서 어뷰징 집계/알럿 대상이 되게 한다.
+                    CoreLogger.Warn("Abuse",
+                        "Packet size too small. Size={PacketSize} Min={MinSize} Remote={Remote}",
+                        dataSize, HeaderSize, RemoteAddress);
                     return -1; // -1을 리턴해서 Disconnect 유도
                 }
 
                 // [중요 2] 최대 사이즈 체크 (버퍼 오버플로우/먹통 방지)
                 // 예: 우리 게임 패킷은 절대 10KB를 넘지 않는다.
-                if (dataSize > 1024 * 10) // 10KB 제한
+                if (dataSize > MaxPacketSize) // 10KB 제한
                 {
-                    Console.WriteLine($"[Error] Packet size too large: {dataSize}");
+                    CoreLogger.Warn("Abuse",
+                        "Packet size too large. Size={PacketSize} Max={MaxSize} Remote={Remote}",
+                        dataSize, MaxPacketSize, RemoteAddress);
                     return -1;
                 }
 
@@ -145,9 +153,17 @@ namespace ServerCore
             }
         }
 
+        // 위반/오류 로그에서 "누가"를 식별하기 위한 캐시.
+        // 소켓이 닫힌 뒤 RemoteEndPoint 를 읽으면 ObjectDisposedException 이 나므로
+        // 접속 시점에 한 번 문자열로 떠 둔다.
+        public string RemoteAddress { get; private set; }
+
         public void Start(Socket socket)
         {
             _socket = socket;
+
+            try { RemoteAddress = socket.RemoteEndPoint?.ToString(); }
+            catch { RemoteAddress = null; }
 
             // 상태 초기화 (세션 재사용 시 이전 상태가 남아있지 않도록)
             _disconnected = 0;
@@ -209,6 +225,10 @@ namespace ServerCore
             // 원자적 카운터로 큐 크기 추적
             if (Interlocked.Add(ref _sendQueueCount, sendBuffList.Count) > MAX_SEND_QUEUE_SIZE)
             {
+                // 여태 조용히 끊고 있었다. 운영에서 "이 유저 왜 튕겼나"에 답하려면 사유가 남아야 한다.
+                CoreLogger.Warn("Session",
+                    "Slow client kicked. QueueSize={QueueSize} Limit={Limit} Remote={Remote}",
+                    Volatile.Read(ref _sendQueueCount), MAX_SEND_QUEUE_SIZE, RemoteAddress);
                 Disconnect();
                 return;
             }
@@ -225,6 +245,9 @@ namespace ServerCore
 
             if (Interlocked.Increment(ref _sendQueueCount) > MAX_SEND_QUEUE_SIZE)
             {
+                CoreLogger.Warn("Session",
+                    "Slow client kicked. QueueSize={QueueSize} Limit={Limit} Remote={Remote}",
+                    Volatile.Read(ref _sendQueueCount), MAX_SEND_QUEUE_SIZE, RemoteAddress);
                 Disconnect();
                 return;
             }
@@ -350,7 +373,7 @@ namespace ServerCore
                 {
                     // SendAsync 자체 예외: 증가시킨 카운트 원복
                     Interlocked.Decrement(ref _ioCount);
-                    Console.WriteLine($"RegisterSend Failed {e}");
+                    CoreLogger.Error("Net", e, "RegisterSend failed. Remote={Remote}", RemoteAddress);
                     CloseSocket();
                     return;
                 }
@@ -377,7 +400,7 @@ namespace ServerCore
             //		}
             //		catch (Exception e)
             //		{
-            //			Console.WriteLine($"OnSendCompleted Failed {e}");
+            //			CoreLogger.Error("Net", e, "OnSendCompleted failed. Remote={Remote}", RemoteAddress);
             //		}
             //	}
             //	else
@@ -394,7 +417,7 @@ namespace ServerCore
             }
             catch (Exception e)
             {
-                Console.WriteLine($"OnSendCompleted Failed {e}");
+                CoreLogger.Error("Net", e, "OnSendCompleted failed. Remote={Remote}", RemoteAddress);
                 Disconnect();
             }
             finally
@@ -446,7 +469,7 @@ namespace ServerCore
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"ProcessRecv Failed {e}");
+                    CoreLogger.Error("Net", e, "ProcessRecv failed. Remote={Remote}", RemoteAddress);
                 }
             }
 
@@ -508,7 +531,7 @@ namespace ServerCore
                 {
                     // ReceiveAsync 자체 예외: 증가시킨 카운트 원복
                     Interlocked.Decrement(ref _ioCount);
-                    Console.WriteLine($"RegisterRecv Failed {e}");
+                    CoreLogger.Error("Net", e, "RegisterRecv failed. Remote={Remote}", RemoteAddress);
                     Disconnect();
                     return;
                 }
@@ -566,7 +589,7 @@ namespace ServerCore
             }
             catch (Exception e)
             {
-                Console.WriteLine($"OnRecvCompletedSpan Failed {e}");
+                CoreLogger.Error("Net", e, "OnRecvCompletedSpan failed. Remote={Remote}", RemoteAddress);
                 Disconnect();
             }
             finally

@@ -232,6 +232,22 @@ namespace Server
                     retainedFileCountLimit: 7)
                 .CreateLogger();
 
+            // ServerCore(외부 의존성 0)의 로그를 Serilog 로 흘려보낸다.
+            // 템플릿과 인자를 그대로 넘기므로 {PacketSize} 같은 자리표시자가
+            // ES 에서 숫자 필드로 색인되고, category 는 EventType 으로 승격돼
+            // Kibana 에서 "EventType: Abuse" 로 어뷰징만 걸러 볼 수 있다.
+            CoreLogger.Sink = (level, category, ex, template, args) =>
+            {
+                ILogger log = Log.ForContext("EventType", category);
+                switch (level)
+                {
+                    case CoreLogLevel.Error:   log.Error(ex, template, args); break;
+                    case CoreLogLevel.Warning: log.Warning(ex, template, args); break;
+                    case CoreLogLevel.Debug:   log.Debug(ex, template, args); break;
+                    default:                   log.Information(ex, template, args); break;
+                }
+            };
+
             Console.CancelKeyPress += (sender, e) =>
             {
                 Log.Information("서버 종료 시그널 감지! Graceful Shutdown 시작...");
