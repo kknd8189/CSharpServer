@@ -273,15 +273,19 @@ void RegisterRecv()
 
 ## 8. 측정 — Custom Packet의 효과
 
-부하 테스트(1000 CCU) 메트릭:
+부하 테스트 메트릭 (단일 존, 200 → 1,100 CCU 램프업):
 
-```
-PacketsRecv/s ≈ 3,460 (브로드캐스트로 인해 Sent/s는 더 큼)
-PacketsSent/s ≈ 14,500
-TickAvg       ≈ 10.6 ms (33ms budget의 32%)
-```
+| CCU | 수신/s | 송신/s | 틱 p99 |
+|---:|---:|---:|---:|
+| 500 | 1,472 | 10,810 | 20.4 ms |
+| **700** | 2,278 | 20,443 | **33.9 ms** ← 30Hz 예산 경계 |
+| 900 | 3,088 | 32,502 | 72.0 ms |
+| 1,100 | 3,948 | 47,914 | 225.9 ms |
 
-500 CCU 대비 패킷 throughput 2.0× / 2.4× 선형 스케일 확인. 자세한 메트릭은 [load-test.md](load-test.md) 참고.
+수신은 CCU 에 선형이지만 **송신은 그보다 가파르다** — 비용이 접속자 수가 아니라
+*시야 안 접속자 쌍*에 비례하는 브로드캐스트 특성이다.
+이 비율(한때 14.6배)로 병목을 특정해 시야 컬링을 고쳤고, 700 CCU 기준 p99 를
+86.4 → 33.9ms 로 **61% 개선**했다. 자세한 내용은 [load-test.md](load-test.md) 참고.
 
 ---
 
@@ -289,4 +293,5 @@ TickAvg       ≈ 10.6 ms (33ms budget의 32%)
 
 - [architecture.md](architecture.md) — 스레딩 모델 / JobSerializer / Zone
 - [auth.md](auth.md) — Redis 토큰 검증 흐름
-- [load-test.md](load-test.md) — 1000 CCU 부하 메트릭
+- [load-test.md](load-test.md) — 부하 메트릭 + 병목 분석
+- [monitoring.md](monitoring.md) — 메트릭/로그 파이프라인

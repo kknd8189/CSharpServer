@@ -7,14 +7,30 @@
 
 ## 1. 컨테이너 스택 — `CICD/docker-compose.yml`
 
-총 **4개 컨테이너**:
+총 **9개 컨테이너**. 게임 스택 4개 + 관측 스택 5개로 나뉜다.
+
+**게임 스택**
 
 | 서비스 | 이미지 | 포트 | 책임 |
 |---|---|---|---|
 | `mariadb` | `mariadb:10.6` (+ `--max-connections=1000`) | 3306 | 모든 DB (Account / Shared / Game / Log) |
 | `redis` | `redis:7-alpine` | 6379 | 세션 토큰 / 로그 버퍼 |
 | `accountserver` | `mmo-accountserver:local` (자체 빌드) | 5000 | HTTP 인증 API |
-| `server` | `mmo-server:local` (자체 빌드) | 7777 | TCP 게임 서버 |
+| `server` | `mmo-server:local` (자체 빌드) | 7777, **9091** | TCP 게임 서버 + `/metrics` |
+
+**관측 스택** — 자세한 내용은 [monitoring.md](monitoring.md)
+
+| 서비스 | 이미지 | 포트 | 책임 |
+|---|---|---|---|
+| `prometheus` | `prom/prometheus:v2.54.1` | 9090 | 게임 서버 `/metrics` 스크레이프 (5초) |
+| `grafana` | `grafana/grafana:11.2.0` | 3000 | 성능 대시보드 (프로비저닝으로 자동 등록) |
+| `elasticsearch` | `elasticsearch:8.15.0` | 9200 | 로그 색인 |
+| `kibana` | `kibana:8.15.0` | 5601 | 로그 대시보드 |
+| `filebeat` | `filebeat:8.15.0` | — | 서버 로그 파일 tail → ES |
+
+> 관측 스택은 게임 서버와 **완전히 분리**돼 있다. 서버는 파일에만 기록하고
+> Filebeat 가 실어 나르며, 메트릭은 Prometheus 가 긁어간다(pull).
+> 수집기가 죽어도 게임 로직은 영향받지 않는다.
 
 ### healthcheck로 의존성 관리
 
@@ -151,7 +167,7 @@ server:
 
 ```
 up.bat       # 처음 환경 띄울 때
-status.bat   # 4개 컨테이너 healthy 확인
+status.bat   # 9개 컨테이너 healthy 확인
 logs.bat     # 로그 follow (Ctrl+C로 빠져나옴, 컨테이너는 계속 동작)
 down.bat     # 작업 끝 (다음 up 시 DB 데이터 보존)
 reset.bat    # 스키마 바꾼 뒤 처음부터 다시 (DB 통째 날림)

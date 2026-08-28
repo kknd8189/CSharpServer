@@ -262,3 +262,4 @@ JobSerializer
 - [persistence.md](persistence.md) — DbTransaction 3-step / 로그 배치
 - [graceful-shutdown.md](graceful-shutdown.md) — 종료 시퀀스
 - [load-test.md](load-test.md) — 접속 수용/게임 로직 두 한계 측정 + 병목 분석
+- [monitoring.md](monitoring.md) — 메트릭(Prometheus/Grafana) · 로그(ES/Kibana)
