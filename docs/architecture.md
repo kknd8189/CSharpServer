@@ -44,7 +44,7 @@
 ### 왜 GameLogic 1개?
 
 - **데이터 경합 0** — 모든 게임 상태는 GameLogic 스레드에서만 변경. lock 불필요.
-- **단점**: 단일 코어 한계. 1000 CCU 부근부터 TickMax 50ms 도달. [load-test.md](load-test.md#7-후속-과제) 참고.
+- **단점**: 단일 코어 한계. 12코어 중 1개만 쓰며, 그 1코어가 **700 CCU 부근에서 포화**(틱 p99 33.9ms). [load-test.md](load-test.md) 참고.
 - **트레이드오프 판단**: 모바일 RPG 같은 비실시간 도메인이면 충분. 대규모 MMO면 Room/Zone 단위 병렬화 필요.
 
 ### 30Hz 게임 루프
@@ -261,4 +261,4 @@ JobSerializer
 - [auth.md](auth.md) — AccountServer + Redis 토큰 인증 흐름
 - [persistence.md](persistence.md) — DbTransaction 3-step / 로그 배치
 - [graceful-shutdown.md](graceful-shutdown.md) — 종료 시퀀스
-- [load-test.md](load-test.md) — 1000 CCU 부하 검증 + 병목 분석
+- [load-test.md](load-test.md) — 접속 수용/게임 로직 두 한계 측정 + 병목 분석

@@ -235,4 +235,4 @@ README에 [![CI](https://github.com/.../actions/workflows/ci.yml/badge.svg)] 배
 
 - [architecture.md](architecture.md) — 컨테이너 토폴로지 / 컴포넌트 의존성
 - [auth.md](auth.md) — AccountServer 컨테이너 환경변수로 ConnectionString 오버라이드
-- [load-test.md](load-test.md) — 도커 환경에서 1000 CCU 측정 결과
+- [load-test.md](load-test.md) — 도커 환경 부하 측정 결과

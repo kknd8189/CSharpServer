@@ -231,4 +231,4 @@ connector.Connect(_endPoint,
 
 - [architecture.md](architecture.md) — 전체 시스템 / 컴포넌트 구성
 - [persistence.md](persistence.md) — AccountDB / SharedDB / GameDB / LogDB 분리 구조
-- [load-test.md](load-test.md) — 1000 CCU 부하 시 Redis/AccountServer 거동
+- [load-test.md](load-test.md) — 부하 시 Redis/AccountServer 거동
