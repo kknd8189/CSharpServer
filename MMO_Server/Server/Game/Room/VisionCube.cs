@@ -11,15 +11,39 @@ namespace Server.Game.Room
 		public Player Owner { get; private set; }
 		public HashSet<GameObject> PreviousObjects { get; private set; } = new HashSet<GameObject>();
 
+		// 100ms 주기 갱신 잡의 핸들.
+		// 예전에는 PushAfter 의 반환값을 버려서 체인을 취소할 방법이 없었다.
+		// 그 결과 사망 → 리스폰 → EnterGame 이 Vision.Update() 를 다시 호출할 때마다
+		// 기존 체인이 살아 있는 채로 새 체인이 하나씩 더 붙었다.
+		// 700 CCU 부하에서 초당 7,000회여야 할 GatherObjects 가 17,913회 돌고 있었고
+		// (플레이어당 평균 2.6개 체인), 시간이 갈수록 계속 늘어나는 구조였다.
+		//
+		// 성능보다 정합성이 더 문제다. 중복 체인이 같은 PreviousObjects 를 번갈아
+		// 갱신하면 diff 가 어긋나 S_Spawn / S_Despawn 이 누락되거나 중복된다.
+		// Monster 는 _job 핸들을 들고 OnDead 에서 Cancel 하는데 여기만 빠져 있었다.
+		IJob _job;
+
 		public VisionCube(Player owner)
 		{
 			Owner = owner;
+		}
+
+		// 갱신 체인을 끊는다. EnterGame 재진입(리스폰) 직전과 LeaveGame 에서 호출.
+		public void Stop()
+		{
+			if (_job != null)
+			{
+				_job.Cancel = true;
+				_job = null;
+			}
 		}
 
 		public HashSet<GameObject> GatherObjects()
 		{
 			if (Owner == null || Owner.Room == null)
 				return null;
+
+			using var _measure = ServerMetrics.Measure("vision");
 
 			HashSet<GameObject> objects = new HashSet<GameObject>();
 			Vector3Int cellPos = Owner.CellPos;
@@ -92,7 +116,8 @@ namespace Server.Game.Room
 			// 교체
 			PreviousObjects = currentObjects;
 
-			Owner.Room.PushAfter(100, Update);
+			// 다음 갱신을 예약하고 핸들을 보관한다. 핸들이 없으면 취소할 수 없다.
+			_job = Owner.Room.PushAfter(100, Update);
 		}
 	}
 }

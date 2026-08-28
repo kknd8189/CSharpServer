@@ -231,6 +231,41 @@ while (true)
 
 이 패턴 덕분에 **여러 IOCP 스레드가 동시에 같은 세션에 `Send()`를 호출해도 lock 없이 안전**. `_sendRegistered` flag가 mutex 역할 (단 1개 스레드만 SendAsync 진행).
 
+### 부하에 따라 배치 크기가 스스로 커진다
+
+`_sendRegistered` 는 동시성 보호만 하는 게 아니다. **적응형 배칭 장치**이기도 하다.
+
+```
+전송 진행 중         → 다른 Send() 는 큐에 넣기만 (syscall 없음)
+전송 완료 시점       → 그 사이 쌓인 걸 통째로 드레인 → BufferList 로 SendAsync 1회
+```
+
+`_sendArgs.BufferList = _pendingList` 는 **scatter/gather I/O** 다.
+N 개의 세그먼트를 **syscall 한 번**으로 보낸다.
+
+결과적으로 배치 크기가 부하에 따라 자동으로 조절된다.
+
+| | 이 방식 (완료 기반) | 틱 단위 고정 병합 |
+|---|---|---|
+| 저부하 | **즉시 전송** — 지연 최소 | 최대 33ms 대기 |
+| 고부하 | 배치가 자연히 커짐 | 33ms 고정 |
+| 튜닝 | **불필요** (자기조정) | 병합 주기를 골라야 함 |
+
+> `ClientSession` 에 `_reserveQueue` / `FlushSend` 로 **틱 단위 병합을 시도했다가 주석 처리**한
+> 흔적이 있다. 소켓이 한가한데도 33ms 를 붙잡을 이유가 없어 끄는 쪽이 맞다.
+> 지금 구조는 한가하면 즉시 보내고 바쁘면 알아서 묶는다.
+
+브로드캐스트와 결합하면 이렇게 된다.
+
+```
+GameRoom.Broadcast()
+  └ ClientSession.SerializeToSendBuffer(packet)   ← 직렬화 1회
+      └ 같은 ArraySegment 를 수신자 N 명의 큐에 공유 (복사 없음)
+          └ 세션마다 적응형 배칭으로 묶여 나감
+```
+
+**직렬화는 1회, 큐잉은 N회, syscall 은 세션당 배치 1회.**
+
 ### I/O 참조 카운팅 — 안전한 Dispose
 
 비동기 I/O가 진행 중일 때 세션을 dispose하면 콜백에서 use-after-free.

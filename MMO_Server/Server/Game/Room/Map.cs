@@ -314,6 +314,8 @@ namespace Server.Game
 
         public List<Vector3Int> FindPath(Vector3Int startCellPos, Vector3Int destCellPos, bool checkObjects = true, int maxDist = 10)
 		{
+			using var _measure = ServerMetrics.Measure("findpath");
+
 			List<Pos> path = new List<Pos>();
 
 			// 점수 매기기

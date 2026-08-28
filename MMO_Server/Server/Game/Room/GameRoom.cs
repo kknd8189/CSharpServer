@@ -180,6 +180,9 @@ namespace Server.Game
 					enterPacket.Player = player.Info;
 					player.Session.Send(enterPacket);
 
+					// 사망 리스폰으로 EnterGame 이 다시 불릴 수 있다.
+					// 기존 갱신 체인을 끊지 않으면 체인이 하나씩 누적된다.
+					player.Vision.Stop();
 					player.Vision.Update();
 				}
 			}
@@ -226,6 +229,7 @@ namespace Server.Game
 
 				cellPos = player.CellPos;
 
+				player.Vision.Stop();
 				player.OnLeaveGame();
 				Map.ApplyLeave(player);
 				player.Room = null;
@@ -283,6 +287,8 @@ namespace Server.Game
 		// 살짝 부담스러운 함수
 		public Player FindClosestPlayer(Vector3Int pos, int range)
 		{
+			using var _measure = ServerMetrics.Measure("findclosest");
+
 			List<Player> players = GetAdjacentPlayers(pos, range);
 
 			players.Sort((left, right) =>
@@ -321,6 +327,8 @@ namespace Server.Game
 		{
 			// 브로드캐스트는 항상 GameLogic 스레드에서 실행 → ThreadLocal SendBuffer 안전.
 			// 패킷을 1회만 직렬화하고 그 세그먼트를 모든 수신자에게 공유한다.
+			using var _measure = ServerMetrics.Measure("broadcast");
+
 			ArraySegment<byte> segment = ClientSession.SerializeToSendBuffer(packet);
 			if (segment.Array == null)
 				return;

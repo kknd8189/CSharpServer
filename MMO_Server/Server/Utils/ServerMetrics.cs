@@ -1,4 +1,5 @@
 using Prometheus;
+using System;
 using ServerCore;
 using System.Diagnostics;
 
@@ -61,6 +62,38 @@ namespace Server
 				Buckets = new[] { 1.0, 5.0, 30.0, 60.0, 300.0, 900.0, 1800.0, 3600.0 },
 				LabelNames = new[] { "reason" }
 			});
+
+		// 틱 안에서 어디에 시간이 쓰이는지 쪼개 본다.
+		// 최적화 대상을 추측으로 고르면 엉뚱한 데를 판다 — 실제로 송신 배칭이
+		// 이미 잘 돼 있는데 그걸 병목으로 짚은 적이 있다.
+		private static readonly Histogram HotPathDuration = Metrics.CreateHistogram(
+			"game_hotpath_duration_seconds", "게임 스레드 핫패스별 소요 시간.",
+			new HistogramConfiguration
+			{
+				// 마이크로초 단위가 대부분이라 아래쪽을 촘촘히
+				Buckets = new[] { 0.000_005, 0.000_02, 0.000_05, 0.000_2, 0.000_5, 0.002, 0.005, 0.02 },
+				LabelNames = new[] { "path" }
+			});
+
+		private static readonly Counter HotPathCalls = Metrics.CreateCounter(
+			"game_hotpath_calls_total", "핫패스 호출 수.",
+			new CounterConfiguration { LabelNames = new[] { "path" } });
+
+		// using 으로 감싸 쓰는 측정 스코프. 게임 스레드 전용이라 동기화 없음.
+		public struct HotPathScope : IDisposable
+		{
+			readonly string _path;
+			readonly long _start;
+			public HotPathScope(string path) { _path = path; _start = Stopwatch.GetTimestamp(); }
+			public void Dispose()
+			{
+				double sec = (double)(Stopwatch.GetTimestamp() - _start) / Stopwatch.Frequency;
+				HotPathDuration.WithLabels(_path).Observe(sec);
+				HotPathCalls.WithLabels(_path).Inc();
+			}
+		}
+
+		public static HotPathScope Measure(string path) => new HotPathScope(path);
 
 		public static void IncrementPacketsReceived() => PacketsTotal.WithLabels("recv").Inc();
 		public static void IncrementPacketsSent() => PacketsTotal.WithLabels("send").Inc();
