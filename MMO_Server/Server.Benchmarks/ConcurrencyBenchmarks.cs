@@ -1,4 +1,4 @@
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 using Server.Game;
 
 namespace Server.Benchmarks
@@ -58,8 +58,11 @@ namespace Server.Benchmarks
 				ServerMetrics.IncrementPacketsReceived();
 				ServerMetrics.IncrementPacketsSent();
 			}
-			ServerMetrics.ExchangePacketsReceived();
-			ServerMetrics.ExchangePacketsSent();
+			// 프로메테우스 카운터는 단조 증가라 리셋(Exchange)이 없다.
+			// 초당 처리량은 쿼리 시점에 rate() 가 계산한다.
+			// 스크레이프가 하는 일과 같은 "현재값 읽기"로 대체한다.
+			_ = ServerMetrics.PacketsReceivedValue;
+			_ = ServerMetrics.PacketsSentValue;
 		}
 
 		[Benchmark]
@@ -76,8 +79,11 @@ namespace Server.Benchmarks
 				}
 			})).ToArray();
 			Task.WaitAll(tasks);
-			ServerMetrics.ExchangePacketsReceived();
-			ServerMetrics.ExchangePacketsSent();
+			// 프로메테우스 카운터는 단조 증가라 리셋(Exchange)이 없다.
+			// 초당 처리량은 쿼리 시점에 rate() 가 계산한다.
+			// 스크레이프가 하는 일과 같은 "현재값 읽기"로 대체한다.
+			_ = ServerMetrics.PacketsReceivedValue;
+			_ = ServerMetrics.PacketsSentValue;
 		}
 
 		[Benchmark]
