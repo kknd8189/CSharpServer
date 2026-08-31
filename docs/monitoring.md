@@ -40,6 +40,8 @@ GameServer ──:9091/metrics──◀── scrape ── Prometheus ──▶
 | `game_validation_rejected_total{kind}` | Counter | 검증 거부 (오탐 감시용) |
 | `game_sessions_closed_total{reason}` | Counter | 종료 사유별 |
 | `game_session_duration_seconds{reason}` | Histogram | 접속 유지 시간 |
+| `game_broadcast_recipients` | Histogram | 브로드캐스트 1회당 수신자 수(팬아웃). 호출당 1회만 관측 |
+| `game_move_blocked_total{reason}` | Counter | 지형/점유로 거부된 이동. `terrain` / `occupied` |
 
 **틱 히스토그램 버킷**은 30Hz 예산(33.3ms) 부근을 촘촘히 나눴다. 그래야 이 쿼리가 의미를 갖는다:
 
@@ -239,6 +241,9 @@ RUN mkdir -p /app/logs && chown app:app /app/logs
 | 패킷 처리량 | `rate(game_packets_total)` by direction | 송신이 수신보다 가파르면 브로드캐스트 팬아웃 |
 | 검증 거부 | `rate(game_validation_rejected_total)` by kind | **급증 = 핵 유행 또는 오탐** |
 | 세션 종료 사유 | `rate(game_sessions_closed_total)` by reason | Kicked / SlowClient 비중 |
+| 브로드캐스트 팬아웃 | `histogram_quantile(0.5, rate(game_broadcast_recipients_bucket[1m]))` | 유저가 뭉친 정도. 이게 오르면 틱이 초선형으로 나빠진다 |
+| 초당 송신 건수 | `rate(game_broadcast_recipients_sum[1m])` | **진짜 부하 지표**. 호출 수 × 팬아웃 |
+| 이동 거부 | `rate(game_move_blocked_total)` by reason | `occupied` 급증 = 너무 붐벼서 아무도 못 움직이는 상태 |
 
 **Kibana** (사건) — `MMO Server — 로그 (어뷰징 / 세션)` 대시보드, 패널 6개
 
