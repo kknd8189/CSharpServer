@@ -344,6 +344,10 @@ namespace Server.Game
 			int minIndexZ = (pos.z - VisionCells - Map.MinZ) / ZoneCells;
 			int maxIndexZ = (pos.z + VisionCells - Map.MinZ) / ZoneCells;
 
+			// 팬아웃(수신자 수)을 센다. int 증가 하나라 루프 비용에 영향이 없고,
+			// 관측은 루프가 끝난 뒤 호출당 1 회만 한다.
+			int recipients = 0;
+
 			for (int x = minIndexX; x <= maxIndexX; x++)
 			{
 				for (int y = minIndexY; y <= maxIndexY; y++)
@@ -360,10 +364,13 @@ namespace Server.Game
 								continue;
 
 							p.Session.SendShared(segment);
+							recipients++;
 						}
 					}
 				}
 			}
+
+			ServerMetrics.RecordBroadcastRecipients(recipients);
 		}
 
 		// 인접 존을 컬렉션으로 만들지 않고 그대로 순회한다.

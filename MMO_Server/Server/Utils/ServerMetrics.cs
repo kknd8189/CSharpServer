@@ -79,6 +79,38 @@ namespace Server
 			"game_hotpath_calls_total", "핫패스 호출 수.",
 			new CounterConfiguration { LabelNames = new[] { "path" } });
 
+		// 브로드캐스트 1회가 몇 명에게 나갔는가(팬아웃).
+		// 브로드캐스트가 틱 시간의 대부분을 먹는데, 그 비용은 "호출 수 x 팬아웃"이다.
+		// 소요 시간만 보면 둘 중 어느 쪽이 늘었는지 구분할 수 없어서 팬아웃을 따로 센다.
+		// 밀집 시나리오(DummyClient 의 cluster 명령)에서 이 값이 몇 배로 뛰는지가 핵심 지표다.
+		//
+		// 수신자 루프 "안"이 아니라 Broadcast 호출당 1 회만 관측한다.
+		// 예전에 루프 안에서 재다가 초당 2만 회 측정이 되어 측정 자체가 부하가 됐고,
+		// 재려던 대상을 측정 행위가 왜곡했다. 호출당 1 회면 700 CCU 에서 초당 ~7천 회라 무시 가능.
+		private static readonly Histogram BroadcastRecipients = Metrics.CreateHistogram(
+			"game_broadcast_recipients", "브로드캐스트 1회당 수신자 수.",
+			new HistogramConfiguration
+			{
+				Buckets = new[] { 1.0, 2, 5, 10, 20, 40, 80, 160, 320, 640 }
+			});
+
+		public static void RecordBroadcastRecipients(int count) => BroadcastRecipients.Observe(count);
+
+		// 지형/점유로 거부된 이동. 어뷰징이 아니라서 ValidationRejected 로 세지 않는데,
+		// 그러면 지표에 아무 흔적이 남지 않는다.
+		//
+		// 밀집 시나리오 해석에 반드시 필요하다. 한 칸에 한 명만 설 수 있으므로
+		// 밀도가 1 에 가까워지면 이동이 거부되기 시작하고, 거부된 이동은 브로드캐스트를
+		// 만들지 않는다. 즉 팬아웃 부하는 밀도에 대해 단조 증가가 아니라 정점을 찍고 꺾인다.
+		// 이 카운터가 없으면 "브로드캐스트가 줄었다"를 보고도
+		//   밀집이 안 된 건지 / 밀집돼서 못 움직이는 건지
+		// 구분할 수 없다.
+		private static readonly Counter MoveBlocked = Metrics.CreateCounter(
+			"game_move_blocked_total", "지형/점유로 거부된 이동 수.",
+			new CounterConfiguration { LabelNames = new[] { "reason" } });
+
+		public static void IncrementMoveBlocked(string reason) => MoveBlocked.WithLabels(reason).Inc();
+
 		// using 으로 감싸 쓰는 측정 스코프. 게임 스레드 전용이라 동기화 없음.
 		public struct HotPathScope : IDisposable
 		{

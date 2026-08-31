@@ -33,6 +33,12 @@ namespace Server.Game
 				{
 					// 지형/점유 위반은 어뷰징이라기보다 클라-서버 상태 불일치인 경우가 많다.
 					// (다른 플레이어가 먼저 그 칸을 차지하는 등) 위반 점수는 매기지 않고 보정만 한다.
+					//
+					// 다만 지표에는 남긴다. 밀집도가 오르면 여기서 걸리는 비율이 급격히 늘고,
+					// 거부된 이동은 브로드캐스트를 만들지 않아 팬아웃 부하가 도리어 줄어든다.
+					// 벽 때문인지 사람 때문인지 나눠 세야 그 구간을 해석할 수 있다.
+					ServerMetrics.IncrementMoveBlocked(
+						Map.CanGo(dest, checkObjects: false) ? "occupied" : "terrain");
 					SendPositionCorrection(player);
 					return;
 				}

@@ -132,6 +132,51 @@
         { "expr": "histogram_quantile(0.95, sum(rate(game_session_duration_seconds_bucket[5m])) by (le))",
           "legendFormat": "p95", "refId": "B" }
       ]
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "브로드캐스트 팬아웃 — 1회당 수신자 수",
+      "description": "브로드캐스트 비용은 '호출 수 x 팬아웃'이다. 소요 시간만 보면 둘 중 어느 쪽이 늘었는지 구분되지 않아 팬아웃을 따로 센다. 서버는 접속 시 맵 전역(111x111)에 균등 랜덤 스폰하므로 기본 분포에서는 시야(11x11=121칸) 안에 평균 7명뿐이다. 실제 유저는 마을/보스에 뭉치므로 이 값이 실측보다 훨씬 커진다. DummyClient 의 'cluster on' 으로 그 상황을 재현한다.",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 33 },
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 2, "fillOpacity": 5 } } },
+      "options": { "legend": { "displayMode": "table", "calcs": ["mean", "max"], "placement": "bottom" } },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum(rate(game_broadcast_recipients_bucket[1m])) by (le))",
+          "legendFormat": "p50", "refId": "A" },
+        { "expr": "histogram_quantile(0.95, sum(rate(game_broadcast_recipients_bucket[1m])) by (le))",
+          "legendFormat": "p95", "refId": "B" },
+        { "expr": "histogram_quantile(0.99, sum(rate(game_broadcast_recipients_bucket[1m])) by (le))",
+          "legendFormat": "p99", "refId": "C" }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "브로드캐스트 총량 (/s) — 진짜 부하 지표",
+      "description": "'수신자 합계'가 초당 실제 유니캐스트 송신 건수다. 호출 수와 나눠 보면 부하가 늘어난 이유를 가를 수 있다. 호출 수가 늘었으면 유저가 더 많이 움직인 것이고, 호출 수는 그대로인데 합계만 늘었으면 밀집도가 오른 것이다. 밀도가 1/칸에 가까워지면 이동이 거부되기 시작해 호출 수가 오히려 줄어드는데, 그때는 옆 패널의 occupied 를 같이 봐야 한다.",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 33 },
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 2, "fillOpacity": 5 } } },
+      "options": { "legend": { "displayMode": "table", "calcs": ["mean", "max"], "placement": "bottom" } },
+      "targets": [
+        { "expr": "sum(rate(game_broadcast_recipients_sum[1m]))",
+          "legendFormat": "수신자 합계 (송신 건수)", "refId": "A" },
+        { "expr": "sum(rate(game_broadcast_recipients_count[1m]))",
+          "legendFormat": "브로드캐스트 호출 수", "refId": "B" }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "이동 거부 (/s) — terrain vs occupied",
+      "description": "맵은 한 칸에 한 오브젝트만 허용한다(Map.CanGo). 밀집도가 오르면 occupied 가 급증하고, 거부된 이동은 브로드캐스트를 만들지 않는다. 즉 팬아웃 부하는 밀도에 대해 단조 증가가 아니라 정점을 찍고 꺾인다. 이 패널이 없으면 '브로드캐스트가 줄었다'를 보고도 밀집이 안 된 건지 밀집돼서 못 움직이는 건지 구분할 수 없다. terrain 은 벽, occupied 는 다른 오브젝트가 그 칸을 차지한 경우다.",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 33 },
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 2, "fillOpacity": 10 } } },
+      "options": { "legend": { "displayMode": "table", "calcs": ["mean", "max"], "placement": "bottom" } },
+      "targets": [
+        { "expr": "sum(rate(game_move_blocked_total[1m])) by (reason)",
+          "legendFormat": "{{reason}}", "refId": "A" }
+      ]
     }
   ]
 }
