@@ -22,6 +22,19 @@ namespace ServerCore
         // Interlocked.Exchange로 원자적으로 null 교환 → 이중 반환 방지
         // ClearArray = true를 하지 않는 이유 -> 항상 쓴 만큼만 읽고 읽지 않는 영역은 접근하지 않음, 이전 세션의 잔여 데이터가 버퍼에 남아있어도 커서 범위 바깥,
         // clearArray: true는 memset(0)으로 65KB를 매번 밀어버리는 건데 불필요한 비용이 큼
+        //
+        // 전제: ArrayPool.Return 은 clearArray 기본값이 false 라 내용을 지우지 않는다.
+        // 따라서 Rent 가 돌려주는 배열에는 이전 사용자의 데이터가 그대로 남아 있다.
+        //   new byte[N] → CLR 이 전부 0 으로 보장
+        //   Rent(N)     → 쓰레기 값. 게다가 N 보다 큰 배열이 올 수 있다(_capacity 를 따로 두는 이유)
+        //
+        // 그럼에도 안전한 건 커서 규율 때문이다. _writePos 는 커널이 실제로 쓴 만큼만 전진하고
+        // ReadSpan 은 [_readPos, _writePos) 구간뿐이라, 받은 적 없는 바이트는 읽히지 않는다.
+        // 잔여 데이터는 커서 바깥이라 논리적으로 도달 불가능하다.
+        //
+        // 반대로 민감 정보(비밀번호/토큰)가 지나가는 버퍼였다면 clearArray: true 가 맞다.
+        // 커서 규율이 지켜지는 한 노출되진 않지만, 코드 한 줄 실수로 새는 걸 막는 심층 방어다.
+        // 이 서버는 인증을 AccountServer 로 분리해서 게임 세션 버퍼엔 좌표/스킬만 흐른다.
         public void Dispose()
         {
             byte[] buffer = Interlocked.Exchange(ref _buffer, null);
