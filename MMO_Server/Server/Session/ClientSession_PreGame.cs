@@ -96,14 +96,30 @@ namespace Server
 			}
 		}
 
+		// 여기서 조용히 return 하면 클라는 S_EnterGame 을 영원히 기다린다.
+		// 실제로 그 상태를 겪었다 — 로그인 100건 성공, 세션 100개 연결, 그런데 이동 패킷이 0.
+		// 서버 로그에 아무 흔적이 없어서 원인을 특정하는 데만 한참 걸렸다.
+		// 실패는 반드시 (1) 로그로 남기고 (2) 클라에 알려야 한다. 침묵이 제일 나쁘다.
 		public async Task HandleEnterGameAsync(C_EnterGame enterGamePacket)
 		{
 			if (ServerState != PlayerServerState.ServerStateLobby)
+			{
+				CoreLogger.Warn("EnterGame",
+					"Rejected: not in lobby. State={State} AccountDbId={AccountDbId} Name={Name} Remote={Remote}",
+					ServerState, AccountDbId, enterGamePacket.Name, RemoteAddress);
+				Send(new S_EnterGame());
 				return;
+			}
 
 			LobbyPlayerInfo playerInfo = LobbyPlayers.Find(p => p.Name == enterGamePacket.Name);
 			if (playerInfo == null)
+			{
+				CoreLogger.Warn("EnterGame",
+					"Rejected: character not owned. AccountDbId={AccountDbId} Name={Name} OwnedCount={OwnedCount} Remote={Remote}",
+					AccountDbId, enterGamePacket.Name, LobbyPlayers.Count, RemoteAddress);
+				Send(new S_EnterGame());
 				return;
+			}
 
 			MyPlayer = ObjectManager.Instance.Add<Player>();
 			{
@@ -157,7 +173,13 @@ namespace Server
 		{
 			// TODO : 이런 저런 보안 체크
 			if (ServerState != PlayerServerState.ServerStateLobby)
+			{
+				CoreLogger.Warn("CreatePlayer",
+					"Rejected: not in lobby. State={State} AccountDbId={AccountDbId} Name={Name}",
+					ServerState, AccountDbId, createPacket.Name);
+				Send(new S_CreatePlayer());
 				return;
+			}
 
 			using (AppDbContext db = new AppDbContext())
 			{
@@ -166,7 +188,13 @@ namespace Server
 
 				if (findPlayer != null)
 				{
-					// 이름이 겹친다
+					// 이름이 겹친다. 부하 테스트에서 더미 두 대를 띄웠을 때 실제로 여기 걸렸다 —
+					// 더미가 캐릭터 이름을 프로세스 로컬 번호로 짓는 바람에 두 번째 대가
+					// 첫 번째 대의 이름을 그대로 요청했다. 클라는 빈 패킷을 받고 아무것도 안 해서
+					// "접속은 됐는데 게임엔 없는" 유령 세션이 됐다.
+					CoreLogger.Warn("CreatePlayer",
+						"Rejected: name taken. AccountDbId={AccountDbId} Name={Name} OwnerDbId={OwnerDbId}",
+						AccountDbId, createPacket.Name, findPlayer.AccountDbId);
 					Send(new S_CreatePlayer());
 				}
 				else
@@ -191,7 +219,13 @@ namespace Server
 					db.Players.Add(newPlayerDb);
 					bool success = await db.SaveChangesExAsync();
 					if (success == false)
+					{
+						CoreLogger.Warn("CreatePlayer",
+							"Rejected: db save failed. AccountDbId={AccountDbId} Name={Name}",
+							AccountDbId, createPacket.Name);
+						Send(new S_CreatePlayer());
 						return;
+					}
 
 					// 메모리에 추가
 					LobbyPlayerInfo lobbyPlayer = new LobbyPlayerInfo()

@@ -1,5 +1,6 @@
 using Protocol;
 using ServerCore;
+using System;
 
 class PacketHandler
 {
@@ -10,6 +11,14 @@ class PacketHandler
 
 		if (enterGamePacket?.Player == null)
 			return;
+
+		// 서버가 진입을 거부하면 Player 가 비어 있는 S_EnterGame 이 온다.
+		// 이걸 안 보면 더미는 이동 타이머를 켜지 않은 채 조용히 붙어만 있게 된다.
+		if (enterGamePacket.Player == null)
+		{
+			Console.WriteLine($"[EnterGame 거부] Dummy={serverSession.DummyId} Account={serverSession.AccountId} — 이 더미는 부하를 만들지 않습니다");
+			return;
+		}
 
 		serverSession.MyPlayerId = enterGamePacket.Player.ObjectId;
 		if (enterGamePacket.Player.PosInfo != null)
@@ -92,8 +101,13 @@ class PacketHandler
 
 		if (loginPacket.Players == null || loginPacket.Players.Count == 0)
 		{
+			// 이름을 DummyId(프로세스 로컬 일련번호)로 지으면 안 된다.
+			// DummyClient 를 두 대 띄우면 양쪽 다 1 번부터 시작해서 같은 이름을 요청하고,
+			// 두 번째 대는 "이름 중복"으로 캐릭터 생성에 실패한다. 그 더미는 접속만 된 채
+			// 게임에 못 들어가는 유령 세션이 되어 부하 테스트 결과를 조용히 오염시킨다.
+			// AccountId 는 서버가 발급한 전역 고유값이라 프로세스가 몇 대든 겹치지 않는다.
 			C_CreatePlayer createPacket = new C_CreatePlayer();
-			createPacket.Name = $"Player_{serverSession.DummyId.ToString("0000")}";
+			createPacket.Name = $"Player_{serverSession.AccountId.ToString("00000")}";
 			serverSession.Send(createPacket);
 		}
 		else
@@ -113,7 +127,11 @@ class PacketHandler
 
 		if (createOkPacket.Player == null)
 		{
-			// 생성 실패
+			// 생성 실패. 여기를 비워두면 그 더미는 아무 일도 하지 않는 채 접속만 유지된다.
+			// 부하 테스트에서는 "접속 수는 맞는데 부하가 안 걸리는" 형태로 나타나
+			// 측정값을 조용히 낮춘다. 반드시 눈에 띄게 만든다.
+			Console.WriteLine($"[CreatePlayer 실패] Dummy={serverSession.DummyId} Account={serverSession.AccountId} — 이 더미는 부하를 만들지 않습니다");
+			return;
 		}
 		else
 		{
