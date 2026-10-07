@@ -195,6 +195,21 @@ namespace ServerCore
         {
             _socket = socket;
 
+            // [Nagle 끔] 묶는 책임은 앱이 진다 — RegisterSend 가 큐를 전부 긁어 BufferList 로 한 번에 보낸다.
+            //
+            // Nagle 은 "앞서 보낸 게 ACK 안 됐으면 모아뒀다 보낸다". 즉 아끼는 패킷 = 붙잡혀 있던 패킷이다.
+            // 여기에 수신 측 Delayed ACK(Windows 기본 200ms)가 겹치면 서로를 기다리며 최대 200ms 멈춘다.
+            // 30Hz 틱(33ms)의 6틱 분량 — 유저 입장에선 "렉".
+            //
+            // 끄면 늘어나는 것: 추가 세그먼트당 TCP/IP 헤더 40B 뿐, 페이로드는 그대로.
+            //   최악 상한(모든 틱이 따로 나간다 가정): 40B × 30/s = 1.2KB/s/유저
+            //   700 CCU ≈ 0.84MB/s ≈ 월 2.2TB → 송신 $0.09/GB 기준 월 ~$190 (추정치, 실측 아님)
+            //   RTT < 33ms 면 Nagle 도 즉시 보내므로 실제 차이는 이보다 훨씬 작다.
+            //
+            // 켜 둬야 하는 경우: 앱이 헤더/바디를 따로 Send 하는 등 스스로 안 묶을 때 (패킷 수가 배로 는다).
+            // ASP.NET Core Kestrel 도 기본값이 NoDelay = true 다.
+            socket.NoDelay = true;
+
             try { RemoteAddress = socket.RemoteEndPoint?.ToString(); }
             catch { RemoteAddress = null; }
 
